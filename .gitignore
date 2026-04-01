@@ -40,3 +40,8 @@ next-env.d.ts
 
 # macOS resource forks
 ._*
+
+# local SQLite dev database
+local.db
+*.db-shm
+*.db-wal

@@ -1,8 +1,17 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import { getSetting } from "@/lib/db/queries";
 
-export default function Footer() {
-  const t = useTranslations("footer");
+export default async function Footer() {
+  const t = await getTranslations("footer");
   const year = new Date().getFullYear();
+
+  const instagramUrl = await getSetting("instagram_url");
+  const linkedinUrl = await getSetting("linkedin_url");
+
+  const socialLinks = [
+    instagramUrl ? { label: "Instagram", url: instagramUrl } : null,
+    linkedinUrl ? { label: "LinkedIn", url: linkedinUrl } : null,
+  ].filter(Boolean) as { label: string; url: string }[];
 
   return (
     <footer className="border-t-2 border-primary bg-white">
@@ -10,14 +19,21 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <span className="font-heading text-xl tracking-wider">COSMO PHOTOS</span>
 
-          <div className="flex gap-6">
-            <a href="#" className="text-muted hover:text-primary transition-colors text-sm tracking-nav uppercase">
-              Instagram
-            </a>
-            <a href="#" className="text-muted hover:text-primary transition-colors text-sm tracking-nav uppercase">
-              LinkedIn
-            </a>
-          </div>
+          {socialLinks.length > 0 && (
+            <div className="flex gap-6">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted hover:text-primary transition-colors text-sm tracking-nav uppercase"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          )}
 
           <p className="text-muted text-xs tracking-label uppercase">
             &copy; {year} Cosmo Photos. {t("rights")}.

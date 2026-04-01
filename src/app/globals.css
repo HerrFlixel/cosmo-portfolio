@@ -47,3 +47,12 @@ body {
   color: #1d1d1b;
   background: #ffffff;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: #1d1d1b;
+  color: #ffffff;
+}

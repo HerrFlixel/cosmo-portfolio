@@ -1,8 +1,19 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import ContactForm from "@/components/contact/ContactForm";
+import { getSetting } from "@/lib/db/queries";
+
+export const metadata: Metadata = {
+  title: "Kontakt",
+  description:
+    "Kontaktiere Cosmo Photos für Buchungsanfragen, Kooperationen und weitere Informationen.",
+};
 
 export default async function ContactPage() {
   const t = await getTranslations("contact");
+  const contactEmail = (await getSetting("contact_email")) || "info@cosmophotos.de";
+  const instagramUrl = await getSetting("instagram_url");
+  const linkedinUrl = await getSetting("linkedin_url");
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-24">
@@ -17,20 +28,40 @@ export default async function ContactPage() {
         <div className="space-y-8">
           <div>
             <h3 className="text-xs tracking-label uppercase text-muted mb-3">E-Mail</h3>
-            <a href="mailto:info@cosmophotos.de" className="font-body text-primary hover:text-secondary transition-colors">
-              info@cosmophotos.de
+            <a
+              href={`mailto:${contactEmail}`}
+              className="font-body text-primary hover:text-secondary transition-colors"
+            >
+              {contactEmail}
             </a>
           </div>
 
           <div>
             <h3 className="text-xs tracking-label uppercase text-muted mb-3">Social Media</h3>
             <div className="flex gap-4">
-              <a href="#" className="font-body text-sm text-secondary hover:text-primary transition-colors">
-                Instagram
-              </a>
-              <a href="#" className="font-body text-sm text-secondary hover:text-primary transition-colors">
-                LinkedIn
-              </a>
+              {instagramUrl && (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-body text-sm text-secondary hover:text-primary transition-colors"
+                >
+                  Instagram
+                </a>
+              )}
+              {linkedinUrl && (
+                <a
+                  href={linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-body text-sm text-secondary hover:text-primary transition-colors"
+                >
+                  LinkedIn
+                </a>
+              )}
+              {!instagramUrl && !linkedinUrl && (
+                <span className="text-muted text-sm">Links werden im Admin-Panel gepflegt</span>
+              )}
             </div>
           </div>
         </div>

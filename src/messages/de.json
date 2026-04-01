@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "portfolio": "Portfolio",
+    "about": "Über mich",
+    "contact": "Kontakt",
+    "downloads": "Downloads"
+  },
+  "hero": {
+    "tagline": "Sportfotografie auf höchstem Niveau",
+    "cta": "Portfolio ansehen"
+  },
+  "about": {
+    "title": "Über mich",
+    "clients": "Kunden & Referenzen"
+  },
+  "contact": {
+    "title": "Kontakt",
+    "name": "Name",
+    "email": "E-Mail",
+    "subject": "Betreff",
+    "message": "Nachricht",
+    "file": "Datei anhängen (optional)",
+    "send": "Nachricht senden",
+    "success": "Nachricht wurde gesendet!",
+    "error": "Fehler beim Senden. Bitte versuche es erneut."
+  },
+  "downloads": {
+    "title": "Kundenbereich",
+    "placeholder": "Download-Code eingeben",
+    "submit": "Zugang",
+    "invalid": "Ungültiger oder abgelaufener Code",
+    "downloadAll": "Alle herunterladen"
+  },
+  "footer": {
+    "rights": "Alle Rechte vorbehalten"
+  }
+}

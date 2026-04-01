@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "portfolio": "Portfolio",
+    "about": "About",
+    "contact": "Contact",
+    "downloads": "Downloads"
+  },
+  "hero": {
+    "tagline": "Sports Photography at the Highest Level",
+    "cta": "View Portfolio"
+  },
+  "about": {
+    "title": "About",
+    "clients": "Clients & References"
+  },
+  "contact": {
+    "title": "Contact",
+    "name": "Name",
+    "email": "Email",
+    "subject": "Subject",
+    "message": "Message",
+    "file": "Attach file (optional)",
+    "send": "Send Message",
+    "success": "Message sent successfully!",
+    "error": "Error sending message. Please try again."
+  },
+  "downloads": {
+    "title": "Client Area",
+    "placeholder": "Enter download code",
+    "submit": "Access",
+    "invalid": "Invalid or expired code",
+    "downloadAll": "Download All"
+  },
+  "footer": {
+    "rights": "All rights reserved"
+  }
+}

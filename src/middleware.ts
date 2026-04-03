@@ -1,17 +1,21 @@
 import createMiddleware from "next-intl/middleware";
-import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
+import { NextRequest, NextResponse } from "next/server";
 import { routing } from "@/i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-  // Admin routes: check auth
+  // Admin routes: check auth via JWT token
   if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
-    if (!req.auth) {
-      return NextResponse.redirect(new URL("/admin/login", req.url));
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+    if (!token) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
     return NextResponse.next();
   }
@@ -22,8 +26,8 @@ export default auth((req) => {
   }
 
   // Public routes: apply i18n
-  return intlMiddleware(req);
-});
+  return intlMiddleware(request);
+}
 
 export const config = {
   matcher: ["/((?!_next|fonts|logo\\.svg|favicon\\.ico).*)"],

@@ -12,18 +12,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) return null;
+        try {
+          if (!credentials?.username || !credentials?.password) return null;
+          if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD_HASH) return null;
 
-        const isValidUser = credentials.username === process.env.ADMIN_USERNAME;
-        if (!isValidUser) return null;
+          const isValidUser = credentials.username === process.env.ADMIN_USERNAME;
+          if (!isValidUser) return null;
 
-        const isValidPassword = await bcrypt.compare(
-          credentials.password as string,
-          process.env.ADMIN_PASSWORD_HASH!
-        );
-        if (!isValidPassword) return null;
+          const isValidPassword = await bcrypt.compare(
+            credentials.password as string,
+            process.env.ADMIN_PASSWORD_HASH
+          );
+          if (!isValidPassword) return null;
 
-        return { id: "admin", name: "Admin" };
+          return { id: "admin", name: "Admin" };
+        } catch {
+          return null;
+        }
       },
     }),
   ],

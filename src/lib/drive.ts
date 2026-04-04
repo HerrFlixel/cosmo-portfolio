@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import { Readable } from "stream";
 
 function getDriveClient() {
   const keyJson = JSON.parse(
@@ -56,7 +57,6 @@ export async function uploadFileToDrive(
   const drive = getDriveClient();
   const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID!;
 
-  const { Readable } = await import("stream");
   const stream = Readable.from(buffer);
 
   const response = await drive.files.create({

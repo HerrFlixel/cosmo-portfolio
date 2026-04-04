@@ -33,6 +33,8 @@ export async function listDriveImages(): Promise<DriveFile[]> {
     fields: "files(id, name, mimeType, imageMediaMetadata)",
     orderBy: "name",
     pageSize: 100,
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
   });
 
   return (response.data.files || []) as DriveFile[];
@@ -42,7 +44,7 @@ export async function getDriveImageBuffer(fileId: string): Promise<Buffer> {
   const drive = getDriveClient();
 
   const response = await drive.files.get(
-    { fileId, alt: "media" },
+    { fileId, alt: "media", supportsAllDrives: true },
     { responseType: "arraybuffer" }
   );
 
@@ -69,6 +71,7 @@ export async function uploadFileToDrive(
       body: stream,
     },
     fields: "id",
+    supportsAllDrives: true,
   });
 
   return response.data.id!;

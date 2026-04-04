@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 
 const fields = [
+  { key: "hero_image_id", label: "Hero-Bild (Google Drive Datei-ID)", type: "input" },
   { key: "bio_de", label: "Bio (Deutsch)", type: "textarea" },
   { key: "bio_en", label: "Bio (English)", type: "textarea" },
   { key: "contact_email", label: "Kontakt E-Mail", type: "input" },

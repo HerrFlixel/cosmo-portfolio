@@ -3,16 +3,22 @@
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  heroImageId?: string | null;
+}
+
+export default function HeroSection({ heroImageId }: HeroSectionProps) {
   const t = useTranslations("hero");
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden bg-primary">
-      {/* Background image — will be dynamic later (from admin settings) */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
-        style={{ backgroundImage: "url('/hero-placeholder.jpg')" }}
-      />
+      {/* Background image from Google Drive if set */}
+      {heroImageId && (
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+          style={{ backgroundImage: `url('/api/drive/image/${heroImageId}')` }}
+        />
+      )}
 
       {/* Content */}
       <div className="relative z-10 text-center px-6">

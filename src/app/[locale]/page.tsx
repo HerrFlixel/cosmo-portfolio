@@ -1,13 +1,16 @@
 import HeroSection from "@/components/portfolio/HeroSection";
 import PortfolioGrid from "@/components/portfolio/PortfolioGrid";
-import { getVisibleImages } from "@/lib/db/queries";
+import { getVisibleImages, getSetting } from "@/lib/db/queries";
 
 export default async function HomePage() {
-  const images = await getVisibleImages();
+  const [images, heroImageId] = await Promise.all([
+    getVisibleImages(),
+    getSetting("hero_image_id"),
+  ]);
 
   return (
     <main className="-mt-20">
-      <HeroSection />
+      <HeroSection heroImageId={heroImageId} />
       <section id="portfolio" className="max-w-7xl mx-auto px-6 py-24">
         <div className="flex items-center gap-6 mb-16">
           <h2 className="font-heading text-5xl tracking-wide">PORTFOLIO</h2>

@@ -1,30 +1,13 @@
 import createMiddleware from "next-intl/middleware";
-import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "@/i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Admin routes: check auth via JWT token
-  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
-    const token = await getToken({
-      req: request,
-      secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
-      cookieName:
-        process.env.NODE_ENV === "production"
-          ? "__Secure-authjs.session-token"
-          : "authjs.session-token",
-    });
-    if (!token) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
-    }
-    return NextResponse.next();
-  }
-
-  // API and admin/login routes: skip i18n
+  // API and admin routes: skip i18n
   if (pathname.startsWith("/api") || pathname.startsWith("/admin")) {
     return NextResponse.next();
   }

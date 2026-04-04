@@ -13,6 +13,10 @@ export async function middleware(request: NextRequest) {
     const token = await getToken({
       req: request,
       secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+      cookieName:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-authjs.session-token"
+          : "authjs.session-token",
     });
     if (!token) {
       return NextResponse.redirect(new URL("/admin/login", request.url));

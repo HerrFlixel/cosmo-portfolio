@@ -2,6 +2,8 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import { loginAction } from "./actions";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -17,7 +19,14 @@ function SubmitButton() {
 }
 
 export default function AdminLoginPage() {
-  const [state, formAction] = useFormState(loginAction, { error: "" });
+  const router = useRouter();
+  const [state, formAction] = useFormState(loginAction, { error: "", success: false });
+
+  useEffect(() => {
+    if (state.success) {
+      router.push("/admin");
+    }
+  }, [state.success, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface">

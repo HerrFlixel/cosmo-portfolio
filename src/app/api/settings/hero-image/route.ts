@@ -14,10 +14,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Keine Datei" }, { status: 400 });
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const fileId = await uploadFileToDrive(buffer, `hero-${Date.now()}-${file.name}`, file.type);
-
-  await setSetting("hero_image_id", fileId);
-
-  return NextResponse.json({ fileId });
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileId = await uploadFileToDrive(buffer, `hero-${Date.now()}-${file.name}`, file.type);
+    await setSetting("hero_image_id", fileId);
+    return NextResponse.json({ fileId });
+  } catch (error) {
+    console.error("Hero upload error:", error);
+    return NextResponse.json(
+      { error: String(error instanceof Error ? error.message : error) },
+      { status: 500 }
+    );
+  }
 }

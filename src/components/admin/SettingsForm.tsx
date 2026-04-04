@@ -54,7 +54,8 @@ export default function SettingsForm() {
       setHeroPreview(`/api/drive/image/${fileId}`);
       setHeroStatus("Bild gespeichert ✓");
     } else {
-      setHeroStatus("Fehler beim Hochladen");
+      const data = await res.json().catch(() => ({}));
+      setHeroStatus(`Fehler: ${data.error || res.status}`);
     }
 
     setHeroUploading(false);

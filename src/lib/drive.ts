@@ -7,7 +7,7 @@ function getDriveClient() {
 
   const auth = new google.auth.GoogleAuth({
     credentials: keyJson,
-    scopes: ["https://www.googleapis.com/auth/drive.readonly"],
+    scopes: ["https://www.googleapis.com/auth/drive"],
   });
 
   return google.drive({ version: "v3", auth });
@@ -46,4 +46,30 @@ export async function getDriveImageBuffer(fileId: string): Promise<Buffer> {
   );
 
   return Buffer.from(response.data as ArrayBuffer);
+}
+
+export async function uploadFileToDrive(
+  buffer: Buffer,
+  filename: string,
+  mimeType: string
+): Promise<string> {
+  const drive = getDriveClient();
+  const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID!;
+
+  const { Readable } = await import("stream");
+  const stream = Readable.from(buffer);
+
+  const response = await drive.files.create({
+    requestBody: {
+      name: filename,
+      parents: [folderId],
+    },
+    media: {
+      mimeType,
+      body: stream,
+    },
+    fields: "id",
+  });
+
+  return response.data.id!;
 }

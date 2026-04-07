@@ -2,6 +2,8 @@ import HeroSection from "@/components/portfolio/HeroSection";
 import PortfolioGrid from "@/components/portfolio/PortfolioGrid";
 import { getVisibleImages, getSetting } from "@/lib/db/queries";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [images, heroImageId] = await Promise.all([
     getVisibleImages(),

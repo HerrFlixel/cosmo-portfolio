@@ -11,7 +11,7 @@ const fields = [
   { key: "facebook_url", label: "Facebook URL", type: "input" },
 ];
 
-type Image = { id: string; driveFileId: string | null; titleDe: string | null };
+type Image = { id: string; titleDe: string | null };
 
 export default function SettingsForm() {
   const [values, setValues] = useState<Record<string, string>>({});
@@ -34,13 +34,13 @@ export default function SettingsForm() {
     });
   }, []);
 
-  async function selectHero(driveFileId: string) {
+  async function selectHero(id: string) {
     setHeroSaving(true);
-    setHeroImageId(driveFileId);
+    setHeroImageId(id);
     await fetch("/api/settings", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hero_image_id: driveFileId }),
+      body: JSON.stringify({ hero_image_id: id }),
     });
     setHeroSaving(false);
   }
@@ -92,21 +92,21 @@ export default function SettingsForm() {
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
             {images.map((img) => {
-              const isSelected = img.driveFileId === heroImageId;
+              const isSelected = img.id === heroImageId;
               return (
                 <button
                   key={img.id}
                   type="button"
-                  onClick={() => img.driveFileId && selectHero(img.driveFileId)}
+                  onClick={() => img.id && selectHero(img.id)}
                   className={`relative aspect-square overflow-hidden border-2 transition-all hover:opacity-90 ${
                     isSelected
                       ? "border-primary"
                       : "border-transparent hover:border-border"
                   }`}
-                  title={img.titleDe ?? img.driveFileId ?? ""}
+                  title={img.titleDe ?? img.id ?? ""}
                 >
                   <img
-                    src={`/api/drive/image/${img.driveFileId}`}
+                    src={`/api/drive/image/${img.id}`}
                     alt={img.titleDe ?? ""}
                     className="w-full h-full object-cover"
                   />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 const fields = [
   { key: "bio_de", label: "Bio (Deutsch)", type: "textarea" },
@@ -11,54 +11,42 @@ const fields = [
   { key: "facebook_url", label: "Facebook URL", type: "input" },
 ];
 
+type Image = { id: string; driveFileId: string | null; titleDe: string | null };
+
 export default function SettingsForm() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
-  const [heroUploading, setHeroUploading] = useState(false);
-  const [heroStatus, setHeroStatus] = useState("");
-  const [heroPreview, setHeroPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [images, setImages] = useState<Image[]>([]);
+  const [heroImageId, setHeroImageId] = useState<string | null>(null);
+  const [heroSaving, setHeroSaving] = useState(false);
 
   useEffect(() => {
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => {
-        setValues(data);
-        if (data.hero_image_id) {
-          setHeroPreview(`/api/drive/image/${data.hero_image_id}`);
-        }
-        setLoading(false);
-      });
+    Promise.all([
+      fetch("/api/settings").then((r) => r.json()),
+      fetch("/api/images").then((r) => r.json()),
+    ]).then(([settingsData, imagesData]) => {
+      setValues(settingsData);
+      setHeroImageId(settingsData.hero_image_id ?? null);
+      setImages(Array.isArray(imagesData) ? imagesData : []);
+      setLoading(false);
+    });
   }, []);
+
+  async function selectHero(driveFileId: string) {
+    setHeroSaving(true);
+    setHeroImageId(driveFileId);
+    await fetch("/api/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hero_image_id: driveFileId }),
+    });
+    setHeroSaving(false);
+  }
 
   function update(key: string, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }));
-  }
-
-  async function handleHeroUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setHeroUploading(true);
-    setHeroStatus("");
-
-    const form = new FormData();
-    form.append("file", file);
-
-    const res = await fetch("/api/settings/hero-image", { method: "POST", body: form });
-
-    if (res.ok) {
-      const { fileId } = await res.json();
-      setHeroPreview(`/api/drive/image/${fileId}`);
-      setHeroStatus("Bild gespeichert ✓");
-    } else {
-      const data = await res.json().catch(() => ({}));
-      setHeroStatus(`Fehler: ${data.error || res.status}`);
-    }
-
-    setHeroUploading(false);
   }
 
   async function handleSave() {
@@ -76,39 +64,74 @@ export default function SettingsForm() {
   if (loading) return <p className="text-muted">Laden...</p>;
 
   return (
-    <div className="space-y-8 max-w-2xl">
-      {/* Hero image upload */}
+    <div className="space-y-8 max-w-4xl">
+      {/* Hero image picker */}
       <div>
-        <label className="block text-xs tracking-label uppercase text-muted mb-2">
-          Hero-Hintergrundbild
-        </label>
-        {heroPreview && (
-          <img
-            src={heroPreview}
-            alt="Hero preview"
-            className="w-full h-40 object-cover mb-3 border border-border"
-          />
-        )}
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={heroUploading}
-            className="px-6 py-2 border border-border text-sm tracking-nav uppercase hover:border-primary transition-colors disabled:opacity-50"
-          >
-            {heroUploading ? "Wird hochgeladen..." : "Bild auswählen"}
-          </button>
-          {heroStatus && (
-            <span className="text-sm text-muted">{heroStatus}</span>
-          )}
+        <div className="flex items-center justify-between mb-3">
+          <label className="block text-xs tracking-label uppercase text-muted">
+            Hero-Hintergrundbild
+          </label>
+          {heroSaving && <span className="text-xs text-muted">Speichert...</span>}
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleHeroUpload}
-        />
+
+        {heroImageId && (
+          <div className="mb-4">
+            <p className="text-xs text-muted mb-2">Aktuell aktiv:</p>
+            <img
+              src={`/api/drive/image/${heroImageId}`}
+              alt="Aktuelles Hero-Bild"
+              className="h-32 w-auto object-cover border border-primary"
+            />
+          </div>
+        )}
+
+        {images.length === 0 ? (
+          <p className="text-sm text-muted">
+            Keine Bilder gefunden. Bitte zuerst Bilder synchronisieren.
+          </p>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+            {images.map((img) => {
+              const isSelected = img.driveFileId === heroImageId;
+              return (
+                <button
+                  key={img.id}
+                  type="button"
+                  onClick={() => img.driveFileId && selectHero(img.driveFileId)}
+                  className={`relative aspect-square overflow-hidden border-2 transition-all hover:opacity-90 ${
+                    isSelected
+                      ? "border-primary"
+                      : "border-transparent hover:border-border"
+                  }`}
+                  title={img.titleDe ?? img.driveFileId ?? ""}
+                >
+                  <img
+                    src={`/api/drive/image/${img.driveFileId}`}
+                    alt={img.titleDe ?? ""}
+                    className="w-full h-full object-cover"
+                  />
+                  {isSelected && (
+                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                      <svg
+                        className="w-5 h-5 text-white drop-shadow"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <hr className="border-border" />

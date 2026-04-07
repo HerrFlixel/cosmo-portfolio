@@ -21,6 +21,7 @@ export default function SettingsForm() {
   const [images, setImages] = useState<Image[]>([]);
   const [heroImageId, setHeroImageId] = useState<string | null>(null);
   const [heroSaving, setHeroSaving] = useState(false);
+  const [heroStatus, setHeroStatus] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -36,13 +37,25 @@ export default function SettingsForm() {
 
   async function selectHero(id: string) {
     setHeroSaving(true);
-    setHeroImageId(id);
-    await fetch("/api/settings", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hero_image_id: id }),
-    });
+    setHeroStatus("");
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hero_image_id: id }),
+      });
+      if (res.ok) {
+        setHeroImageId(id);
+        setHeroStatus("✓ Gespeichert – Seite neu laden zum Anzeigen");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setHeroStatus(`Fehler ${res.status}: ${data.error ?? "unbekannt"}`);
+      }
+    } catch {
+      setHeroStatus("Netzwerkfehler");
+    }
     setHeroSaving(false);
+    setTimeout(() => setHeroStatus(""), 5000);
   }
 
   function update(key: string, value: string) {
@@ -72,6 +85,7 @@ export default function SettingsForm() {
             Hero-Hintergrundbild
           </label>
           {heroSaving && <span className="text-xs text-muted">Speichert...</span>}
+          {heroStatus && <span className="text-xs text-muted">{heroStatus}</span>}
         </div>
 
         {heroImageId && (

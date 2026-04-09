@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import LanguageToggle from "./LanguageToggle";
 import MobileMenu from "./MobileMenu";
+import CosmoLogo from "./CosmoLogo";
 
 export default function Header() {
   const t = useTranslations("nav");
@@ -25,7 +26,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           {/* Logo */}
           <Link href={`/${locale}`} className="flex-shrink-0">
-            <span className="font-heading text-2xl tracking-wider">COSMO PHOTOS</span>
+            <CosmoLogo className="h-10 w-auto text-primary" />
           </Link>
 
           {/* Desktop Nav */}

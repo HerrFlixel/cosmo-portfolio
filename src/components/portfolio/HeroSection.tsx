@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
+import CosmoLogo from "@/components/layout/CosmoLogo";
 
 interface HeroSectionProps {
   heroImageId?: string | null;
@@ -22,17 +23,16 @@ export default function HeroSection({ heroImageId }: HeroSectionProps) {
 
       {/* Content */}
       <div className="relative z-10 text-center px-6">
-        <motion.h1
-          className="font-heading text-7xl md:text-9xl tracking-wider text-white"
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          COSMO
-        </motion.h1>
+          <CosmoLogo className="h-20 md:h-28 w-auto text-white mx-auto" />
+        </motion.div>
 
         <motion.div
-          className="h-1 w-24 bg-white mx-auto my-6"
+          className="h-px w-24 bg-white/50 mx-auto my-8"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}

@@ -71,7 +71,7 @@ export default function Lightbox({ images, currentIndex, onClose, onNavigate }: 
 
         <motion.img
           key={current.id}
-          src={`/api/drive/image/${current.id}?size=large`}
+          src={`/api/drive/image/${current.id}?w=1920`}
           alt={title || "Sports photo"}
           className="max-h-[85vh] max-w-[90vw] object-contain"
           initial={{ opacity: 0, scale: 0.95 }}

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { images } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getDriveImageBuffer } from "@/lib/drive";
+import sharp from "sharp";
 
 export async function GET(
   request: NextRequest,
@@ -18,12 +19,20 @@ export async function GET(
   }
 
   try {
-    const buffer = await getDriveImageBuffer(image[0].driveFileId);
+    const rawBuffer = await getDriveImageBuffer(image[0].driveFileId);
 
-    return new NextResponse(new Uint8Array(buffer), {
+    const widthParam = request.nextUrl.searchParams.get("w");
+    const maxWidth = widthParam ? parseInt(widthParam, 10) : 1920;
+
+    const compressed = await sharp(Buffer.from(rawBuffer))
+      .resize({ width: Math.min(maxWidth, 1920), withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toBuffer();
+
+    return new NextResponse(compressed, {
       headers: {
-        "Content-Type": "image/jpeg",
-        "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+        "Content-Type": "image/webp",
+        "Cache-Control": "public, max-age=604800, stale-while-revalidate=2592000",
       },
     });
   } catch (error) {

@@ -29,7 +29,7 @@ export default function ImageCard({ image, index, onClick }: ImageCardProps) {
       onClick={onClick}
     >
       <img
-        src={`/api/drive/image/${image.id}`}
+        src={`/api/drive/image/${image.id}?w=800`}
         alt={title || "Sports photo"}
         className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.03]"
         loading="lazy"

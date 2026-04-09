@@ -120,7 +120,7 @@ export default function SettingsForm() {
                   title={img.titleDe ?? img.id ?? ""}
                 >
                   <img
-                    src={`/api/drive/image/${img.id}`}
+                    src={`/api/drive/image/${img.id}?w=400`}
                     alt={img.titleDe ?? ""}
                     className="w-full h-full object-cover"
                   />

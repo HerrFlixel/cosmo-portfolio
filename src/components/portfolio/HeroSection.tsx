@@ -28,7 +28,7 @@ export default function HeroSection({ heroImageId }: HeroSectionProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <CosmoLogo className="h-20 md:h-28 w-auto text-white mx-auto" />
+          <CosmoLogo className="h-28 md:h-40 w-auto text-white mx-auto" />
         </motion.div>
 
         <motion.div

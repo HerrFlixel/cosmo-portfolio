@@ -30,7 +30,7 @@ export async function GET(
         .webp({ quality: 82 })
         .toBuffer();
 
-      return new NextResponse(compressed, {
+      return new NextResponse(new Uint8Array(compressed), {
         headers: {
           "Content-Type": "image/webp",
           "Cache-Control": "public, max-age=604800, stale-while-revalidate=2592000",

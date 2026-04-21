@@ -1,17 +1,17 @@
 import { db } from "@/lib/db";
-import { images, downloadCodes } from "@/lib/db/schema";
+import { images, albums } from "@/lib/db/schema";
 
 export default async function AdminDashboard() {
   const allImages = await db.select().from(images);
   const visibleCount = allImages.filter((img) => img.visible).length;
-  const codes = await db.select().from(downloadCodes);
-  const activeCodes = codes.filter((c) => c.active).length;
+  const allAlbums = await db.select().from(albums);
+  const activeAlbums = allAlbums.filter((a) => a.active).length;
 
   const stats = [
     { label: "Bilder gesamt", value: allImages.length },
     { label: "Bilder sichtbar", value: visibleCount },
-    { label: "Download-Codes", value: codes.length },
-    { label: "Codes aktiv", value: activeCodes },
+    { label: "Alben", value: allAlbums.length },
+    { label: "Alben aktiv", value: activeAlbums },
   ];
 
   return (

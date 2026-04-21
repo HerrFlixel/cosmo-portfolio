@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
       images: files.map((f) => ({
         id: f.id,
         name: f.name,
+        thumbnailLink: f.thumbnailLink,
       })),
     });
   } catch (error) {

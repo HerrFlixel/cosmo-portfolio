@@ -6,6 +6,14 @@ import { useTranslations } from "next-intl";
 interface DownloadImage {
   id: string;
   name: string;
+  thumbnailLink?: string;
+}
+
+function thumbUrl(image: DownloadImage, size: number): string {
+  if (image.thumbnailLink) {
+    return image.thumbnailLink.replace(/=s\d+$/, `=s${size}`);
+  }
+  return `/api/drive/file/${image.id}`;
 }
 
 interface DownloadGalleryProps {
@@ -59,10 +67,11 @@ export default function DownloadGallery({ label, images, code }: DownloadGallery
           {images.map((image) => (
             <div key={image.id} className="relative group">
               <img
-                src={`/api/drive/file/${image.id}`}
+                src={thumbUrl(image, 800)}
                 alt={image.name}
                 className="w-full h-auto"
                 loading="lazy"
+                decoding="async"
               />
               <a
                 href={`/api/drive/file/${image.id}`}

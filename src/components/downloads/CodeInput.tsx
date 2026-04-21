@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 interface DownloadImage {
   id: string;
   name: string;
+  thumbnailLink?: string;
 }
 
 interface VerifiedData {

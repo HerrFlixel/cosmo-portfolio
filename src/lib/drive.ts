@@ -18,6 +18,7 @@ export interface DriveFile {
   id: string;
   name: string;
   mimeType: string;
+  thumbnailLink?: string;
   imageMediaMetadata?: {
     width: number;
     height: number;
@@ -33,7 +34,7 @@ export async function listImagesInFolder(folderId: string): Promise<DriveFile[]>
 
   const response = await drive.files.list({
     q: `'${folderId}' in parents and mimeType contains 'image/' and trashed = false`,
-    fields: "files(id, name, mimeType, imageMediaMetadata)",
+    fields: "files(id, name, mimeType, imageMediaMetadata, thumbnailLink)",
     orderBy: "name",
     pageSize: 1000,
     supportsAllDrives: true,

@@ -8,6 +8,7 @@ import DownloadGallery from "@/components/downloads/DownloadGallery";
 interface DownloadImage {
   id: string;
   name: string;
+  thumbnailLink?: string;
 }
 
 interface VerifiedData {

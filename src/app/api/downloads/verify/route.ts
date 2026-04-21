@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyDownloadCode } from "@/lib/db/queries";
+import { verifyAlbumCode } from "@/lib/db/queries";
+import { listImagesInFolder } from "@/lib/drive";
 
 const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
 
@@ -26,17 +27,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid code" }, { status: 400 });
   }
 
-  const result = await verifyDownloadCode(code.trim());
-  if (!result) {
+  const album = await verifyAlbumCode(code.trim().toUpperCase());
+  if (!album) {
     return NextResponse.json({ error: "Invalid or expired code" }, { status: 404 });
   }
 
-  return NextResponse.json({
-    label: result.label,
-    images: result.images.map((img) => ({
-      id: img.id,
-      titleDe: img.titleDe,
-      titleEn: img.titleEn,
-    })),
-  });
+  try {
+    const files = await listImagesInFolder(album.driveFolderId);
+    return NextResponse.json({
+      label: album.name,
+      images: files.map((f) => ({
+        id: f.id,
+        name: f.name,
+      })),
+    });
+  } catch (error) {
+    console.error("Album folder listing failed:", error);
+    return NextResponse.json({ error: "Album-Ordner nicht erreichbar" }, { status: 500 });
+  }
 }

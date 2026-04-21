@@ -5,8 +5,7 @@ import { useTranslations } from "next-intl";
 
 interface DownloadImage {
   id: string;
-  titleDe: string | null;
-  titleEn: string | null;
+  name: string;
 }
 
 interface VerifiedData {

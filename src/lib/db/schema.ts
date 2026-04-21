@@ -14,19 +14,15 @@ export const images = sqliteTable("images", {
   updatedAt: text("updated_at").notNull().$defaultFn(() => new Date().toISOString()),
 });
 
-export const downloadCodes = sqliteTable("download_codes", {
+export const albums = sqliteTable("albums", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
   code: text("code").notNull().unique(),
-  label: text("label").notNull(),
+  driveFolderId: text("drive_folder_id").notNull(),
   expiresAt: text("expires_at"),
   active: integer("active", { mode: "boolean" }).notNull().default(true),
   downloadCount: integer("download_count").notNull().default(0),
   createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
-});
-
-export const downloadCodeImages = sqliteTable("download_code_images", {
-  codeId: text("code_id").notNull().references(() => downloadCodes.id, { onDelete: "cascade" }),
-  imageId: text("image_id").notNull().references(() => images.id, { onDelete: "cascade" }),
 });
 
 export const clientLogos = sqliteTable("client_logos", {

@@ -25,14 +25,17 @@ export interface DriveFile {
 }
 
 export async function listDriveImages(): Promise<DriveFile[]> {
+  return listImagesInFolder(process.env.GOOGLE_DRIVE_FOLDER_ID!);
+}
+
+export async function listImagesInFolder(folderId: string): Promise<DriveFile[]> {
   const drive = getDriveClient();
-  const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID!;
 
   const response = await drive.files.list({
     q: `'${folderId}' in parents and mimeType contains 'image/' and trashed = false`,
     fields: "files(id, name, mimeType, imageMediaMetadata)",
     orderBy: "name",
-    pageSize: 100,
+    pageSize: 1000,
     supportsAllDrives: true,
     includeItemsFromAllDrives: true,
   });

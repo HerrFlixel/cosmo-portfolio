@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 
 interface DownloadImage {
   id: string;
-  titleDe: string | null;
-  titleEn: string | null;
+  name: string;
 }
 
 interface DownloadGalleryProps {
@@ -17,7 +16,6 @@ interface DownloadGalleryProps {
 
 export default function DownloadGallery({ label, images, code }: DownloadGalleryProps) {
   const t = useTranslations("downloads");
-  const locale = useLocale();
   const [downloading, setDownloading] = useState(false);
 
   async function downloadAll() {
@@ -54,28 +52,29 @@ export default function DownloadGallery({ label, images, code }: DownloadGallery
         </button>
       </div>
 
-      <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
-        {images.map((image) => {
-          const title = locale === "de" ? image.titleDe : image.titleEn;
-          return (
+      {images.length === 0 ? (
+        <p className="text-muted text-center py-12">Dieses Album enthält noch keine Fotos.</p>
+      ) : (
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
+          {images.map((image) => (
             <div key={image.id} className="relative group">
               <img
-                src={`/api/drive/image/${image.id}`}
-                alt={title || "Photo"}
+                src={`/api/drive/file/${image.id}`}
+                alt={image.name}
                 className="w-full h-auto"
                 loading="lazy"
               />
               <a
-                href={`/api/drive/image/${image.id}`}
-                download
+                href={`/api/drive/file/${image.id}`}
+                download={image.name}
                 className="absolute bottom-3 right-3 px-3 py-1.5 bg-primary text-white text-xs tracking-nav uppercase opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 Download
               </a>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

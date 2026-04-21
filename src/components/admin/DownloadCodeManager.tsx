@@ -2,171 +2,189 @@
 
 import { useState, useEffect } from "react";
 
-interface DownloadCode {
+interface Album {
   id: string;
+  name: string;
   code: string;
-  label: string;
+  driveFolderId: string;
   expiresAt: string | null;
   active: boolean;
   downloadCount: number;
-  imageIds: string[];
-}
-
-interface AvailableImage {
-  id: string;
-  titleDe: string | null;
+  createdAt: string;
 }
 
 export default function DownloadCodeManager() {
-  const [codes, setCodes] = useState<DownloadCode[]>([]);
-  const [allImages, setAllImages] = useState<AvailableImage[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [newLabel, setNewLabel] = useState("");
-  const [newExpiry, setNewExpiry] = useState("");
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [name, setName] = useState("");
+  const [driveFolder, setDriveFolder] = useState("");
+  const [expiresAt, setExpiresAt] = useState("");
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   async function fetchData() {
-    const [codesRes, imagesRes] = await Promise.all([
-      fetch("/api/downloads/codes"),
-      fetch("/api/images"),
-    ]);
-    setCodes(await codesRes.json());
-    setAllImages(await imagesRes.json());
+    const res = await fetch("/api/albums");
+    setAlbums(await res.json());
     setLoading(false);
   }
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  async function createCode() {
-    if (!newLabel) return;
-    const res = await fetch("/api/downloads/codes", {
+  async function createAlbum() {
+    if (!name || !driveFolder) return;
+    setCreating(true);
+    const res = await fetch("/api/albums", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ label: newLabel, expiresAt: newExpiry || null, imageIds: selectedImages }),
+      body: JSON.stringify({ name, driveFolder, expiresAt: expiresAt || null }),
     });
+    setCreating(false);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(`Fehler: ${data.error || res.status}`);
+      return;
+    }
     const data = await res.json();
-    alert(`Code erstellt: ${data.code}`);
+    alert(`Album erstellt! Code: ${data.code}`);
     setShowCreate(false);
-    setNewLabel("");
-    setNewExpiry("");
-    setSelectedImages([]);
+    setName("");
+    setDriveFolder("");
+    setExpiresAt("");
     fetchData();
   }
 
   async function toggleActive(id: string, active: boolean) {
-    await fetch("/api/downloads/codes", {
+    await fetch("/api/albums", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, active: !active }),
     });
-    setCodes((prev) => prev.map((c) => (c.id === id ? { ...c, active: !active } : c)));
+    setAlbums((prev) => prev.map((a) => (a.id === id ? { ...a, active: !active } : a)));
   }
 
-  async function deleteCode(id: string) {
-    if (!confirm("Code wirklich löschen?")) return;
-    await fetch("/api/downloads/codes", {
+  async function deleteAlbum(id: string) {
+    if (!confirm("Album wirklich löschen? (Drive-Ordner bleibt bestehen)")) return;
+    await fetch("/api/albums", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     });
-    setCodes((prev) => prev.filter((c) => c.id !== id));
+    setAlbums((prev) => prev.filter((a) => a.id !== id));
+  }
+
+  async function copyCode(code: string) {
+    await navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
   }
 
   if (loading) return <p className="text-muted">Laden...</p>;
 
   return (
     <div>
+      <div className="bg-surface border border-border p-4 mb-6 text-sm text-muted">
+        <p className="mb-2">
+          <strong className="text-primary">So funktioniert&apos;s:</strong>
+        </p>
+        <ol className="list-decimal list-inside space-y-1">
+          <li>In Google Drive einen neuen Ordner für das Album anlegen</li>
+          <li>Ordner mit Service Account teilen (gleiche Berechtigungen wie Haupt-Ordner)</li>
+          <li>Fotos in den Ordner hochladen</li>
+          <li>Hier Album erstellen — Ordner-URL oder -ID einfügen</li>
+          <li>Generierten Code dem Kunden schicken</li>
+        </ol>
+      </div>
+
       <button
         onClick={() => setShowCreate(!showCreate)}
         className="px-6 py-2 bg-primary text-white text-sm tracking-nav uppercase hover:bg-accent-hover transition-colors mb-8"
       >
-        Neuer Download-Code
+        {showCreate ? "Abbrechen" : "Neues Album"}
       </button>
 
       {showCreate && (
         <div className="bg-white border border-border p-6 mb-8 space-y-4">
-          <input
-            value={newLabel}
-            onChange={(e) => setNewLabel(e.target.value)}
-            placeholder="Label (z.B. DFB Pokal 2025)"
-            className="w-full px-4 py-2 border border-border text-sm focus:outline-none focus:border-primary"
-          />
           <div>
-            <label className="block text-xs tracking-label uppercase text-muted mb-1">Ablaufdatum (optional)</label>
+            <label className="block text-xs tracking-label uppercase text-muted mb-1">
+              Album-Name
+            </label>
             <input
-              type="date"
-              value={newExpiry}
-              onChange={(e) => setNewExpiry(e.target.value)}
-              className="px-4 py-2 border border-border text-sm focus:outline-none focus:border-primary"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="z.B. DFB Pokal 2025"
+              className="w-full px-4 py-2 border border-border text-sm focus:outline-none focus:border-primary"
             />
           </div>
           <div>
-            <p className="text-xs tracking-label uppercase text-muted mb-2">Bilder zuweisen:</p>
-            <div className="grid grid-cols-4 md:grid-cols-6 gap-2 max-h-48 overflow-y-auto">
-              {allImages.map((img) => (
-                <label
-                  key={img.id}
-                  className={`cursor-pointer border-2 p-1 ${
-                    selectedImages.includes(img.id) ? "border-primary" : "border-transparent"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="hidden"
-                    checked={selectedImages.includes(img.id)}
-                    onChange={() =>
-                      setSelectedImages((prev) =>
-                        prev.includes(img.id) ? prev.filter((id) => id !== img.id) : [...prev, img.id]
-                      )
-                    }
-                  />
-                  <img src={`/api/drive/image/${img.id}`} alt="" className="w-full h-16 object-cover" />
-                </label>
-              ))}
-            </div>
-            {allImages.length === 0 && (
-              <p className="text-muted text-sm">Noch keine Bilder. Zuerst Google Drive synchronisieren.</p>
-            )}
+            <label className="block text-xs tracking-label uppercase text-muted mb-1">
+              Google Drive Ordner-URL oder -ID
+            </label>
+            <input
+              value={driveFolder}
+              onChange={(e) => setDriveFolder(e.target.value)}
+              placeholder="https://drive.google.com/drive/folders/..."
+              className="w-full px-4 py-2 border border-border text-sm focus:outline-none focus:border-primary font-mono"
+            />
+          </div>
+          <div>
+            <label className="block text-xs tracking-label uppercase text-muted mb-1">
+              Ablaufdatum (optional)
+            </label>
+            <input
+              type="date"
+              value={expiresAt}
+              onChange={(e) => setExpiresAt(e.target.value)}
+              className="px-4 py-2 border border-border text-sm focus:outline-none focus:border-primary"
+            />
           </div>
           <button
-            onClick={createCode}
-            className="px-6 py-2 bg-primary text-white text-sm tracking-nav uppercase"
+            onClick={createAlbum}
+            disabled={creating || !name || !driveFolder}
+            className="px-6 py-2 bg-primary text-white text-sm tracking-nav uppercase disabled:opacity-50"
           >
-            Erstellen
+            {creating ? "Wird erstellt..." : "Album + Code erstellen"}
           </button>
         </div>
       )}
 
       <div className="space-y-3">
-        {codes.map((code) => (
-          <div key={code.id} className="flex items-center gap-4 p-4 bg-white border border-border">
+        {albums.map((album) => (
+          <div key={album.id} className="flex items-center gap-4 p-4 bg-white border border-border">
             <div className="flex-1">
-              <p className="font-body font-semibold">{code.label}</p>
-              <p className="font-mono text-sm text-secondary tracking-widest">{code.code}</p>
+              <p className="font-body font-semibold">{album.name}</p>
+              <button
+                onClick={() => copyCode(album.code)}
+                className="font-mono text-sm text-secondary tracking-widest hover:text-primary transition-colors"
+                title="Klicken zum Kopieren"
+              >
+                {album.code} {copiedCode === album.code && <span className="text-green-600 ml-2">✓ Kopiert</span>}
+              </button>
               <p className="text-xs text-muted mt-1">
-                {code.imageIds.length} Bilder &middot; {code.downloadCount} Downloads
-                {code.expiresAt && ` · Läuft ab: ${code.expiresAt}`}
+                {album.downloadCount} Downloads
+                {album.expiresAt && ` · Läuft ab: ${album.expiresAt}`}
               </p>
             </div>
             <button
-              onClick={() => toggleActive(code.id, code.active)}
+              onClick={() => toggleActive(album.id, album.active)}
               className={`px-3 py-1.5 text-xs tracking-nav uppercase border ${
-                code.active ? "border-green-600 text-green-600" : "border-muted text-muted"
+                album.active ? "border-green-600 text-green-600" : "border-muted text-muted"
               }`}
             >
-              {code.active ? "Aktiv" : "Inaktiv"}
+              {album.active ? "Aktiv" : "Inaktiv"}
             </button>
             <button
-              onClick={() => deleteCode(code.id)}
+              onClick={() => deleteAlbum(album.id)}
               className="px-3 py-1.5 text-xs tracking-nav uppercase text-red-600 border border-red-200 hover:border-red-600"
             >
               Löschen
             </button>
           </div>
         ))}
-        {codes.length === 0 && (
-          <p className="text-muted text-sm py-8 text-center">Keine Download-Codes vorhanden</p>
+        {albums.length === 0 && (
+          <p className="text-muted text-sm py-8 text-center">Keine Alben vorhanden</p>
         )}
       </div>
     </div>

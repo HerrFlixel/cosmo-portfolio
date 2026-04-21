@@ -1,5 +1,5 @@
 import { db } from "./index";
-import { images, downloadCodes, downloadCodeImages, clientLogos, settings } from "./schema";
+import { images, albums, clientLogos, settings } from "./schema";
 import { eq, and, asc } from "drizzle-orm";
 
 export async function getVisibleImages() {
@@ -26,27 +26,18 @@ export async function getClientLogos() {
   return db.select().from(clientLogos).orderBy(asc(clientLogos.sortOrder));
 }
 
-export async function verifyDownloadCode(code: string) {
+export async function verifyAlbumCode(code: string) {
   const result = await db
     .select()
-    .from(downloadCodes)
-    .where(and(eq(downloadCodes.code, code), eq(downloadCodes.active, true)));
+    .from(albums)
+    .where(and(eq(albums.code, code), eq(albums.active, true)));
 
-  const downloadCode = result[0];
-  if (!downloadCode) return null;
+  const album = result[0];
+  if (!album) return null;
 
-  if (downloadCode.expiresAt && new Date(downloadCode.expiresAt) < new Date()) {
+  if (album.expiresAt && new Date(album.expiresAt) < new Date()) {
     return null;
   }
 
-  const codeImages = await db
-    .select({ image: images })
-    .from(downloadCodeImages)
-    .innerJoin(images, eq(downloadCodeImages.imageId, images.id))
-    .where(eq(downloadCodeImages.codeId, downloadCode.id));
-
-  return {
-    ...downloadCode,
-    images: codeImages.map((row) => row.image),
-  };
+  return album;
 }

@@ -1,26 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyDownloadCode } from "@/lib/db/queries";
-import { getDriveImageBuffer } from "@/lib/drive";
+import { verifyAlbumCode } from "@/lib/db/queries";
+import { getDriveImageBuffer, listImagesInFolder } from "@/lib/drive";
 import { db } from "@/lib/db";
-import { downloadCodes } from "@/lib/db/schema";
+import { albums } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 import archiver from "archiver";
 
 export async function POST(request: NextRequest) {
   const { code } = await request.json();
 
-  const result = await verifyDownloadCode(code);
-  if (!result) {
+  const album = await verifyAlbumCode(code.trim().toUpperCase());
+  if (!album) {
     return NextResponse.json({ error: "Invalid code" }, { status: 404 });
   }
 
-  // Increment download count
   await db
-    .update(downloadCodes)
-    .set({ downloadCount: sql`${downloadCodes.downloadCount} + 1` })
-    .where(eq(downloadCodes.id, result.id));
+    .update(albums)
+    .set({ downloadCount: sql`${albums.downloadCount} + 1` })
+    .where(eq(albums.id, album.id));
 
-  // Create ZIP in memory
+  const files = await listImagesInFolder(album.driveFolderId);
+
   const archive = archiver("zip", { zlib: { level: 5 } });
   const chunks: Buffer[] = [];
 
@@ -30,15 +30,12 @@ export async function POST(request: NextRequest) {
     archive.on("error", reject);
 
     (async () => {
-      for (const image of result.images) {
-        if (image.driveFileId) {
-          try {
-            const buffer = await getDriveImageBuffer(image.driveFileId);
-            const filename = (image.titleDe || image.id) + ".jpg";
-            archive.append(buffer, { name: filename });
-          } catch (error) {
-            console.error(`Failed to fetch image ${image.id}:`, error);
-          }
+      for (const file of files) {
+        try {
+          const buffer = await getDriveImageBuffer(file.id);
+          archive.append(buffer, { name: file.name });
+        } catch (error) {
+          console.error(`Failed to fetch file ${file.id}:`, error);
         }
       }
       archive.finalize();
@@ -46,9 +43,9 @@ export async function POST(request: NextRequest) {
   });
 
   const zipBuffer = Buffer.concat(chunks);
-  const safeName = result.label.replace(/[^a-zA-Z0-9-_]/g, "_");
+  const safeName = album.name.replace(/[^a-zA-Z0-9-_]/g, "_");
 
-  return new NextResponse(zipBuffer, {
+  return new NextResponse(new Uint8Array(zipBuffer), {
     headers: {
       "Content-Type": "application/zip",
       "Content-Disposition": `attachment; filename="cosmo-photos-${safeName}.zip"`,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { downloadCodes, downloadCodeImages } from "@/lib/db/schema";
+import { albums } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 
 function generateCode(): string {
@@ -13,47 +13,40 @@ function generateCode(): string {
   return code;
 }
 
+function extractFolderId(input: string): string {
+  const match = input.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+  if (match) return match[1];
+  return input.trim();
+}
+
 export async function GET() {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const codes = await db.select().from(downloadCodes).orderBy(desc(downloadCodes.createdAt));
-
-  const codesWithImages = await Promise.all(
-    codes.map(async (code) => {
-      const codeImgs = await db
-        .select({ imageId: downloadCodeImages.imageId })
-        .from(downloadCodeImages)
-        .where(eq(downloadCodeImages.codeId, code.id));
-      return { ...code, imageIds: codeImgs.map((ci) => ci.imageId) };
-    })
-  );
-
-  return NextResponse.json(codesWithImages);
+  const all = await db.select().from(albums).orderBy(desc(albums.createdAt));
+  return NextResponse.json(all);
 }
 
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { label, expiresAt, imageIds } = await request.json();
-  if (!label) return NextResponse.json({ error: "Label required" }, { status: 400 });
+  const { name, driveFolder, expiresAt } = await request.json();
+  if (!name || !driveFolder) {
+    return NextResponse.json({ error: "Name und Drive-Ordner erforderlich" }, { status: 400 });
+  }
 
+  const driveFolderId = extractFolderId(driveFolder);
   const code = generateCode();
   const id = crypto.randomUUID();
 
-  await db.insert(downloadCodes).values({
+  await db.insert(albums).values({
     id,
+    name,
     code,
-    label,
+    driveFolderId,
     expiresAt: expiresAt || null,
   });
-
-  if (imageIds && imageIds.length > 0) {
-    for (const imageId of imageIds) {
-      await db.insert(downloadCodeImages).values({ codeId: id, imageId });
-    }
-  }
 
   return NextResponse.json({ id, code });
 }
@@ -63,7 +56,7 @@ export async function PATCH(request: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id, active } = await request.json();
-  await db.update(downloadCodes).set({ active }).where(eq(downloadCodes.id, id));
+  await db.update(albums).set({ active }).where(eq(albums.id, id));
   return NextResponse.json({ success: true });
 }
 
@@ -72,6 +65,6 @@ export async function DELETE(request: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await request.json();
-  await db.delete(downloadCodes).where(eq(downloadCodes.id, id));
+  await db.delete(albums).where(eq(albums.id, id));
   return NextResponse.json({ success: true });
 }

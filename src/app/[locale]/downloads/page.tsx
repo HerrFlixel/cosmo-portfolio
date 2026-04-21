@@ -7,8 +7,7 @@ import DownloadGallery from "@/components/downloads/DownloadGallery";
 
 interface DownloadImage {
   id: string;
-  titleDe: string | null;
-  titleEn: string | null;
+  name: string;
 }
 
 interface VerifiedData {

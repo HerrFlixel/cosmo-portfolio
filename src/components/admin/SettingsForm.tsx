@@ -39,6 +39,34 @@ export default function SettingsForm() {
     });
   }, []);
 
+  async function uploadAboutImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const input = e.currentTarget;
+    const file = input.files?.[0];
+    if (!file) return;
+    setAboutStatus("");
+    setSavingAbout(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/settings/about-image", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setAboutImageId(data.id);
+        setAboutStatus("✓ Hochgeladen & gesetzt");
+        const imgs = await fetch("/api/images").then((r) => r.json());
+        setImages(Array.isArray(imgs) ? imgs : []);
+        setTimeout(() => setAboutStatus(""), 4000);
+      } else {
+        setAboutStatus(data.error || `Fehler ${res.status}`);
+      }
+    } catch {
+      setAboutStatus("Netzwerkfehler");
+    } finally {
+      setSavingAbout(false);
+      input.value = "";
+    }
+  }
+
   async function selectAboutImage(id: string) {
     setAboutStatus("");
     setSavingAbout(true);
@@ -90,6 +118,22 @@ export default function SettingsForm() {
           </label>
           {aboutStatus && <span className="text-xs text-muted">{aboutStatus}</span>}
         </div>
+
+        <label className={`inline-block mb-4 ${savingAbout ? "opacity-50 pointer-events-none" : "cursor-pointer"}`}>
+          <span className="px-4 py-2 border border-border text-xs tracking-label uppercase hover:border-primary transition-colors">
+            {savingAbout ? "Lädt hoch..." : "Eigenes Foto hochladen"}
+          </span>
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={uploadAboutImage}
+            disabled={savingAbout}
+          />
+        </label>
+        <p className="text-xs text-muted mb-4">
+          … oder unten ein bereits vorhandenes Bild auswählen.
+        </p>
 
         {aboutImageId && (
           <img

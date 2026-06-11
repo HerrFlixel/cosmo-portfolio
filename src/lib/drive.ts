@@ -48,6 +48,16 @@ export async function listImagesInFolder(folderId: string): Promise<DriveFile[]>
   return (response.data.files || []) as DriveFile[];
 }
 
+export async function getDriveThumbnailLink(fileId: string): Promise<string | null> {
+  const drive = getDriveClient();
+  const response = await drive.files.get({
+    fileId,
+    fields: "thumbnailLink",
+    supportsAllDrives: true,
+  });
+  return response.data.thumbnailLink ?? null;
+}
+
 export async function getDriveImageBuffer(fileId: string): Promise<Buffer> {
   const drive = getDriveClient();
 

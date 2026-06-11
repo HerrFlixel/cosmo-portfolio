@@ -1,34 +1,46 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import LanguageToggle from "./LanguageToggle";
 
-interface MobileMenuProps {
-  open: boolean;
-  links: { href: string; label: string }[];
-  onClose: () => void;
-}
+const NAV = [
+  { href: "/" as const, key: "projects" as const },
+  { href: "/about" as const, key: "about" as const },
+  { href: "/contact" as const, key: "contact" as const },
+  { href: "/downloads" as const, key: "downloads" as const },
+];
 
-export default function MobileMenu({ open, links, onClose }: MobileMenuProps) {
-  if (!open) return null;
+export default function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const t = useTranslations("nav");
 
   return (
-    <div className="fixed inset-0 z-40 bg-white pt-20 md:hidden">
-      <nav className="flex flex-col items-center gap-8 pt-12">
-        {links.map((link) => (
+    <div
+      className={`fixed inset-0 z-30 bg-paper flex flex-col justify-center px-8 transition-opacity duration-300 md:hidden ${
+        open ? "opacity-100" : "opacity-0 pointer-events-none"
+      }`}
+    >
+      <nav className="flex flex-col gap-2">
+        {NAV.map((item, i) => (
           <Link
-            key={link.href}
-            href={link.href}
+            key={item.key}
+            href={item.href}
             onClick={onClose}
-            className="font-heading text-3xl tracking-wider text-primary hover:text-secondary transition-colors"
+            className="text-4xl font-medium tracking-tight text-ink py-2"
+            style={{
+              transition: "opacity .5s cubic-bezier(.16,1,.3,1), transform .5s cubic-bezier(.16,1,.3,1)",
+              transitionDelay: `${i * 60}ms`,
+              opacity: open ? 1 : 0,
+              transform: open ? "translateY(0)" : "translateY(16px)",
+            }}
           >
-            {link.label.toUpperCase()}
+            {t(item.key)}
           </Link>
         ))}
-        <div className="mt-4">
-          <LanguageToggle />
-        </div>
       </nav>
+      <div className="mt-10">
+        <LanguageToggle />
+      </div>
     </div>
   );
 }

@@ -1,9 +1,9 @@
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import { getSetting } from "@/lib/db/queries";
 
 export default async function LocaleLayout({
   children,
@@ -19,12 +19,15 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
+  const t = await getTranslations("home");
+  const statusText =
+    (await getSetting(locale === "en" ? "status_text_en" : "status_text_de")) ||
+    t("statusFallback");
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <Header />
-      <main className="pt-20">{children}</main>
-      <Footer />
+      <Header statusText={statusText} />
+      <main>{children}</main>
     </NextIntlClientProvider>
   );
 }

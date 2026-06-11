@@ -25,9 +25,11 @@ interface DownloadGalleryProps {
 export default function DownloadGallery({ label, images, code }: DownloadGalleryProps) {
   const t = useTranslations("downloads");
   const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState("");
 
   async function downloadAll() {
     setDownloading(true);
+    setError("");
     try {
       const res = await fetch("/api/downloads/zip", {
         method: "POST",
@@ -35,13 +37,22 @@ export default function DownloadGallery({ label, images, code }: DownloadGallery
         body: JSON.stringify({ code }),
       });
 
+      if (!res.ok) {
+        setError(t("invalid"));
+        return;
+      }
+
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `cosmo-photos-${label}.zip`;
+      document.body.append(a);
       a.click();
-      URL.revokeObjectURL(url);
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      setError(t("invalid"));
     } finally {
       setDownloading(false);
     }
@@ -59,6 +70,8 @@ export default function DownloadGallery({ label, images, code }: DownloadGallery
           {downloading ? "…" : `${t("downloadAll")} ↓`}
         </button>
       </div>
+
+      {error && <p className="text-red-600 text-sm mb-6">{error}</p>}
 
       {images.length === 0 ? (
         <p className="text-fog text-center py-12 text-sm">{t("emptyAlbum")}</p>

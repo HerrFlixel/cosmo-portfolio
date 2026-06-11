@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 
 const fields = [
+  { key: "status_text_de", label: "Status-Zeile Header (Deutsch)", type: "input" },
+  { key: "status_text_en", label: "Status-Zeile Header (English)", type: "input" },
+  { key: "about_headline_de", label: "About-Headline (Deutsch)", type: "input" },
+  { key: "about_headline_en", label: "About-Headline (English)", type: "input" },
   { key: "bio_de", label: "Bio (Deutsch)", type: "textarea" },
   { key: "bio_en", label: "Bio (English)", type: "textarea" },
   { key: "contact_email", label: "Kontakt E-Mail", type: "input" },
@@ -19,9 +23,8 @@ export default function SettingsForm() {
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [images, setImages] = useState<Image[]>([]);
-  const [heroImageId, setHeroImageId] = useState<string | null>(null);
-  const [heroSaving, setHeroSaving] = useState(false);
-  const [heroStatus, setHeroStatus] = useState("");
+  const [aboutImageId, setAboutImageId] = useState<string | null>(null);
+  const [aboutStatus, setAboutStatus] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -29,33 +32,30 @@ export default function SettingsForm() {
       fetch("/api/images").then((r) => r.json()),
     ]).then(([settingsData, imagesData]) => {
       setValues(settingsData);
-      setHeroImageId(settingsData.hero_image_id ?? null);
+      setAboutImageId(settingsData.about_image_id ?? null);
       setImages(Array.isArray(imagesData) ? imagesData : []);
       setLoading(false);
     });
   }, []);
 
-  async function selectHero(id: string) {
-    setHeroSaving(true);
-    setHeroStatus("");
+  async function selectAboutImage(id: string) {
+    setAboutStatus("");
     try {
       const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hero_image_id: id }),
+        body: JSON.stringify({ about_image_id: id }),
       });
       if (res.ok) {
-        setHeroImageId(id);
-        setHeroStatus("✓ Gespeichert – Seite neu laden zum Anzeigen");
+        setAboutImageId(id);
+        setAboutStatus("✓ Gespeichert");
       } else {
-        const data = await res.json().catch(() => ({}));
-        setHeroStatus(`Fehler ${res.status}: ${data.error ?? "unbekannt"}`);
+        setAboutStatus(`Fehler ${res.status}`);
       }
     } catch {
-      setHeroStatus("Netzwerkfehler");
+      setAboutStatus("Netzwerkfehler");
     }
-    setHeroSaving(false);
-    setTimeout(() => setHeroStatus(""), 5000);
+    setTimeout(() => setAboutStatus(""), 4000);
   }
 
   function update(key: string, value: string) {
@@ -78,79 +78,46 @@ export default function SettingsForm() {
 
   return (
     <div className="space-y-8 max-w-4xl">
-      {/* Hero image picker */}
+      {/* About-Bild */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <label className="block text-xs tracking-label uppercase text-muted">
-            Hero-Hintergrundbild
+            Über-mich-Foto
           </label>
-          {heroSaving && <span className="text-xs text-muted">Speichert...</span>}
-          {heroStatus && <span className="text-xs text-muted">{heroStatus}</span>}
+          {aboutStatus && <span className="text-xs text-muted">{aboutStatus}</span>}
         </div>
 
-        {heroImageId && (
-          <div className="mb-4">
-            <p className="text-xs text-muted mb-2">Aktuell aktiv:</p>
-            <img
-              src={`/api/drive/image/${heroImageId}`}
-              alt="Aktuelles Hero-Bild"
-              className="h-32 w-auto object-cover border border-primary"
-            />
-          </div>
+        {aboutImageId && (
+          <img
+            src={`/api/drive/image/${aboutImageId}?w=400`}
+            alt="Aktuelles About-Bild"
+            className="h-32 w-auto object-cover border border-primary mb-4"
+          />
         )}
 
         {images.length === 0 ? (
-          <p className="text-sm text-muted">
-            Keine Bilder gefunden. Bitte zuerst Bilder synchronisieren.
-          </p>
+          <p className="text-sm text-muted">Keine Bilder gefunden. Bitte zuerst ein Projekt syncen.</p>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-            {images.map((img) => {
-              const isSelected = img.id === heroImageId;
-              return (
-                <button
-                  key={img.id}
-                  type="button"
-                  onClick={() => img.id && selectHero(img.id)}
-                  className={`relative aspect-square overflow-hidden border-2 transition-all hover:opacity-90 ${
-                    isSelected
-                      ? "border-primary"
-                      : "border-transparent hover:border-border"
-                  }`}
-                  title={img.titleDe ?? img.id ?? ""}
-                >
-                  <img
-                    src={`/api/drive/image/${img.id}?w=400`}
-                    alt={img.titleDe ?? ""}
-                    className="w-full h-full object-cover"
-                  />
-                  {isSelected && (
-                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                      <svg
-                        className="w-5 h-5 text-white drop-shadow"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                </button>
-              );
-            })}
+            {images.map((img) => (
+              <button
+                key={img.id}
+                type="button"
+                onClick={() => selectAboutImage(img.id)}
+                className={`aspect-square overflow-hidden border-2 transition-all hover:opacity-90 ${
+                  img.id === aboutImageId ? "border-primary" : "border-transparent hover:border-border"
+                }`}
+                title={img.titleDe ?? ""}
+              >
+                <img src={`/api/drive/image/${img.id}?w=400`} alt={img.titleDe ?? ""} className="w-full h-full object-cover" />
+              </button>
+            ))}
           </div>
         )}
       </div>
 
       <hr className="border-border" />
 
-      {/* Other settings */}
       {fields.map((field) => (
         <div key={field.key}>
           <label className="block text-xs tracking-label uppercase text-muted mb-2">

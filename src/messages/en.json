@@ -1,37 +1,57 @@
 {
   "nav": {
-    "portfolio": "Portfolio",
+    "projects": "Projects",
     "about": "About",
     "contact": "Contact",
-    "downloads": "Downloads"
+    "downloads": "Client Area"
   },
   "hero": {
     "tagline": "Sports, Weddings, Events",
-    "cta": "View Portfolio"
+    "cta": "View portfolio"
+  },
+  "home": {
+    "identity": "Cosmo Photos",
+    "role": "Photographer — Sports · Weddings · Events",
+    "empty": "Projects coming soon.",
+    "statusFallback": "Available for bookings"
+  },
+  "categories": {
+    "sport": "Sports",
+    "hochzeit": "Wedding",
+    "event": "Event"
+  },
+  "project": {
+    "images": "{count} photos",
+    "prev": "Previous",
+    "next": "Next project"
   },
   "about": {
     "title": "About",
-    "clients": "Clients & References"
+    "label": "About me",
+    "clients": "Clients & References",
+    "headlineFallback": "A photographer for the moments you can't repeat."
   },
   "contact": {
     "title": "Contact",
+    "headline": "Let's talk about your project.",
     "name": "Name",
     "email": "Email",
-    "subject": "Subject",
+    "subject": "What is it about? (Sports, wedding, event …)",
     "message": "Message",
     "file": "Attach file (optional)",
-    "send": "Send Message",
-    "success": "Message sent successfully!",
-    "error": "Error sending message. Please try again."
+    "send": "Send",
+    "success": "Message sent!",
+    "error": "Sending failed. Please try again."
   },
   "downloads": {
     "title": "Client Area",
-    "placeholder": "Enter download code",
+    "label": "Private area",
+    "headline": "Your album. Your code.",
+    "placeholder": "ENTER CODE",
+    "hint": "You received the code by email after your shoot.",
     "submit": "Access",
     "invalid": "Invalid or expired code",
-    "downloadAll": "Download All"
-  },
-  "footer": {
-    "rights": "All rights reserved"
+    "downloadAll": "Download all",
+    "emptyAlbum": "This album has no photos yet."
   }
 }

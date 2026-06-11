@@ -14,7 +14,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const links = [
-    { href: `/${locale}`, label: t("portfolio") },
+    { href: `/${locale}`, label: t("projects") },
     { href: `/${locale}/about`, label: t("about") },
     { href: `/${locale}/contact`, label: t("contact") },
     { href: `/${locale}/downloads`, label: t("downloads") },

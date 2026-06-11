@@ -1,37 +1,57 @@
 {
   "nav": {
-    "portfolio": "Portfolio",
+    "projects": "Projekte",
     "about": "Über mich",
     "contact": "Kontakt",
-    "downloads": "Downloads"
+    "downloads": "Kundenbereich"
   },
   "hero": {
     "tagline": "Sport, Hochzeiten, Events",
     "cta": "Portfolio ansehen"
   },
+  "home": {
+    "identity": "Cosmo Photos",
+    "role": "Fotograf — Sport · Hochzeiten · Events",
+    "empty": "Projekte folgen in Kürze.",
+    "statusFallback": "Verfügbar für Buchungen"
+  },
+  "categories": {
+    "sport": "Sport",
+    "hochzeit": "Hochzeit",
+    "event": "Event"
+  },
+  "project": {
+    "images": "{count} Bilder",
+    "prev": "Vorheriges",
+    "next": "Nächstes Projekt"
+  },
   "about": {
     "title": "Über mich",
-    "clients": "Kunden & Referenzen"
+    "label": "Über mich",
+    "clients": "Kunden & Referenzen",
+    "headlineFallback": "Fotograf für die Momente, die man nicht wiederholen kann."
   },
   "contact": {
     "title": "Kontakt",
+    "headline": "Lass uns über dein Projekt reden.",
     "name": "Name",
     "email": "E-Mail",
-    "subject": "Betreff",
+    "subject": "Worum geht es? (Sport, Hochzeit, Event …)",
     "message": "Nachricht",
     "file": "Datei anhängen (optional)",
-    "send": "Nachricht senden",
+    "send": "Senden",
     "success": "Nachricht wurde gesendet!",
     "error": "Fehler beim Senden. Bitte versuche es erneut."
   },
   "downloads": {
     "title": "Kundenbereich",
-    "placeholder": "Download-Code eingeben",
+    "label": "Privater Bereich",
+    "headline": "Dein Album. Dein Code.",
+    "placeholder": "CODE EINGEBEN",
+    "hint": "Den Code findest du in deiner E-Mail nach dem Shooting.",
     "submit": "Zugang",
     "invalid": "Ungültiger oder abgelaufener Code",
-    "downloadAll": "Alle herunterladen"
-  },
-  "footer": {
-    "rights": "Alle Rechte vorbehalten"
+    "downloadAll": "Alle herunterladen",
+    "emptyAlbum": "Dieses Album enthält noch keine Fotos."
   }
 }

@@ -84,7 +84,7 @@ Regeln:
 **Panel-Galerie** (Herzstück, Desktop):
 - Sichtbare Projekte als vertikale Panels nebeneinander (flex, `gap 14px`), füllen die Höhe zwischen Header und Bottom-Bar (Seite scrollt nicht).
 - Hover: Panel weitet sich (`flex 1 → 1.75`, 0,65 s expo-out); Bild zoomt auf 1.06 und von `saturate(.82)` auf voll; Nicht-gehoverte dimmen (`saturate(.55) brightness(.94)`); Titel + `Nr / Kategorie` (Mono) faden von unten ein, dunkler Verlauf unten fürs Kontrast.
-- Zusätzlich (sehr subtil): Maus-Parallax im Bild (~1–2 %) und langsamer Idle-Drift wenn keine Maus bewegt wird.
+- Zusätzlich (sehr subtil): langsamer Idle-Drift der Panel-Bilder (~18 s Loop, pausiert bei Hover). Optionaler Feinschliff nach visueller QA: Maus-Parallax im Bild (~1–2 %) — bewusst nicht im ersten Wurf, da er mit dem Hover-Scale-Transform kollidieren kann.
 - Klick → Projektseite.
 - Die Startseite zeigt maximal 6 Panels (die ersten 6 sichtbaren Projekte nach `sortOrder`); weitere Projekte sind über die Projektseiten-Navigation (vorheriges/nächstes, zyklisch über alle sichtbaren) erreichbar.
 

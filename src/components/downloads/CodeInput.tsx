@@ -54,22 +54,27 @@ export default function CodeInput({ onVerified }: CodeInputProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4">
-      <input
-        type="text"
-        value={code}
-        onChange={(e) => setCode(e.target.value.toUpperCase())}
-        placeholder={t("placeholder")}
-        className="w-full max-w-md px-6 py-4 border-2 border-border font-body text-center text-lg tracking-wider uppercase focus:outline-none focus:border-primary transition-colors"
-      />
+    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-5">
+      <div className="flex items-center border-b border-ink">
+        <input
+          type="text"
+          value={code}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          placeholder={t("placeholder")}
+          className="w-60 bg-transparent font-mono text-base tracking-[.35em] uppercase py-3 px-1 outline-none placeholder:text-fog placeholder:tracking-[.2em]"
+          aria-label={t("placeholder")}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-2 py-3 text-lg hover:text-fog transition-colors disabled:opacity-50"
+          aria-label={t("submit")}
+        >
+          {loading ? "…" : "→"}
+        </button>
+      </div>
       {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-8 py-3 bg-primary text-white font-body text-sm tracking-nav uppercase hover:bg-accent-hover transition-colors disabled:opacity-50"
-      >
-        {loading ? "..." : t("submit")}
-      </button>
+      <p className="text-xs text-fog">{t("hint")}</p>
     </form>
   );
 }

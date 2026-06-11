@@ -22,14 +22,13 @@ export default function DownloadsPage() {
   const [code, setCode] = useState("");
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-24">
-      <div className="flex items-center gap-6 mb-16">
-        <h1 className="font-heading text-5xl tracking-wide">{t("title").toUpperCase()}</h1>
-        <div className="flex-1 h-0.5 bg-primary" />
-      </div>
-
+    <div className="pt-[100px] px-6 md:px-10 pb-20">
       {!verified ? (
-        <div className="py-24">
+        <div className="min-h-[55vh] flex flex-col items-center justify-center text-center">
+          <p className="text-xs tracking-label uppercase text-fog mb-4">{t("label")}</p>
+          <h1 className="text-3xl md:text-[34px] font-semibold tracking-tight mb-9">
+            {t("headline")}
+          </h1>
           <CodeInput
             onVerified={(data, c) => {
               setVerified(data);
@@ -38,7 +37,9 @@ export default function DownloadsPage() {
           />
         </div>
       ) : (
-        <DownloadGallery label={verified.label} images={verified.images} code={code} />
+        <div className="max-w-6xl mx-auto">
+          <DownloadGallery label={verified.label} images={verified.images} code={code} />
+        </div>
       )}
     </div>
   );

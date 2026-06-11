@@ -49,36 +49,37 @@ export default function DownloadGallery({ label, images, code }: DownloadGallery
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="font-heading text-3xl tracking-wide">{label.toUpperCase()}</h2>
+      <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
+        <h2 className="text-3xl font-semibold tracking-tight">{label}</h2>
         <button
           onClick={downloadAll}
           disabled={downloading}
-          className="px-6 py-3 bg-primary text-white font-body text-sm tracking-nav uppercase hover:bg-accent-hover transition-colors disabled:opacity-50"
+          className="bg-ink text-paper text-xs tracking-[.1em] uppercase px-6 py-3 hover:opacity-80 transition-opacity disabled:opacity-50"
         >
-          {downloading ? "..." : t("downloadAll")}
+          {downloading ? "…" : `${t("downloadAll")} ↓`}
         </button>
       </div>
 
       {images.length === 0 ? (
-        <p className="text-muted text-center py-12">Dieses Album enthält noch keine Fotos.</p>
+        <p className="text-fog text-center py-12 text-sm">{t("emptyAlbum")}</p>
       ) : (
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5">
           {images.map((image) => (
-            <div key={image.id} className="relative group">
+            <div key={image.id} className="group relative aspect-[3/2] overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={thumbUrl(image, 800)}
                 alt={image.name}
-                className="w-full h-auto"
+                className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
                 decoding="async"
               />
               <a
                 href={`/api/drive/file/${image.id}`}
                 download={image.name}
-                className="absolute bottom-3 right-3 px-3 py-1.5 bg-primary text-white text-xs tracking-nav uppercase opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute bottom-2.5 right-2.5 bg-ink text-paper font-mono text-[10px] tracking-[.1em] uppercase px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                Download
+                ↓
               </a>
             </div>
           ))}

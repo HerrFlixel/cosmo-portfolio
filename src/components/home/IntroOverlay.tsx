@@ -1,22 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CosmoLogo from "@/components/layout/CosmoLogo";
 
 const PHOTOS = ["P", "H", "O", "T", "O", "S"];
+// Nach diesem Zeitpunkt läuft bereits die Lift-Animation — ein Skip würde sie
+// neu starten (sichtbarer Ruckler) und spart ohnehin kaum noch Zeit.
+const SKIP_CUTOFF_MS = 2800;
 
 export default function IntroOverlay({ onDone }: { onDone: () => void }) {
   const [skip, setSkip] = useState(false);
+  const mountedAt = useRef(Date.now());
+
+  const requestSkip = () => {
+    if (Date.now() - mountedAt.current < SKIP_CUTOFF_MS) setSkip(true);
+  };
 
   useEffect(() => {
     const t = setTimeout(onDone, skip ? 400 : 4000);
-    return () => clearTimeout(t);
+    const onKeyDown = () => requestSkip();
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip, onDone]);
 
   return (
     <div
       className={`intro-overlay ${skip ? "intro-skip" : ""}`}
-      onClick={() => setSkip(true)}
+      onClick={requestSkip}
       aria-hidden="true"
     >
       <CosmoLogo

@@ -10,9 +10,12 @@ export const metadata: Metadata = {
 
 export default async function ContactPage() {
   const t = await getTranslations("contact");
-  const contactEmail = (await getSetting("contact_email")) || "info@cosmophotos.de";
-  const instagramUrl = await getSetting("instagram_url");
-  const linkedinUrl = await getSetting("linkedin_url");
+  const [contactEmailSetting, instagramUrl, linkedinUrl] = await Promise.all([
+    getSetting("contact_email"),
+    getSetting("instagram_url"),
+    getSetting("linkedin_url"),
+  ]);
+  const contactEmail = contactEmailSetting || "info@cosmophotos.de";
 
   const socials = [
     instagramUrl ? { label: "Instagram", url: instagramUrl } : null,

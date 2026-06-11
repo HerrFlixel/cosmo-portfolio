@@ -16,10 +16,14 @@ export default async function AboutPage({
   const { locale } = await Promise.resolve(params);
   const t = await getTranslations("about");
   const suffix = locale === "en" ? "_en" : "_de";
-  const headline = (await getSetting(`about_headline${suffix}`)) || t("headlineFallback");
-  const bio = (await getSetting(`bio${suffix}`)) || "";
-  const aboutImageId = await getSetting("about_image_id");
-  const logos = await getClientLogos();
+  const [headlineSetting, bioSetting, aboutImageId, logos] = await Promise.all([
+    getSetting(`about_headline${suffix}`),
+    getSetting(`bio${suffix}`),
+    getSetting("about_image_id"),
+    getClientLogos(),
+  ]);
+  const headline = headlineSetting || t("headlineFallback");
+  const bio = bioSetting || "";
 
   return (
     <div className="pt-[100px] px-6 md:px-10 pb-20">

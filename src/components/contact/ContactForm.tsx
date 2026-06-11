@@ -20,12 +20,12 @@ export default function ContactForm() {
 
     try {
       const res = await fetch("/api/contact", { method: "POST", body: formData });
-      const data = await res.json();
 
       if (res.ok) {
         setStatus("success");
         (e.target as HTMLFormElement).reset();
       } else {
+        const data = await res.json().catch(() => ({}));
         setStatus("error");
         setErrorMsg(data.error || t("error"));
       }
@@ -40,10 +40,10 @@ export default function ContactForm() {
       {/* Honeypot */}
       <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
 
-      <input name="name" type="text" required placeholder={`${t("name")} *`} className={field} />
-      <input name="email" type="email" required placeholder={`${t("email")} *`} className={field} />
-      <input name="subject" type="text" required placeholder={`${t("subject")} *`} className={field} />
-      <textarea name="message" required rows={4} placeholder={`${t("message")} *`} className={`${field} resize-none`} />
+      <input name="name" type="text" required aria-label={t("name")} placeholder={`${t("name")} *`} className={field} />
+      <input name="email" type="email" required aria-label={t("email")} placeholder={`${t("email")} *`} className={field} />
+      <input name="subject" type="text" required aria-label={t("subject")} placeholder={`${t("subject")} *`} className={field} />
+      <textarea name="message" required rows={4} aria-label={t("message")} placeholder={`${t("message")} *`} className={`${field} resize-none`} />
 
       <label className="mt-6 text-xs text-fog cursor-pointer">
         {t("file")}

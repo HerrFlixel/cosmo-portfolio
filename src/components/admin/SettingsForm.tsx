@@ -25,6 +25,7 @@ export default function SettingsForm() {
   const [images, setImages] = useState<Image[]>([]);
   const [aboutImageId, setAboutImageId] = useState<string | null>(null);
   const [aboutStatus, setAboutStatus] = useState("");
+  const [savingAbout, setSavingAbout] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -40,6 +41,7 @@ export default function SettingsForm() {
 
   async function selectAboutImage(id: string) {
     setAboutStatus("");
+    setSavingAbout(true);
     try {
       const res = await fetch("/api/settings", {
         method: "PUT",
@@ -49,13 +51,15 @@ export default function SettingsForm() {
       if (res.ok) {
         setAboutImageId(id);
         setAboutStatus("✓ Gespeichert");
+        setTimeout(() => setAboutStatus(""), 4000);
       } else {
         setAboutStatus(`Fehler ${res.status}`);
       }
     } catch {
       setAboutStatus("Netzwerkfehler");
+    } finally {
+      setSavingAbout(false);
     }
-    setTimeout(() => setAboutStatus(""), 4000);
   }
 
   function update(key: string, value: string) {
@@ -104,7 +108,8 @@ export default function SettingsForm() {
                 key={img.id}
                 type="button"
                 onClick={() => selectAboutImage(img.id)}
-                className={`aspect-square overflow-hidden border-2 transition-all hover:opacity-90 ${
+                disabled={savingAbout}
+                className={`aspect-square overflow-hidden border-2 transition-all hover:opacity-90 disabled:opacity-50 ${
                   img.id === aboutImageId ? "border-primary" : "border-transparent hover:border-border"
                 }`}
                 title={img.titleDe ?? ""}

@@ -33,12 +33,16 @@ export default function ProjectManager() {
   const [coverPickerFor, setCoverPickerFor] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [projectsRes, imagesRes] = await Promise.all([
-      fetch("/api/projects").then((r) => r.json()),
-      fetch("/api/images").then((r) => r.json()),
-    ]);
-    setList(Array.isArray(projectsRes) ? projectsRes : []);
-    setImages(Array.isArray(imagesRes) ? imagesRes : []);
+    try {
+      const [projectsRes, imagesRes] = await Promise.all([
+        fetch("/api/projects").then((r) => r.json()),
+        fetch("/api/images").then((r) => r.json()),
+      ]);
+      setList(Array.isArray(projectsRes) ? projectsRes : []);
+      setImages(Array.isArray(imagesRes) ? imagesRes : []);
+    } catch {
+      setError("Daten konnten nicht geladen werden");
+    }
   }, []);
 
   useEffect(() => {
@@ -49,58 +53,88 @@ export default function ProjectManager() {
     e.preventDefault();
     setBusy("create");
     setError("");
-    const res = await fetch("/api/projects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    if (res.ok) {
-      setForm({ ...emptyForm });
-      await load();
-    } else {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error || "Fehler beim Anlegen");
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        setForm({ ...emptyForm });
+        await load();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Fehler beim Anlegen");
+      }
+    } catch {
+      setError("Netzwerkfehler");
+    } finally {
+      setBusy(null);
     }
-    setBusy(null);
   }
 
   async function patch(id: string, updates: Record<string, unknown>) {
     setBusy(id);
-    await fetch("/api/projects", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, ...updates }),
-    });
-    await load();
-    setBusy(null);
+    try {
+      const res = await fetch("/api/projects", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...updates }),
+      });
+      if (res.ok) {
+        await load();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setError(d.error || "Fehler beim Speichern");
+      }
+    } catch {
+      setError("Netzwerkfehler");
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function sync(id: string) {
     setBusy(id);
     setError("");
-    const res = await fetch("/api/projects/sync", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projectId: id }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error || "Sync fehlgeschlagen");
+    try {
+      const res = await fetch("/api/projects/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId: id }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Sync fehlgeschlagen");
+      }
+      await load();
+    } catch {
+      setError("Netzwerkfehler");
+    } finally {
+      setBusy(null);
     }
-    await load();
-    setBusy(null);
   }
 
   async function remove(id: string, title: string) {
     if (!confirm(`Projekt „${title}" und zugehörige Bild-Einträge löschen? (Drive-Dateien bleiben erhalten)`)) return;
     setBusy(id);
-    await fetch("/api/projects", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    await load();
-    setBusy(null);
+    try {
+      const res = await fetch("/api/projects", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        await load();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setError(d.error || "Fehler beim Löschen");
+      }
+    } catch {
+      setError("Netzwerkfehler");
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function move(index: number, dir: -1 | 1) {
@@ -108,13 +142,18 @@ export default function ProjectManager() {
     if (target < 0 || target >= list.length) return;
     const a = list[index];
     const b = list[target];
-    setBusy(a.id);
-    await Promise.all([
-      fetch("/api/projects", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: a.id, sortOrder: b.sortOrder }) }),
-      fetch("/api/projects", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: b.id, sortOrder: a.sortOrder }) }),
-    ]);
-    await load();
-    setBusy(null);
+    setBusy("move");
+    try {
+      await Promise.all([
+        fetch("/api/projects", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: a.id, sortOrder: b.sortOrder }) }),
+        fetch("/api/projects", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: b.id, sortOrder: a.sortOrder }) }),
+      ]);
+      await load();
+    } catch {
+      setError("Netzwerkfehler");
+    } finally {
+      setBusy(null);
+    }
   }
 
   const input = "w-full px-3 py-2 border border-border text-sm focus:outline-none focus:border-primary";
@@ -158,8 +197,8 @@ export default function ProjectManager() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <button onClick={() => move(i, -1)} className="px-2 py-1 border border-border" title="Nach oben">↑</button>
-                  <button onClick={() => move(i, 1)} className="px-2 py-1 border border-border" title="Nach unten">↓</button>
+                  <button onClick={() => move(i, -1)} disabled={busy !== null} className="px-2 py-1 border border-border disabled:opacity-50" title="Nach oben">↑</button>
+                  <button onClick={() => move(i, 1)} disabled={busy !== null} className="px-2 py-1 border border-border disabled:opacity-50" title="Nach unten">↓</button>
                   <button onClick={() => sync(p.id)} disabled={busy === p.id} className="px-3 py-1 border border-border disabled:opacity-50">
                     {busy === p.id ? "..." : "Sync"}
                   </button>

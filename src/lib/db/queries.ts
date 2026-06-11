@@ -2,14 +2,6 @@ import { db } from "./index";
 import { images, albums, clientLogos, settings, projects } from "./schema";
 import { eq, and, asc } from "drizzle-orm";
 
-export async function getVisibleImages() {
-  return db.select().from(images).where(eq(images.visible, true)).orderBy(asc(images.sortOrder));
-}
-
-export async function getAllImages() {
-  return db.select().from(images).orderBy(asc(images.sortOrder));
-}
-
 export async function getSetting(key: string) {
   const result = await db.select().from(settings).where(eq(settings.key, key));
   return result[0]?.value ?? null;

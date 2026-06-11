@@ -25,10 +25,6 @@ export interface DriveFile {
   };
 }
 
-export async function listDriveImages(): Promise<DriveFile[]> {
-  return listImagesInFolder(process.env.GOOGLE_DRIVE_FOLDER_ID!);
-}
-
 export async function listImagesInFolder(folderId: string): Promise<DriveFile[]> {
   const drive = getDriveClient();
 

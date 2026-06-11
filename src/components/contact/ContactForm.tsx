@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
+const field =
+  "w-full bg-transparent border-0 border-b border-hairline focus:border-ink py-3.5 px-0.5 text-sm outline-none transition-colors placeholder:text-fog";
+
 export default function ContactForm() {
   const t = useTranslations("contact");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
@@ -33,82 +36,29 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
+    <form onSubmit={handleSubmit} className="flex flex-col">
       {/* Honeypot */}
       <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
 
-      <div>
-        <label className="block text-xs tracking-label uppercase text-muted mb-2">
-          {t("name")} *
-        </label>
-        <input
-          name="name"
-          type="text"
-          required
-          className="w-full px-4 py-3 border border-border font-body text-sm focus:outline-none focus:border-primary transition-colors"
-        />
-      </div>
+      <input name="name" type="text" required placeholder={`${t("name")} *`} className={field} />
+      <input name="email" type="email" required placeholder={`${t("email")} *`} className={field} />
+      <input name="subject" type="text" required placeholder={`${t("subject")} *`} className={field} />
+      <textarea name="message" required rows={4} placeholder={`${t("message")} *`} className={`${field} resize-none`} />
 
-      <div>
-        <label className="block text-xs tracking-label uppercase text-muted mb-2">
-          {t("email")} *
-        </label>
-        <input
-          name="email"
-          type="email"
-          required
-          className="w-full px-4 py-3 border border-border font-body text-sm focus:outline-none focus:border-primary transition-colors"
-        />
-      </div>
+      <label className="mt-6 text-xs text-fog cursor-pointer">
+        {t("file")}
+        <input name="file" type="file" className="block mt-2 text-xs text-fog file:mr-3 file:py-1.5 file:px-3 file:border file:border-hairline file:bg-transparent file:text-ink file:text-xs file:cursor-pointer" />
+      </label>
 
-      <div>
-        <label className="block text-xs tracking-label uppercase text-muted mb-2">
-          {t("subject")} *
-        </label>
-        <input
-          name="subject"
-          type="text"
-          required
-          className="w-full px-4 py-3 border border-border font-body text-sm focus:outline-none focus:border-primary transition-colors"
-        />
-      </div>
-
-      <div>
-        <label className="block text-xs tracking-label uppercase text-muted mb-2">
-          {t("message")} *
-        </label>
-        <textarea
-          name="message"
-          required
-          rows={6}
-          className="w-full px-4 py-3 border border-border font-body text-sm focus:outline-none focus:border-primary transition-colors resize-none"
-        />
-      </div>
-
-      <div>
-        <label className="block text-xs tracking-label uppercase text-muted mb-2">
-          {t("file")}
-        </label>
-        <input
-          name="file"
-          type="file"
-          className="w-full font-body text-sm text-muted file:mr-4 file:py-2 file:px-4 file:border file:border-border file:bg-surface file:text-primary file:text-xs file:tracking-label file:uppercase file:cursor-pointer"
-        />
-      </div>
-
-      {status === "success" && (
-        <p className="text-green-700 text-sm font-body">{t("success")}</p>
-      )}
-      {status === "error" && (
-        <p className="text-red-600 text-sm font-body">{errorMsg}</p>
-      )}
+      {status === "success" && <p className="mt-5 text-sm text-ink">{t("success")}</p>}
+      {status === "error" && <p className="mt-5 text-sm text-red-600">{errorMsg}</p>}
 
       <button
         type="submit"
         disabled={status === "sending"}
-        className="px-8 py-3 bg-primary text-white font-body text-sm tracking-nav uppercase hover:bg-accent-hover transition-colors disabled:opacity-50"
+        className="mt-8 self-start bg-ink text-paper text-xs tracking-[.1em] uppercase px-7 py-3.5 hover:opacity-80 transition-opacity disabled:opacity-50"
       >
-        {status === "sending" ? "..." : t("send")}
+        {status === "sending" ? "..." : `${t("send")} →`}
       </button>
     </form>
   );

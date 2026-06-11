@@ -6,6 +6,7 @@ export const images = sqliteTable("images", {
   titleDe: text("title_de"),
   titleEn: text("title_en"),
   tags: text("tags"),
+  projectId: text("project_id"),
   sortOrder: integer("sort_order").notNull().default(0),
   visible: integer("visible", { mode: "boolean" }).notNull().default(true),
   width: integer("width"),
@@ -36,4 +37,19 @@ export const clientLogos = sqliteTable("client_logos", {
 export const settings = sqliteTable("settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
+});
+
+export const projects = sqliteTable("projects", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  slug: text("slug").notNull().unique(),
+  titleDe: text("title_de").notNull(),
+  titleEn: text("title_en"),
+  category: text("category").notNull(), // 'sport' | 'hochzeit' | 'event'
+  year: integer("year").notNull(),
+  location: text("location"),
+  driveFolderId: text("drive_folder_id").notNull(),
+  coverImageId: text("cover_image_id"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  visible: integer("visible", { mode: "boolean" }).notNull().default(true),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
 });

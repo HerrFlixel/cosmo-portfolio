@@ -1,5 +1,5 @@
 import { db } from "./index";
-import { images, albums, clientLogos, settings } from "./schema";
+import { images, albums, clientLogos, settings, projects } from "./schema";
 import { eq, and, asc } from "drizzle-orm";
 
 export async function getVisibleImages() {
@@ -40,4 +40,70 @@ export async function verifyAlbumCode(code: string) {
   }
 
   return album;
+}
+
+export async function getVisibleProjects() {
+  return db
+    .select()
+    .from(projects)
+    .where(eq(projects.visible, true))
+    .orderBy(asc(projects.sortOrder), asc(projects.createdAt));
+}
+
+export interface ProjectWithCover {
+  id: string;
+  slug: string;
+  titleDe: string;
+  titleEn: string | null;
+  category: string;
+  year: number;
+  location: string | null;
+  coverId: string;
+}
+
+/** Sichtbare Projekte mit Cover (coverImageId oder erstes Bild); Projekte ohne Bilder werden ausgelassen. */
+export async function getProjectsWithCovers(): Promise<ProjectWithCover[]> {
+  const list = await getVisibleProjects();
+  const result: ProjectWithCover[] = [];
+  for (const p of list) {
+    let coverId = p.coverImageId;
+    if (!coverId) {
+      const first = await db
+        .select({ id: images.id })
+        .from(images)
+        .where(eq(images.projectId, p.id))
+        .orderBy(asc(images.sortOrder))
+        .limit(1);
+      coverId = first[0]?.id ?? null;
+    }
+    if (coverId) {
+      result.push({
+        id: p.id,
+        slug: p.slug,
+        titleDe: p.titleDe,
+        titleEn: p.titleEn,
+        category: p.category,
+        year: p.year,
+        location: p.location,
+        coverId,
+      });
+    }
+  }
+  return result;
+}
+
+export async function getProjectBySlug(slug: string) {
+  const result = await db
+    .select()
+    .from(projects)
+    .where(and(eq(projects.slug, slug), eq(projects.visible, true)));
+  return result[0] ?? null;
+}
+
+export async function getProjectImages(projectId: string) {
+  return db
+    .select()
+    .from(images)
+    .where(and(eq(images.projectId, projectId), eq(images.visible, true)))
+    .orderBy(asc(images.sortOrder));
 }

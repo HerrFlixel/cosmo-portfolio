@@ -68,7 +68,25 @@ export async function PATCH(request: NextRequest) {
   const { id, ...updates } = await request.json();
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-  await db.update(projects).set(updates).where(eq(projects.id, id));
+  const ALLOWED_FIELDS = [
+    "titleDe",
+    "titleEn",
+    "category",
+    "year",
+    "location",
+    "driveFolderId",
+    "coverImageId",
+    "sortOrder",
+    "visible",
+  ] as const;
+  const filtered = Object.fromEntries(
+    Object.entries(updates).filter(([key]) => (ALLOWED_FIELDS as readonly string[]).includes(key))
+  );
+  if (Object.keys(filtered).length === 0) {
+    return NextResponse.json({ error: "Keine gültigen Felder" }, { status: 400 });
+  }
+
+  await db.update(projects).set(filtered).where(eq(projects.id, id));
   return NextResponse.json({ success: true });
 }
 

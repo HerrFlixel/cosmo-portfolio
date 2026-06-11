@@ -17,12 +17,21 @@ export async function POST(request: NextRequest) {
 
   try {
     const driveFiles = await listImagesInFolder(project.driveFolderId);
+    // Dedup absichtlich global: driveFileId ist UNIQUE über alle Bilder
+    // (auch Alt-Bestände ohne projectId) — ein erneuter Insert würde crashen.
     const existing = await db.select({ driveFileId: images.driveFileId }).from(images);
     const existingIds = new Set(existing.map((img) => img.driveFileId));
+
+    const projectImages = await db
+      .select({ sortOrder: images.sortOrder })
+      .from(images)
+      .where(eq(images.projectId, projectId));
+    const maxOrder = projectImages.reduce((max, img) => Math.max(max, img.sortOrder), 0);
 
     let added = 0;
     for (const file of driveFiles) {
       if (!existingIds.has(file.id)) {
+        added++;
         await db.insert(images).values({
           driveFileId: file.id,
           projectId,
@@ -30,9 +39,8 @@ export async function POST(request: NextRequest) {
           titleEn: file.name.replace(/\.[^.]+$/, ""),
           width: file.imageMediaMetadata?.width || null,
           height: file.imageMediaMetadata?.height || null,
-          sortOrder: added + 1,
+          sortOrder: maxOrder + added,
         });
-        added++;
       }
     }
 

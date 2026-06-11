@@ -45,3 +45,6 @@ next-env.d.ts
 local.db
 *.db-shm
 *.db-wal
+
+# Firecrawl Scrape-Cache
+.firecrawl/

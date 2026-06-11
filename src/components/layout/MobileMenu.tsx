@@ -26,6 +26,7 @@ export default function MobileMenu({ open, onClose }: { open: boolean; onClose: 
             key={item.key}
             href={item.href}
             onClick={onClose}
+            tabIndex={open ? 0 : -1}
             className="text-4xl font-medium tracking-tight text-ink py-2"
             style={{
               transition: "opacity .5s cubic-bezier(.16,1,.3,1), transform .5s cubic-bezier(.16,1,.3,1)",

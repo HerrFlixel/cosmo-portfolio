@@ -48,9 +48,11 @@ export default function Header({ statusText }: { statusText: string }) {
           </nav>
 
           <button
+            type="button"
             className="md:hidden flex flex-col gap-1.5 p-2"
             onClick={() => setOpen(!open)}
             aria-label="Menü"
+            aria-expanded={open}
           >
             <span className={`w-6 h-px bg-ink transition-transform ${open ? "rotate-45 translate-y-[3.5px]" : ""}`} />
             <span className={`w-6 h-px bg-ink transition-transform ${open ? "-rotate-45 -translate-y-[3.5px]" : ""}`} />

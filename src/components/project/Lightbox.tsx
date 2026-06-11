@@ -12,19 +12,29 @@ interface LightboxProps {
 export default function Lightbox({ imageIds, currentIndex, onClose, onNavigate }: LightboxProps) {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight" && currentIndex < imageIds.length - 1) onNavigate(currentIndex + 1);
-      if (e.key === "ArrowLeft" && currentIndex > 0) onNavigate(currentIndex - 1);
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+      if (e.key === "ArrowRight" && currentIndex < imageIds.length - 1) {
+        e.preventDefault();
+        onNavigate(currentIndex + 1);
+      }
+      if (e.key === "ArrowLeft" && currentIndex > 0) {
+        e.preventDefault();
+        onNavigate(currentIndex - 1);
+      }
     },
     [currentIndex, imageIds.length, onClose, onNavigate]
   );
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
+    const savedOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
+      document.body.style.overflow = savedOverflow;
     };
   }, [handleKeyDown]);
 

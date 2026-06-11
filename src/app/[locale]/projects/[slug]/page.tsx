@@ -27,16 +27,18 @@ export default async function ProjectPage({ params }: Props) {
   const project = await getProjectBySlug(slug);
   if (!project) notFound();
 
-  const imgs = await getProjectImages(project.id);
-  const all = await getVisibleProjects();
-  const index = all.findIndex((p) => p.id === project.id);
+  const [imgs, all] = await Promise.all([getProjectImages(project.id), getVisibleProjects()]);
+  const index = Math.max(0, all.findIndex((p) => p.id === project.id));
   const prev = all[(index - 1 + all.length) % all.length];
   const next = all[(index + 1) % all.length];
 
   const title = (p: { titleDe: string; titleEn: string | null }) =>
     locale === "en" && p.titleEn ? p.titleEn : p.titleDe;
 
-  const coverId = project.coverImageId ?? imgs[0]?.id ?? null;
+  const coverId =
+    (project.coverImageId && imgs.some((img) => img.id === project.coverImageId)
+      ? project.coverImageId
+      : imgs[0]?.id) ?? null;
   const gridIds = imgs.map((img) => img.id).filter((id) => id !== coverId);
 
   return (

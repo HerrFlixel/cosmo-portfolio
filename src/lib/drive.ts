@@ -14,6 +14,14 @@ function getDriveClient() {
   return google.drive({ version: "v3", auth });
 }
 
+/** Akzeptiert eine nackte Ordner-ID oder einen kompletten Drive-Link und liefert die ID. */
+export function extractDriveFolderId(input: string): string {
+  const trimmed = input.trim();
+  const fromUrl = trimmed.match(/\/folders\/([A-Za-z0-9_-]+)/);
+  if (fromUrl) return fromUrl[1];
+  return trimmed.split(/[?#]/)[0];
+}
+
 export interface DriveFile {
   id: string;
   name: string;

@@ -60,6 +60,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ synced: added, adopted, total: driveFiles.length });
   } catch (error) {
     console.error("Project sync error:", error);
-    return NextResponse.json({ error: "Sync fehlgeschlagen — Drive-Ordner-ID prüfen" }, { status: 500 });
+    const code = (error as { code?: number }).code;
+    const message =
+      code === 404
+        ? "Drive-Ordner nicht gefunden — ID prüfen und Ordner für den Service-Account freigeben"
+        : code === 403
+          ? "Kein Zugriff auf den Drive-Ordner — Ordner für den Service-Account freigeben"
+          : "Sync fehlgeschlagen — Drive-Ordner-ID prüfen";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

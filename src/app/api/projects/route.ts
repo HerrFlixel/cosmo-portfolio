@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { projects, images } from "@/lib/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { slugify } from "@/lib/slug";
+import { extractDriveFolderId } from "@/lib/drive";
 
 export async function GET() {
   const session = await auth();
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
       category,
       year: Number(year),
       location: location || null,
-      driveFolderId,
+      driveFolderId: extractDriveFolderId(driveFolderId),
       sortOrder: maxOrder + 1,
     })
     .returning();
@@ -84,6 +85,9 @@ export async function PATCH(request: NextRequest) {
   );
   if (Object.keys(filtered).length === 0) {
     return NextResponse.json({ error: "Keine gültigen Felder" }, { status: 400 });
+  }
+  if (typeof filtered.driveFolderId === "string") {
+    filtered.driveFolderId = extractDriveFolderId(filtered.driveFolderId);
   }
 
   await db.update(projects).set(filtered).where(eq(projects.id, id));

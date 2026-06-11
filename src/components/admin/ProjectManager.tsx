@@ -30,6 +30,7 @@ export default function ProjectManager() {
   const [form, setForm] = useState({ ...emptyForm });
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [coverPickerFor, setCoverPickerFor] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -97,15 +98,20 @@ export default function ProjectManager() {
   async function sync(id: string) {
     setBusy(id);
     setError("");
+    setNotice("");
     try {
       const res = await fetch("/api/projects/sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectId: id }),
       });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         setError(data.error || "Sync fehlgeschlagen");
+      } else if (data.total === 0) {
+        setNotice("Ordner erreichbar, aber keine Bilder gefunden — liegt dort wirklich etwas (keine Unterordner)?");
+      } else {
+        setNotice(`Sync OK: ${data.synced} neu, ${data.adopted ?? 0} zugeordnet, ${data.total} Bilder im Ordner.`);
       }
       await load();
     } catch {
@@ -161,6 +167,7 @@ export default function ProjectManager() {
   return (
     <div className="space-y-10 max-w-5xl">
       {error && <p className="text-red-600 text-sm">{error}</p>}
+      {notice && <p className="text-green-700 text-sm">{notice}</p>}
 
       {/* Neues Projekt */}
       <form onSubmit={create} className="bg-white border border-border p-6 grid grid-cols-2 gap-4">

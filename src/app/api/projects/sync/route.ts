@@ -17,20 +17,26 @@ export async function POST(request: NextRequest) {
 
   try {
     const driveFiles = await listImagesInFolder(project.driveFolderId);
-    // Dedup absichtlich global: driveFileId ist UNIQUE über alle Bilder
-    // (auch Alt-Bestände ohne projectId) — ein erneuter Insert würde crashen.
-    const existing = await db.select({ driveFileId: images.driveFileId }).from(images);
-    const existingIds = new Set(existing.map((img) => img.driveFileId));
+    // Dedup global: driveFileId ist UNIQUE über alle Bilder. Alt-Bilder ohne
+    // Projekt (aus dem früheren flachen Portfolio-Sync) werden adoptiert,
+    // Bilder anderer Projekte bleiben unangetastet.
+    const existing = await db
+      .select({ id: images.id, driveFileId: images.driveFileId, projectId: images.projectId })
+      .from(images);
+    const byDriveId = new Map(existing.map((img) => [img.driveFileId, img]));
 
-    const projectImages = await db
+    const projectOrders = await db
       .select({ sortOrder: images.sortOrder })
       .from(images)
       .where(eq(images.projectId, projectId));
-    const maxOrder = projectImages.reduce((max, img) => Math.max(max, img.sortOrder), 0);
+    let order = projectOrders.reduce((max, img) => Math.max(max, img.sortOrder), 0);
 
     let added = 0;
+    let adopted = 0;
     for (const file of driveFiles) {
-      if (!existingIds.has(file.id)) {
+      const known = byDriveId.get(file.id);
+      if (!known) {
+        order++;
         added++;
         await db.insert(images).values({
           driveFileId: file.id,
@@ -39,12 +45,19 @@ export async function POST(request: NextRequest) {
           titleEn: file.name.replace(/\.[^.]+$/, ""),
           width: file.imageMediaMetadata?.width || null,
           height: file.imageMediaMetadata?.height || null,
-          sortOrder: maxOrder + added,
+          sortOrder: order,
         });
+      } else if (!known.projectId) {
+        order++;
+        adopted++;
+        await db
+          .update(images)
+          .set({ projectId, sortOrder: order, updatedAt: new Date().toISOString() })
+          .where(eq(images.id, known.id));
       }
     }
 
-    return NextResponse.json({ synced: added, total: driveFiles.length });
+    return NextResponse.json({ synced: added, adopted, total: driveFiles.length });
   } catch (error) {
     console.error("Project sync error:", error);
     return NextResponse.json({ error: "Sync fehlgeschlagen — Drive-Ordner-ID prüfen" }, { status: 500 });

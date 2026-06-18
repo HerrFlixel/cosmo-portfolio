@@ -7,9 +7,8 @@
   },
   "home": {
     "identity": "Cosmo Photos",
-    "role": "Photographer — Sports · Weddings · Events",
-    "empty": "Projects coming soon.",
-    "statusFallback": "Available for bookings"
+    "role": "Photographer for sports, weddings and events",
+    "empty": "Projects coming soon."
   },
   "categories": {
     "sport": "Sports",

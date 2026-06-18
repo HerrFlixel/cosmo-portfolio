@@ -18,10 +18,10 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: {
     template: "%s | Cosmo Photos",
-    default: "Cosmo Photos — Fotograf für Sport, Hochzeiten & Events",
+    default: "Cosmo Photos: Fotograf für Sport, Hochzeiten & Events",
   },
   description:
-    "Cosmo Photos — Fotografie für Vereine, Paare und Veranstalter. Sport, Hochzeiten und Events: ehrlich, nah dran, ohne Pose.",
+    "Cosmo Photos: Fotografie für Vereine, Paare und Veranstalter. Sport, Hochzeiten und Events: ehrlich, nah dran, ohne Pose.",
   keywords: [
     "Sportfotografie",
     "Hochzeitsfotograf",
@@ -37,9 +37,9 @@ export const metadata: Metadata = {
     locale: "de_DE",
     alternateLocale: "en_US",
     siteName: "Cosmo Photos",
-    title: "Cosmo Photos — Fotograf für Sport, Hochzeiten & Events",
+    title: "Cosmo Photos: Fotograf für Sport, Hochzeiten & Events",
     description:
-      "Fotografie für Vereine, Paare und Veranstalter — ehrlich, nah dran, ohne Pose.",
+      "Fotografie für Vereine, Paare und Veranstalter. Ehrlich, nah dran, ohne Pose.",
   },
 };
 

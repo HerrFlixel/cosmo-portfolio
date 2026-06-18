@@ -5,7 +5,7 @@ import { getSetting, getClientLogos } from "@/lib/db/queries";
 export const metadata: Metadata = {
   title: "Über mich",
   description:
-    "Cosmo Photos — Fotograf für Sport, Hochzeiten und Events. Nah dran, ohne aufzufallen.",
+    "Cosmo Photos: Fotograf für Sport, Hochzeiten und Events. Nah dran, ohne aufzufallen.",
 };
 
 export default async function AboutPage({

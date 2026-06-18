@@ -23,7 +23,7 @@ export default async function ContactPage() {
   ].filter(Boolean) as { label: string; url: string }[];
 
   return (
-    <div className="pt-[100px] px-6 md:px-10 pb-20">
+    <div className="pt-20 md:pt-[112px] px-6 md:px-10 pb-20">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-14 max-w-6xl">
         <div>
           <h1 className="text-4xl md:text-[44px] font-semibold tracking-tight leading-[1.05]">

@@ -22,7 +22,7 @@ export default function DownloadsPage() {
   const [code, setCode] = useState("");
 
   return (
-    <div className="pt-[100px] px-6 md:px-10 pb-20">
+    <div className="pt-20 md:pt-[112px] px-6 md:px-10 pb-20">
       {!verified ? (
         <div className="min-h-[55vh] flex flex-col items-center justify-center text-center">
           <p className="text-xs tracking-label uppercase text-fog mb-4">{t("label")}</p>

@@ -101,3 +101,168 @@ body {
   .reveal { animation-duration: 0.01s; }
   .panel-drift { animation: none; }
 }
+
+/* ============ Camera Navigation ============ */
+.camera-nav { transition: opacity 0.4s ease; }
+html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
+
+.cam {
+  position: relative;
+  width: min(92vw, 1000px);
+  height: 88px;
+  border-radius: 26px 26px 22px 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 0 12px;
+  background: linear-gradient(#2c2d2f, #1a1b1d 55%, #0e0f10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.6), 0 18px 40px -12px rgba(0, 0, 0, 0.45);
+}
+.cam::before {
+  content: "";
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 116px;
+  height: 20px;
+  border-radius: 7px 7px 4px 4px;
+  background: linear-gradient(#34353a, #1a1b1d);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.cam-shadow {
+  position: absolute;
+  inset: auto 5% -14px 5%;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.22), transparent 70%);
+  filter: blur(3px);
+  z-index: -1;
+}
+
+.cam-dial {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f0ede8;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  background: radial-gradient(circle at 38% 32%, #353638, #131415 78%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.14), 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+.cam-dial::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.1) 0 3deg, rgba(0, 0, 0, 0.18) 3deg 6deg);
+  -webkit-mask: radial-gradient(circle, transparent 60%, #000 61%);
+  mask: radial-gradient(circle, transparent 60%, #000 61%);
+  z-index: -1;
+}
+
+.cam-readout {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: #8a8884;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cam-nav { display: flex; align-items: center; gap: 26px; padding: 0 14px; flex: 1; justify-content: center; }
+.cam-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #cfcdc8;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.25s;
+  position: relative;
+}
+.cam-item:hover { color: #fff; }
+.cam-item.active { color: #fff; }
+.cam-item svg { width: 19px; height: 19px; }
+.cam-rec {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #e0a23a;
+  box-shadow: 0 0 7px #e0a23a;
+  animation: cam-rec-pulse 2s ease-in-out infinite;
+}
+
+.cam-ctrl { display: flex; align-items: center; gap: 13px; flex: 0 0 auto; padding-left: 4px; }
+.cam-knob {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, #2a2a2a 0 5deg, #4a4a4a 5deg 10deg);
+  border: 2px solid #1c1c1c;
+  transition: transform 0.4s ease;
+}
+.cam-knob:hover { transform: rotate(28deg); }
+.cam-social { display: flex; gap: 9px; align-items: center; }
+.cam-social a, .cam-social-deco { color: #cfcdc8; transition: color 0.2s; display: inline-flex; }
+.cam-social a:hover { color: #fff; }
+.cam-social svg { width: 16px; height: 16px; display: block; }
+.cam-shutter {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  position: relative;
+  flex: 0 0 auto;
+  padding: 0;
+  cursor: pointer;
+  background: radial-gradient(circle at 35% 30%, #6b6b6b, #1a1a1a 75%);
+  border: 2px solid #d4a24a;
+  transition: transform 0.1s ease;
+}
+.cam-shutter:hover { transform: scale(1.06); }
+.cam-shutter:active { transform: scale(0.92); }
+.cam-shutter::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e23b2e;
+  box-shadow: 0 0 7px #e23b2e;
+}
+.cam-lang { color: #8a8884; display: inline-flex; align-items: center; }
+
+.cam-flash {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 60;
+}
+.cam-flash.on { animation: cam-flash 0.32s ease; }
+
+@keyframes cam-rec-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes cam-flash { 0% { opacity: 0; } 18% { opacity: 0.6; } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cam-rec { animation: none; }
+  .cam-knob { transition: none; }
+  .cam-flash.on { animation: none; }
+}

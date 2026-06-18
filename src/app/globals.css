@@ -248,14 +248,15 @@ html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
   width: 1000px;
   height: 150px;
   transform-style: preserve-3d;
-  transform: translate(-50%, -50%) rotateX(0deg);
-  animation: cam-spin 1.9s cubic-bezier(0.6, 0.02, 0.2, 1) forwards;
+  --cam-scale: 1;
   /* Andock-Versatz: an die Ruhelage der CameraNav anpassen (pt-2 + halbe Barhöhe). */
   --dock-y: calc(-50vh + 52px);
+  transform: translate(-50%, -50%) scale(var(--cam-scale)) rotateX(0deg);
+  animation: cam-spin 1.9s cubic-bezier(0.6, 0.02, 0.2, 1) forwards;
 }
-/* Auf schmalen Desktop-Breiten herunterskalieren, damit die 1000px passen. */
+/* Auf schmalen Desktop-Breiten herunterskalieren (greift via Variable auch während der Animation). */
 @media (max-width: 1040px) {
-  .cam-rig { transform: translate(-50%, -50%) scale(calc((100vw - 32px) / 1000)) rotateX(0deg); }
+  .cam-rig { --cam-scale: calc((100vw - 32px) / 1000); }
 }
 
 .cam-face { position: absolute; }
@@ -362,8 +363,8 @@ html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
 }
 
 @keyframes cam-spin {
-  0% { transform: translate(-50%, -50%) rotateX(0deg); }
-  25% { transform: translate(-50%, -50%) rotateX(0deg); }
-  100% { transform: translate(-50%, var(--dock-y)) rotateX(-90deg); }
+  0% { transform: translate(-50%, -50%) scale(var(--cam-scale)) rotateX(0deg); }
+  25% { transform: translate(-50%, -50%) scale(var(--cam-scale)) rotateX(0deg); }
+  100% { transform: translate(-50%, var(--dock-y)) scale(var(--cam-scale)) rotateX(-90deg); }
 }
 @keyframes cam-backdrop-out { to { opacity: 0; } }

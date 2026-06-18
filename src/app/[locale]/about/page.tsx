@@ -46,7 +46,6 @@ export default async function AboutPage({
         </div>
 
         <div className="md:col-span-5 md:pt-14">
-          <p className="text-xs tracking-label uppercase text-fog mb-4">{t("label")}</p>
           <div className="text-sm leading-[1.85] text-ink/75 whitespace-pre-line">{bio}</div>
 
           {logos.length > 0 && (

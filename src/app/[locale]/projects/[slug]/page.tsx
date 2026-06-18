@@ -45,8 +45,8 @@ export default async function ProjectPage({ params }: Props) {
     <div className="pt-20 md:pt-[112px] px-6 md:px-10 pb-16">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <p className="font-mono text-xs text-fog mb-3">
-            {String(index + 1).padStart(2, "0")} / {tc(project.category as "sport" | "hochzeit" | "event")}
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-fog mb-3">
+            {tc(project.category as "sport" | "hochzeit" | "event")}
           </p>
           <h1 className="text-4xl md:text-[54px] font-semibold tracking-tight leading-[.95]">
             {title(project)}

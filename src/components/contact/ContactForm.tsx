@@ -40,10 +40,22 @@ export default function ContactForm() {
       {/* Honeypot */}
       <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
 
-      <input name="name" type="text" required aria-label={t("name")} placeholder={`${t("name")} *`} className={field} />
-      <input name="email" type="email" required aria-label={t("email")} placeholder={`${t("email")} *`} className={field} />
-      <input name="subject" type="text" required aria-label={t("subject")} placeholder={`${t("subject")} *`} className={field} />
-      <textarea name="message" required rows={4} aria-label={t("message")} placeholder={`${t("message")} *`} className={`${field} resize-none`} />
+      <div className="flex flex-col gap-1.5 mb-5">
+        <label htmlFor="cf-name" className="text-xs text-fog">{t("name")} *</label>
+        <input id="cf-name" name="name" type="text" required className={field} />
+      </div>
+      <div className="flex flex-col gap-1.5 mb-5">
+        <label htmlFor="cf-email" className="text-xs text-fog">{t("email")} *</label>
+        <input id="cf-email" name="email" type="email" required className={field} />
+      </div>
+      <div className="flex flex-col gap-1.5 mb-5">
+        <label htmlFor="cf-subject" className="text-xs text-fog">{t("subject")} *</label>
+        <input id="cf-subject" name="subject" type="text" required className={field} />
+      </div>
+      <div className="flex flex-col gap-1.5 mb-5">
+        <label htmlFor="cf-message" className="text-xs text-fog">{t("message")} *</label>
+        <textarea id="cf-message" name="message" required rows={4} className={`${field} resize-none`} />
+      </div>
 
       <label className="mt-6 text-xs text-fog cursor-pointer">
         {t("file")}

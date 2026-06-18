@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import CameraBar from "@/components/layout/CameraBar";
+import CosmoLogo from "@/components/layout/CosmoLogo";
 
 // Nach diesem Zeitpunkt läuft die Andock-Phase bereits — ein Skip würde rucklern.
 const SKIP_CUTOFF_MS = 1500;
@@ -53,9 +54,7 @@ export default function CameraIntro({
           <div className="cam-vf" />
           <div className="cam-lens" />
           <div className="cam-grip" />
-          <span className="cam-brand">
-            cosmo<span style={{ fontSize: "10px" }}>.</span>
-          </span>
+          <CosmoLogo className="cam-brand" />
         </div>
         <div className="cam-face cam-back" />
         <div className="cam-face cam-left" />

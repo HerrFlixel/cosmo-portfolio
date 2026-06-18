@@ -348,12 +348,11 @@ html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
 }
 .cam-brand {
   position: absolute;
-  left: 120px;
-  top: 132px;
+  left: 24px;
+  top: 114px;
+  width: 96px;
+  height: auto;
   color: #cfcdc8;
-  font-style: italic;
-  font-weight: 600;
-  font-size: 15px;
 }
 
 .cam-skip .cam-rig,

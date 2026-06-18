@@ -98,44 +98,14 @@ html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
   z-index: -1;
 }
 
-.cam-dial {
-  position: relative;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
+.cam-logo {
   flex: 0 0 auto;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   color: #f0ede8;
-  font-style: italic;
-  font-weight: 600;
-  font-size: 16px;
   text-decoration: none;
-  background: radial-gradient(circle at 38% 32%, #353638, #131415 78%);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.14), 0 2px 5px rgba(0, 0, 0, 0.5);
 }
-.cam-dial::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.1) 0 3deg, rgba(0, 0, 0, 0.18) 3deg 6deg);
-  -webkit-mask: radial-gradient(circle, transparent 60%, #000 61%);
-  mask: radial-gradient(circle, transparent 60%, #000 61%);
-  z-index: -1;
-}
-
-.cam-readout {
-  font-family: var(--font-mono), monospace;
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  color: #8a8884;
-  white-space: nowrap;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.cam-logo-svg { width: 92px; height: auto; display: block; }
 
 .cam-nav { display: flex; align-items: center; gap: 26px; padding: 0 14px; flex: 1; justify-content: center; }
 .cam-item {
@@ -244,14 +214,16 @@ html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
 .cam-rig {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 0;
   width: 1000px;
-  height: 150px;
+  height: 600px;
   transform-style: preserve-3d;
+  transform-origin: 50% 0;
   --cam-scale: 1;
-  /* Andock-Versatz: an die Ruhelage der CameraNav anpassen (pt-2 + halbe Barhöhe). */
-  --dock-y: calc(-50vh + 52px);
-  transform: translate(-50%, -50%) scale(var(--cam-scale)) rotateX(0deg);
+  /* Kipp-Achse oben (transform-origin) liegt deckungsgleich mit der Oberseite →
+     diese dockt ohne Perspektiv-Verzerrung auf der CameraNav-Ruhelage an
+     (pt-2 8px + halbe Barhöhe 44px = 52px von oben). */
+  transform: translate(-50%, calc(50vh - 300px)) scale(var(--cam-scale)) rotateX(0deg);
   animation: cam-spin 1.9s cubic-bezier(0.6, 0.02, 0.2, 1) forwards;
 }
 /* Auf schmalen Desktop-Breiten herunterskalieren (greift via Variable auch während der Animation). */
@@ -259,100 +231,190 @@ html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
   .cam-rig { --cam-scale: calc((100vw - 32px) / 1000); }
 }
 
-.cam-face { position: absolute; }
+.cam-face { position: absolute; backface-visibility: hidden; }
 .cam-front {
   width: 1000px;
-  height: 150px;
+  height: 600px;
   transform: translateZ(44px);
-  border-radius: 16px;
+  border-radius: 26px;
   overflow: hidden;
-  background: linear-gradient(#2c2d2f, #161719 60%, #0e0f10);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -4px 10px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(#27282a, #191a1c 50%, #121315);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.07), inset 0 -10px 26px rgba(0, 0, 0, 0.6);
+}
+/* Diamant-Griff auf dem Body */
+.cam-front::before {
+  content: "";
+  position: absolute;
+  inset: 84px 0 0 0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.42) 0 1px, transparent 1px 8px);
 }
 .cam-back {
   width: 1000px;
-  height: 150px;
+  height: 600px;
   transform: rotateY(180deg) translateZ(44px);
-  background: #0c0d0e;
-  border-radius: 16px;
+  background: #0b0c0d;
+  border-radius: 26px;
 }
-.cam-top { width: 1000px; height: 88px; transform: rotateX(90deg) translateZ(75px); }
+.cam-top { width: 1000px; height: 88px; transform: rotateX(90deg) translateZ(300px); }
 .cam-bottom {
   width: 1000px;
   height: 88px;
-  transform: rotateX(-90deg) translateZ(75px);
+  transform: rotateX(-90deg) translateZ(300px);
   background: #0a0a0b;
-  border-radius: 16px;
 }
 .cam-left {
   width: 88px;
-  height: 150px;
+  height: 600px;
   transform: rotateY(-90deg) translateZ(500px);
   background: linear-gradient(#1c1d1f, #0c0d0e);
 }
 .cam-right {
   width: 88px;
-  height: 150px;
+  height: 600px;
   transform: rotateY(90deg) translateZ(500px);
   background: linear-gradient(#1c1d1f, #0c0d0e);
 }
 
-/* Frontdetails */
-.cam-vf {
+/* ---- Front: minimalistische Kamera (Leica-Geist) ---- */
+.cam-top-plate {
   position: absolute;
+  inset: 0 0 auto 0;
+  height: 84px;
+  background: linear-gradient(#303133, #202123);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+  z-index: 3;
+}
+.cam-hotshoe {
+  position: absolute;
+  top: 10px;
   left: 50%;
-  top: 8px;
   transform: translateX(-50%);
-  width: 130px;
-  height: 18px;
+  width: 116px;
+  height: 32px;
   border-radius: 5px;
-  background: #0c0d0e;
+  background: linear-gradient(#1a1b1d, #0e0f10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  z-index: 4;
+}
+.cam-hotshoe::after {
+  content: "";
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 9px;
+  background: #000;
+  border-radius: 2px;
+}
+.cam-tdial {
+  position: absolute;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, #3a3b3d 0 4deg, #222325 4deg 8deg);
+  border: 2px solid #141517;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 2px 4px rgba(0, 0, 0, 0.5);
+  z-index: 4;
+}
+.cam-tdial-1 { top: 16px; left: 150px; width: 54px; height: 54px; }
+.cam-tdial-2 { top: 22px; left: 226px; width: 44px; height: 44px; }
+.cam-lug {
+  position: absolute;
+  top: 160px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #9a9ca0, #3a3b3d);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  z-index: 4;
+}
+.cam-lug-l { left: -8px; }
+.cam-lug-r { right: -8px; }
+.cam-brand {
+  position: absolute;
+  top: 104px;
+  right: 70px;
+  width: 120px;
+  height: auto;
+  color: #cfcdc8;
+  opacity: 0.92;
+  z-index: 5;
 }
 .cam-lens {
   position: absolute;
-  left: 120px;
-  top: 26px;
-  width: 100px;
-  height: 100px;
+  top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 372px;
+  height: 372px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, #3a3b3d 0 38%, #18191b 39% 60%, #2a2b2d 61% 74%, #0d0e0f 75%);
-  box-shadow: 0 0 0 3px #0a0a0b, inset 0 2px 6px rgba(0, 0, 0, 0.7);
+  z-index: 5;
+  background: radial-gradient(circle at 50% 46%, #1a1b1d, #0a0b0c 78%);
+  box-shadow: 0 0 0 2px #060607, 0 18px 36px -10px rgba(0, 0, 0, 0.85), inset 0 2px 5px rgba(255, 255, 255, 0.05);
 }
-.cam-lens::before {
-  content: "";
+.cam-knurl {
   position: absolute;
-  inset: 24px;
+  inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 32%, #5b6b78, #10131a 70%);
-  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
+  background: repeating-conic-gradient(from 0deg, #36373b 0 1.3deg, #141519 1.3deg 2.6deg);
+  -webkit-mask: radial-gradient(circle, transparent 78%, #000 79%);
+  mask: radial-gradient(circle, transparent 78%, #000 79%);
 }
-.cam-lens::after {
-  content: "";
+.cam-engrave {
   position: absolute;
-  left: 30px;
-  top: 28px;
-  width: 20px;
-  height: 12px;
+  inset: 36px;
   border-radius: 50%;
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0.55), transparent);
-  filter: blur(1px);
+  background: linear-gradient(#1c1d1f, #101113);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
-.cam-grip {
+.cam-eng-top {
   position: absolute;
+  top: 16px;
+  left: 0;
   right: 0;
-  top: 0;
-  width: 70px;
-  height: 150px;
-  border-radius: 0 16px 16px 0;
-  background: repeating-linear-gradient(90deg, #202123 0 3px, #161719 3px 6px);
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.42em;
+  color: #b9b7b2;
 }
-.cam-brand {
+.cam-eng-bot {
   position: absolute;
-  left: 24px;
-  top: 114px;
-  width: 96px;
-  height: auto;
-  color: #cfcdc8;
+  bottom: 15px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: #7e7d79;
+}
+.cam-glass {
+  position: absolute;
+  inset: 78px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 42% 36%, #43525f 0%, #1a2230 30%, #070a0f 70%);
+  box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.9), inset 0 0 0 3px #0a0c0f;
+}
+.cam-glass::before {
+  content: "";
+  position: absolute;
+  left: 26%;
+  top: 20%;
+  width: 56px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(125deg, rgba(190, 215, 235, 0.7), transparent 70%);
+  filter: blur(2px);
+}
+.cam-glass::after {
+  content: "";
+  position: absolute;
+  inset: 24%;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(120, 150, 180, 0.25);
 }
 
 .cam-skip .cam-rig,
@@ -362,8 +424,8 @@ html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
 }
 
 @keyframes cam-spin {
-  0% { transform: translate(-50%, -50%) scale(var(--cam-scale)) rotateX(0deg); }
-  25% { transform: translate(-50%, -50%) scale(var(--cam-scale)) rotateX(0deg); }
-  100% { transform: translate(-50%, var(--dock-y)) scale(var(--cam-scale)) rotateX(-90deg); }
+  0% { transform: translate(-50%, calc(50vh - 300px)) scale(var(--cam-scale)) rotateX(0deg); }
+  25% { transform: translate(-50%, calc(50vh - 300px)) scale(var(--cam-scale)) rotateX(0deg); }
+  100% { transform: translate(-50%, 52px) scale(var(--cam-scale)) rotateX(-90deg); }
 }
 @keyframes cam-backdrop-out { to { opacity: 0; } }

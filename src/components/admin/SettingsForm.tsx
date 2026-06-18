@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 
 const fields = [
-  { key: "status_text_de", label: "Status-Zeile Header (Deutsch)", type: "input" },
-  { key: "status_text_en", label: "Status-Zeile Header (English)", type: "input" },
   { key: "about_headline_de", label: "About-Headline (Deutsch)", type: "input" },
   { key: "about_headline_en", label: "About-Headline (English)", type: "input" },
   { key: "bio_de", label: "Bio (Deutsch)", type: "textarea" },

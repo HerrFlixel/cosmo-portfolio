@@ -4,13 +4,12 @@ import { useState } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import CameraBar from "./CameraBar";
 import MobileMenu from "./MobileMenu";
+import CosmoLogo from "./CosmoLogo";
 
 export default function CameraNav({
-  statusText,
   instagramUrl,
   linkedinUrl,
 }: {
-  statusText: string;
   instagramUrl?: string | null;
   linkedinUrl?: string | null;
 }) {
@@ -25,7 +24,6 @@ export default function CameraNav({
           <span className="cam-shadow" />
           <CameraBar
             activePath={pathname}
-            statusText={statusText}
             instagramUrl={instagramUrl}
             linkedinUrl={linkedinUrl}
           />
@@ -34,12 +32,8 @@ export default function CameraNav({
 
       {/* Mobil: kompakte Leiste + Auslöser öffnet Fullscreen-Menü */}
       <div className="camera-nav md:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 h-14 bg-[#141416]">
-        <Link
-          href="/"
-          aria-label="Startseite"
-          className="cam-dial !w-9 !h-9 text-[13px]"
-        >
-          co<span style={{ fontSize: "7px" }}>.</span>
+        <Link href="/" aria-label="Startseite" className="cam-logo text-[#f0ede8]">
+          <CosmoLogo className="h-4 w-auto" />
         </Link>
         <button
           type="button"

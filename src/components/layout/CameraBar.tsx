@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import LanguageToggle from "./LanguageToggle";
+import CosmoLogo from "./CosmoLogo";
 
 type NavKey = "projects" | "about" | "contact" | "downloads";
 type NavHref = "/" | "/about" | "/contact" | "/downloads";
@@ -68,13 +69,11 @@ const LinkedInIcon = (
 
 export default function CameraBar({
   activePath,
-  statusText,
   instagramUrl,
   linkedinUrl,
   decorative = false,
 }: {
   activePath: string;
-  statusText?: string;
   instagramUrl?: string | null;
   linkedinUrl?: string | null;
   decorative?: boolean;
@@ -91,16 +90,14 @@ export default function CameraBar({
   return (
     <>
       {decorative ? (
-        <span className="cam-dial">
-          co<span style={{ fontSize: "8px" }}>.</span>
+        <span className="cam-logo" aria-label="Cosmo Photos">
+          <CosmoLogo className="cam-logo-svg" />
         </span>
       ) : (
-        <Link href="/" aria-label="Startseite" className="cam-dial">
-          co<span style={{ fontSize: "8px" }}>.</span>
+        <Link href="/" aria-label="Startseite" className="cam-logo">
+          <CosmoLogo className="cam-logo-svg" />
         </Link>
       )}
-
-      {statusText && <span className="cam-readout hidden lg:block">{statusText}</span>}
 
       <nav className="cam-nav">
         {NAV.map((item) => {

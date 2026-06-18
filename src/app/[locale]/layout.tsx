@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations } from "next-intl/server";
+import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import CameraNav from "@/components/layout/CameraNav";
@@ -19,17 +19,14 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
-  const t = await getTranslations("home");
-  const [statusSetting, instagramUrl, linkedinUrl] = await Promise.all([
-    getSetting(locale === "en" ? "status_text_en" : "status_text_de"),
+  const [instagramUrl, linkedinUrl] = await Promise.all([
     getSetting("instagram_url"),
     getSetting("linkedin_url"),
   ]);
-  const statusText = statusSetting || t("statusFallback");
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <CameraNav statusText={statusText} instagramUrl={instagramUrl} linkedinUrl={linkedinUrl} />
+      <CameraNav instagramUrl={instagramUrl} linkedinUrl={linkedinUrl} />
       <main>{children}</main>
     </NextIntlClientProvider>
   );

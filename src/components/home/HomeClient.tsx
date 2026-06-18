@@ -8,10 +8,8 @@ const KEY = "cosmo-intro-seen";
 
 export default function HomeClient({
   projects,
-  statusText,
 }: {
   projects: PanelProject[];
-  statusText: string;
 }) {
   // introRan bleibt stabil (steuert HomeStage-Reveal-Delays); overlay steuert nur das Mounten.
   const [introRan, setIntroRan] = useState<boolean | null>(null);
@@ -42,9 +40,7 @@ export default function HomeClient({
 
   return (
     <>
-      {overlay && (
-        <CameraIntro statusText={statusText} onReveal={revealNav} onDone={finishIntro} />
-      )}
+      {overlay && <CameraIntro onReveal={revealNav} onDone={finishIntro} />}
       <HomeStage projects={projects} delayed={introRan} />
     </>
   );

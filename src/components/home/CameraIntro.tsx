@@ -8,11 +8,9 @@ import CosmoLogo from "@/components/layout/CosmoLogo";
 const SKIP_CUTOFF_MS = 1500;
 
 export default function CameraIntro({
-  statusText,
   onReveal,
   onDone,
 }: {
-  statusText: string;
   onReveal: () => void;
   onDone: () => void;
 }) {
@@ -51,10 +49,22 @@ export default function CameraIntro({
       <div className="cam-backdrop" />
       <div className="cam-rig">
         <div className="cam-face cam-front">
-          <div className="cam-vf" />
-          <div className="cam-lens" />
-          <div className="cam-grip" />
+          <div className="cam-top-plate">
+            <span className="cam-hotshoe" />
+            <span className="cam-tdial cam-tdial-1" />
+            <span className="cam-tdial cam-tdial-2" />
+          </div>
+          <span className="cam-lug cam-lug-l" />
+          <span className="cam-lug cam-lug-r" />
           <CosmoLogo className="cam-brand" />
+          <div className="cam-lens">
+            <span className="cam-knurl" />
+            <span className="cam-engrave">
+              <span className="cam-eng-top">COSMO</span>
+              <span className="cam-eng-bot">1 : 1.7 / 28 ASPH.</span>
+            </span>
+            <span className="cam-glass" />
+          </div>
         </div>
         <div className="cam-face cam-back" />
         <div className="cam-face cam-left" />
@@ -63,7 +73,7 @@ export default function CameraIntro({
         <div className="cam-face cam-top">
           <div className="cam">
             <span className="cam-shadow" />
-            <CameraBar activePath="/" statusText={statusText} decorative />
+            <CameraBar activePath="/" decorative />
           </div>
         </div>
       </div>

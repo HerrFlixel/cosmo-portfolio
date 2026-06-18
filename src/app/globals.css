@@ -16,49 +16,6 @@ body {
   color: #f4f4f2;
 }
 
-/* ---------- Intro-Overlay ---------- */
-.intro-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: #f4f4f2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  animation: intro-lift 1s cubic-bezier(0.7, 0, 0.3, 1) 2.9s forwards;
-}
-.intro-letters {
-  clip-path: inset(0 100% 0 0);
-  animation: intro-wipe 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.3s forwards;
-}
-.intro-swoosh {
-  clip-path: inset(0 100% -20% 0);
-  animation: intro-wipe 0.9s cubic-bezier(0.65, 0, 0.35, 1) 1.15s forwards;
-}
-.intro-photos span {
-  opacity: 0;
-  transform: translateY(8px);
-  animation: intro-char 0.5s ease forwards;
-}
-/* Klick = Skip: alle Delays kollabieren */
-.intro-skip,
-.intro-skip .intro-letters,
-.intro-skip .intro-swoosh,
-.intro-skip .intro-photos span {
-  animation-delay: 0s !important;
-  animation-duration: 0.3s !important;
-}
-@keyframes intro-wipe {
-  to { clip-path: inset(0 0% -20% 0); }
-}
-@keyframes intro-char {
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes intro-lift {
-  to { transform: translateY(-101%); visibility: hidden; }
-}
-
 /* ---------- Homepage-Panels ---------- */
 .panel {
   transition: flex-grow 0.65s cubic-bezier(0.16, 1, 0.3, 1);
@@ -266,3 +223,147 @@ html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
   .cam-knob { transition: none; }
   .cam-flash.on { animation: none; }
 }
+
+/* ============ Camera Intro (3D) ============ */
+.cam-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  perspective: 1500px;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.45s ease;
+}
+.cam-scene.cam-exit { opacity: 0; }
+.cam-backdrop {
+  position: absolute;
+  inset: 0;
+  background: #0c0c0d;
+  animation: cam-backdrop-out 0.7s ease 1s forwards;
+}
+.cam-rig {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1000px;
+  height: 150px;
+  transform-style: preserve-3d;
+  transform: translate(-50%, -50%) rotateX(0deg);
+  animation: cam-spin 1.9s cubic-bezier(0.6, 0.02, 0.2, 1) forwards;
+  /* Andock-Versatz: an die Ruhelage der CameraNav anpassen (pt-2 + halbe Barhöhe). */
+  --dock-y: calc(-50vh + 52px);
+}
+/* Auf schmalen Desktop-Breiten herunterskalieren, damit die 1000px passen. */
+@media (max-width: 1040px) {
+  .cam-rig { transform: translate(-50%, -50%) scale(calc((100vw - 32px) / 1000)) rotateX(0deg); }
+}
+
+.cam-face { position: absolute; }
+.cam-front {
+  width: 1000px;
+  height: 150px;
+  transform: translateZ(44px);
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(#2c2d2f, #161719 60%, #0e0f10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -4px 10px rgba(0, 0, 0, 0.6);
+}
+.cam-back {
+  width: 1000px;
+  height: 150px;
+  transform: rotateY(180deg) translateZ(44px);
+  background: #0c0d0e;
+  border-radius: 16px;
+}
+.cam-top { width: 1000px; height: 88px; transform: rotateX(90deg) translateZ(75px); }
+.cam-bottom {
+  width: 1000px;
+  height: 88px;
+  transform: rotateX(-90deg) translateZ(75px);
+  background: #0a0a0b;
+  border-radius: 16px;
+}
+.cam-left {
+  width: 88px;
+  height: 150px;
+  transform: rotateY(-90deg) translateZ(500px);
+  background: linear-gradient(#1c1d1f, #0c0d0e);
+}
+.cam-right {
+  width: 88px;
+  height: 150px;
+  transform: rotateY(90deg) translateZ(500px);
+  background: linear-gradient(#1c1d1f, #0c0d0e);
+}
+
+/* Frontdetails */
+.cam-vf {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  transform: translateX(-50%);
+  width: 130px;
+  height: 18px;
+  border-radius: 5px;
+  background: #0c0d0e;
+}
+.cam-lens {
+  position: absolute;
+  left: 120px;
+  top: 26px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #3a3b3d 0 38%, #18191b 39% 60%, #2a2b2d 61% 74%, #0d0e0f 75%);
+  box-shadow: 0 0 0 3px #0a0a0b, inset 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+.cam-lens::before {
+  content: "";
+  position: absolute;
+  inset: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #5b6b78, #10131a 70%);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
+}
+.cam-lens::after {
+  content: "";
+  position: absolute;
+  left: 30px;
+  top: 28px;
+  width: 20px;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.55), transparent);
+  filter: blur(1px);
+}
+.cam-grip {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 70px;
+  height: 150px;
+  border-radius: 0 16px 16px 0;
+  background: repeating-linear-gradient(90deg, #202123 0 3px, #161719 3px 6px);
+}
+.cam-brand {
+  position: absolute;
+  left: 120px;
+  top: 132px;
+  color: #cfcdc8;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.cam-skip .cam-rig,
+.cam-skip .cam-backdrop {
+  animation-delay: 0s !important;
+  animation-duration: 0.4s !important;
+}
+
+@keyframes cam-spin {
+  0% { transform: translate(-50%, -50%) rotateX(0deg); }
+  25% { transform: translate(-50%, -50%) rotateX(0deg); }
+  100% { transform: translate(-50%, var(--dock-y)) rotateX(-90deg); }
+}
+@keyframes cam-backdrop-out { to { opacity: 0; } }

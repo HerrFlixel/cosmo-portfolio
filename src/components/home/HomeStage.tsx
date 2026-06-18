@@ -30,7 +30,7 @@ export default function HomeStage({
   const title = (p: PanelProject) =>
     locale === "en" && p.titleEn ? p.titleEn : p.titleDe;
 
-  const baseDelay = delayed ? 3.2 : 0.05;
+  const baseDelay = delayed ? 1.9 : 0.05;
 
   if (projects.length === 0) {
     return (

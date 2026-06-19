@@ -60,8 +60,12 @@ body {
 }
 
 /* ============ Camera Navigation ============ */
-.camera-nav { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-html.intro-active .camera-nav { opacity: 0; transform: translateY(-26px); pointer-events: none; }
+/* During the intro the whole nav is hidden (the morph overlay covers its spot).
+   At hand-off the nav becomes visible instantly (bg is pixel-identical to the
+   morphed box -> no luminance flash) and only its CONTENT fades in. */
+html.intro-active .camera-nav { visibility: hidden; pointer-events: none; }
+.cam-inner { transition: opacity 0.4s ease; }
+html.intro-active .cam-inner { opacity: 0; }
 
 .cam {
   position: relative;
@@ -69,12 +73,17 @@ html.intro-active .camera-nav { opacity: 0; transform: translateY(-26px); pointe
   height: 88px;
   border-radius: 26px 26px 22px 22px;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 16px 0 12px;
   background: linear-gradient(#2c2d2f, #1a1b1d 55%, #0e0f10);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1),
     inset 0 -3px 8px rgba(0, 0, 0, 0.6), 0 18px 40px -12px rgba(0, 0, 0, 0.45);
+}
+.cam-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 0 16px 0 12px;
 }
 .cam::before {
   content: "";
@@ -195,27 +204,35 @@ html.intro-active .camera-nav { opacity: 0; transform: translateY(-26px); pointe
 }
 
 /* ============ Logo Intro ============ */
-.logo-intro {
-  position: fixed;
+/* Transparent container; the dark backdrop is the scaled .cam box below. */
+.logo-intro { position: fixed; inset: 0; z-index: 100; }
+
+/* positioner mirrors the desktop CameraNav (justify-center, pt-5 = 20px) so the
+   morph box rests exactly where the real bar sits. */
+.logo-morph-pos {
+  position: absolute;
+  inset: 0 0 auto 0;
+  display: flex;
+  justify-content: center;
+  padding-top: 1.25rem;
+  pointer-events: none;
+}
+.logo-morph-cam { transform-origin: 0 0; will-change: transform; }
+
+/* centered logo over the dark, fades out before the morph */
+.logo-intro-stage {
+  position: absolute;
   inset: 0;
-  z-index: 100;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(120% 90% at 50% 42%, #1c1c20 0%, #0e0e10 48%, #050506 100%);
-  animation: logo-curtain-up 0.9s cubic-bezier(0.76, 0, 0.24, 1) 2.15s forwards;
-}
-.logo-intro::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  box-shadow: inset 0 0 200px 50px rgba(0, 0, 0, 0.7);
   pointer-events: none;
 }
 .logo-intro-mark {
   position: relative;
   width: min(70vw, 360px);
-  animation: logo-mark-out 0.8s cubic-bezier(0.16, 1, 0.3, 1) 2.05s forwards;
+  animation: logo-mark-out 0.7s cubic-bezier(0.16, 1, 0.3, 1) 1.95s forwards;
 }
 .logo-intro-logo { width: 100%; height: auto; color: #f2efe9; display: block; overflow: visible; }
 .intro-letters { clip-path: inset(0 100% 0 0); animation: logo-wipe 1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards; }
@@ -245,9 +262,12 @@ html.intro-active .camera-nav { opacity: 0; transform: translateY(-26px); pointe
   opacity: 0;
   animation: logo-sheen 1.1s ease 1.05s forwards;
 }
-/* Klick/Taste = Skip: alle Verzoegerungen/Dauern kollabieren */
-.logo-skip,
-.logo-skip * {
+/* Klick/Taste = Skip: alle Verzoegerungen/Dauern der Logo-Animationen kollabieren */
+.logo-skip .logo-intro-mark,
+.logo-skip .intro-letters,
+.logo-skip .intro-swoosh,
+.logo-skip .logo-intro-photos span,
+.logo-skip .logo-intro-sheen {
   animation-delay: 0s !important;
   animation-duration: 0.3s !important;
 }
@@ -260,4 +280,3 @@ html.intro-active .camera-nav { opacity: 0; transform: translateY(-26px); pointe
   100% { transform: translateX(130%); opacity: 0; }
 }
 @keyframes logo-mark-out { to { opacity: 0; transform: translateY(-10px) scale(0.985); } }
-@keyframes logo-curtain-up { to { transform: translateY(-101%); visibility: hidden; } }

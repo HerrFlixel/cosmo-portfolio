@@ -22,11 +22,13 @@ export default function CameraNav({
       <div className="camera-nav hidden md:flex fixed top-0 inset-x-0 z-40 justify-center pt-5 pointer-events-none">
         <div className="cam pointer-events-auto">
           <span className="cam-shadow" />
-          <CameraBar
-            activePath={pathname}
-            instagramUrl={instagramUrl}
-            linkedinUrl={linkedinUrl}
-          />
+          <div className="cam-inner">
+            <CameraBar
+              activePath={pathname}
+              instagramUrl={instagramUrl}
+              linkedinUrl={linkedinUrl}
+            />
+          </div>
         </div>
       </div>
 

@@ -60,8 +60,8 @@ body {
 }
 
 /* ============ Camera Navigation ============ */
-.camera-nav { transition: opacity 0.4s ease; }
-html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
+.camera-nav { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+html.intro-active .camera-nav { opacity: 0; transform: translateY(-26px); pointer-events: none; }
 
 .cam {
   position: relative;
@@ -194,238 +194,70 @@ html.intro-active .camera-nav { opacity: 0; pointer-events: none; }
   .cam-flash.on { animation: none; }
 }
 
-/* ============ Camera Intro (3D) ============ */
-.cam-scene {
+/* ============ Logo Intro ============ */
+.logo-intro {
   position: fixed;
   inset: 0;
   z-index: 100;
-  perspective: 1500px;
-  overflow: hidden;
-  opacity: 1;
-  transition: opacity 0.45s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(120% 90% at 50% 42%, #1c1c20 0%, #0e0e10 48%, #050506 100%);
+  animation: logo-curtain-up 0.9s cubic-bezier(0.76, 0, 0.24, 1) 2.15s forwards;
 }
-.cam-scene.cam-exit { opacity: 0; }
-.cam-backdrop {
-  position: absolute;
-  inset: 0;
-  background: #0c0c0d;
-  animation: cam-backdrop-out 0.7s ease 1s forwards;
-}
-.cam-rig {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 1000px;
-  height: 600px;
-  transform-style: preserve-3d;
-  transform-origin: 50% 0;
-  --cam-scale: 1;
-  /* Kipp-Achse oben (transform-origin) liegt deckungsgleich mit der Oberseite →
-     diese dockt ohne Perspektiv-Verzerrung auf der CameraNav-Ruhelage an
-     (pt-2 8px + halbe Barhöhe 44px = 52px von oben). */
-  transform: translate(-50%, calc(50vh - 300px)) scale(var(--cam-scale)) rotateX(0deg);
-  animation: cam-spin 1.9s cubic-bezier(0.6, 0.02, 0.2, 1) forwards;
-}
-/* Auf schmalen Desktop-Breiten herunterskalieren (greift via Variable auch während der Animation). */
-@media (max-width: 1040px) {
-  .cam-rig { --cam-scale: calc((100vw - 32px) / 1000); }
-}
-
-.cam-face { position: absolute; backface-visibility: hidden; }
-.cam-front {
-  width: 1000px;
-  height: 600px;
-  transform: translateZ(44px);
-  border-radius: 26px;
-  overflow: hidden;
-  background: linear-gradient(#27282a, #191a1c 50%, #121315);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.07), inset 0 -10px 26px rgba(0, 0, 0, 0.6);
-}
-/* Diamant-Griff auf dem Body */
-.cam-front::before {
+.logo-intro::after {
   content: "";
   position: absolute;
-  inset: 84px 0 0 0;
-  background-image:
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 8px),
-    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.42) 0 1px, transparent 1px 8px);
-}
-.cam-back {
-  width: 1000px;
-  height: 600px;
-  transform: rotateY(180deg) translateZ(44px);
-  background: #0b0c0d;
-  border-radius: 26px;
-}
-.cam-top { width: 1000px; height: 88px; transform: rotateX(90deg) translateZ(300px); }
-.cam-bottom {
-  width: 1000px;
-  height: 88px;
-  transform: rotateX(-90deg) translateZ(300px);
-  background: #0a0a0b;
-}
-.cam-left {
-  width: 88px;
-  height: 600px;
-  transform: rotateY(-90deg) translateZ(500px);
-  background: linear-gradient(#1c1d1f, #0c0d0e);
-}
-.cam-right {
-  width: 88px;
-  height: 600px;
-  transform: rotateY(90deg) translateZ(500px);
-  background: linear-gradient(#1c1d1f, #0c0d0e);
-}
-
-/* ---- Front: minimalistische Kamera (Leica-Geist) ---- */
-.cam-top-plate {
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 84px;
-  background: linear-gradient(#303133, #202123);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
-  z-index: 3;
-}
-.cam-hotshoe {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 116px;
-  height: 32px;
-  border-radius: 5px;
-  background: linear-gradient(#1a1b1d, #0e0f10);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  z-index: 4;
-}
-.cam-hotshoe::after {
-  content: "";
-  position: absolute;
-  top: 9px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 56px;
-  height: 9px;
-  background: #000;
-  border-radius: 2px;
-}
-.cam-tdial {
-  position: absolute;
-  border-radius: 50%;
-  background: repeating-conic-gradient(from 0deg, #3a3b3d 0 4deg, #222325 4deg 8deg);
-  border: 2px solid #141517;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 2px 4px rgba(0, 0, 0, 0.5);
-  z-index: 4;
-}
-.cam-tdial-1 { top: 16px; left: 150px; width: 54px; height: 54px; }
-.cam-tdial-2 { top: 22px; left: 226px; width: 44px; height: 44px; }
-.cam-lug {
-  position: absolute;
-  top: 160px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #9a9ca0, #3a3b3d);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-  z-index: 4;
-}
-.cam-lug-l { left: -8px; }
-.cam-lug-r { right: -8px; }
-.cam-brand {
-  position: absolute;
-  top: 104px;
-  right: 70px;
-  width: 120px;
-  height: auto;
-  color: #cfcdc8;
-  opacity: 0.92;
-  z-index: 5;
-}
-.cam-lens {
-  position: absolute;
-  top: 150px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 372px;
-  height: 372px;
-  border-radius: 50%;
-  z-index: 5;
-  background: radial-gradient(circle at 50% 46%, #1a1b1d, #0a0b0c 78%);
-  box-shadow: 0 0 0 2px #060607, 0 18px 36px -10px rgba(0, 0, 0, 0.85), inset 0 2px 5px rgba(255, 255, 255, 0.05);
-}
-.cam-knurl {
-  position: absolute;
   inset: 0;
-  border-radius: 50%;
-  background: repeating-conic-gradient(from 0deg, #36373b 0 1.3deg, #141519 1.3deg 2.6deg);
-  -webkit-mask: radial-gradient(circle, transparent 78%, #000 79%);
-  mask: radial-gradient(circle, transparent 78%, #000 79%);
+  box-shadow: inset 0 0 200px 50px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
 }
-.cam-engrave {
-  position: absolute;
-  inset: 36px;
-  border-radius: 50%;
-  background: linear-gradient(#1c1d1f, #101113);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+.logo-intro-mark {
+  position: relative;
+  width: min(70vw, 360px);
+  animation: logo-mark-out 0.8s cubic-bezier(0.16, 1, 0.3, 1) 2.05s forwards;
 }
-.cam-eng-top {
-  position: absolute;
-  top: 16px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-family: var(--font-mono), monospace;
+.logo-intro-logo { width: 100%; height: auto; color: #f2efe9; display: block; overflow: visible; }
+.intro-letters { clip-path: inset(0 100% 0 0); animation: logo-wipe 1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards; }
+.intro-swoosh { clip-path: inset(0 100% -30% 0); animation: logo-wipe-s 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards; }
+.logo-intro-photos {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
   font-size: 13px;
-  letter-spacing: 0.42em;
-  color: #b9b7b2;
+  font-weight: 500;
+  color: #cfccc4;
 }
-.cam-eng-bot {
+.logo-intro-photos span { opacity: 0; transform: translateY(8px); animation: logo-rise 0.5s ease forwards; }
+.logo-intro-photos span:nth-child(1) { animation-delay: 1.15s; }
+.logo-intro-photos span:nth-child(2) { animation-delay: 1.22s; }
+.logo-intro-photos span:nth-child(3) { animation-delay: 1.29s; }
+.logo-intro-photos span:nth-child(4) { animation-delay: 1.36s; }
+.logo-intro-photos span:nth-child(5) { animation-delay: 1.43s; }
+.logo-intro-photos span:nth-child(6) { animation-delay: 1.50s; }
+.logo-intro-sheen {
   position: absolute;
-  bottom: 15px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-family: var(--font-mono), monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  color: #7e7d79;
+  inset: -6% -2%;
+  pointer-events: none;
+  mix-blend-mode: plus-lighter;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.5) 50%, transparent 58%);
+  transform: translateX(-130%);
+  opacity: 0;
+  animation: logo-sheen 1.1s ease 1.05s forwards;
 }
-.cam-glass {
-  position: absolute;
-  inset: 78px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: radial-gradient(circle at 42% 36%, #43525f 0%, #1a2230 30%, #070a0f 70%);
-  box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.9), inset 0 0 0 3px #0a0c0f;
-}
-.cam-glass::before {
-  content: "";
-  position: absolute;
-  left: 26%;
-  top: 20%;
-  width: 56px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(125deg, rgba(190, 215, 235, 0.7), transparent 70%);
-  filter: blur(2px);
-}
-.cam-glass::after {
-  content: "";
-  position: absolute;
-  inset: 24%;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(120, 150, 180, 0.25);
-}
-
-.cam-skip .cam-rig,
-.cam-skip .cam-backdrop {
+/* Klick/Taste = Skip: alle Verzoegerungen/Dauern kollabieren */
+.logo-skip,
+.logo-skip * {
   animation-delay: 0s !important;
-  animation-duration: 0.4s !important;
+  animation-duration: 0.3s !important;
 }
-
-@keyframes cam-spin {
-  0% { transform: translate(-50%, calc(50vh - 300px)) scale(var(--cam-scale)) rotateX(0deg); }
-  25% { transform: translate(-50%, calc(50vh - 300px)) scale(var(--cam-scale)) rotateX(0deg); }
-  100% { transform: translate(-50%, 52px) scale(var(--cam-scale)) rotateX(-90deg); }
+@keyframes logo-wipe { to { clip-path: inset(0 0% 0 0); } }
+@keyframes logo-wipe-s { to { clip-path: inset(0 0% -30% 0); } }
+@keyframes logo-rise { to { opacity: 1; transform: translateY(0); } }
+@keyframes logo-sheen {
+  0% { transform: translateX(-130%); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translateX(130%); opacity: 0; }
 }
-@keyframes cam-backdrop-out { to { opacity: 0; } }
+@keyframes logo-mark-out { to { opacity: 0; transform: translateY(-10px) scale(0.985); } }
+@keyframes logo-curtain-up { to { transform: translateY(-101%); visibility: hidden; } }

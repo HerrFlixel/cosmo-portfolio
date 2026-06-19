@@ -26,7 +26,7 @@ export default async function AboutPage({
   const bio = bioSetting || "";
 
   return (
-    <div className="pt-20 md:pt-[112px] px-6 md:px-10 pb-20">
+    <div className="pt-20 md:pt-[124px] px-6 md:px-10 pb-20">
       <h1 className="text-3xl md:text-[38px] font-medium tracking-tight leading-tight max-w-3xl">
         {headline}
       </h1>

@@ -19,7 +19,7 @@ export default function CameraNav({
   return (
     <>
       {/* Desktop: volle Kamera, mittig schwebend */}
-      <div className="camera-nav hidden md:flex fixed top-0 inset-x-0 z-40 justify-center pt-2 pointer-events-none">
+      <div className="camera-nav hidden md:flex fixed top-0 inset-x-0 z-40 justify-center pt-5 pointer-events-none">
         <div className="cam pointer-events-auto">
           <span className="cam-shadow" />
           <CameraBar

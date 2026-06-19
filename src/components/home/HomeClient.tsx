@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import CameraIntro from "./CameraIntro";
+import LogoIntro from "./LogoIntro";
 import HomeStage, { PanelProject } from "./HomeStage";
 
 const KEY = "cosmo-intro-seen";
@@ -40,7 +40,7 @@ export default function HomeClient({
 
   return (
     <>
-      {overlay && <CameraIntro onReveal={revealNav} onDone={finishIntro} />}
+      {overlay && <LogoIntro onReveal={revealNav} onDone={finishIntro} />}
       <HomeStage projects={projects} delayed={introRan} />
     </>
   );

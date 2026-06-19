@@ -43,7 +43,7 @@ export default function HomeStage({
   return (
     <>
       {/* ---------- Desktop: Panel-Galerie ---------- */}
-      <div className="hidden md:flex h-dvh flex-col pt-[112px] overflow-hidden">
+      <div className="hidden md:flex h-dvh flex-col pt-[124px] overflow-hidden">
         <div
           className={`flex-1 min-h-0 flex gap-3.5 px-10 pt-1 reveal ${hovering ? "panels-hovering" : ""}`}
           style={{ animationDelay: `${baseDelay}s` }}

@@ -48,5 +48,16 @@
     "invalid": "Ungültiger oder abgelaufener Code",
     "downloadAll": "Alle herunterladen",
     "emptyAlbum": "Dieses Album enthält noch keine Fotos."
+  },
+  "footer": {
+    "advertising": "Werbung & Affiliate",
+    "pinterest": "Pinterest",
+    "rights": "Alle Rechte vorbehalten"
+  },
+  "advertising": {
+    "title": "Werbung & Affiliate-Hinweise",
+    "body1": "Diese Website und mein Pinterest-Profil enthalten Werbung in Form von Affiliate-Links. Klickst du auf einen solchen Link und kaufst anschließend etwas, erhalte ich eine Provision vom Partnerhändler. Für dich entstehen dadurch keine zusätzlichen Kosten. Diese Vergütungen helfen, meinen Content zu finanzieren. Sie beeinflussen meine Empfehlungen nicht: empfohlen wird nur, was ich selbst sinnvoll finde.",
+    "body2": "Auf meinem Pinterest-Profil teile ich Produktempfehlungen aus Mode, Sport, Wohnen und Geschenkideen. Pins mit Affiliate-Links sind als Werbung gekennzeichnet. Affiliate-Partnerschaften laufen über Netzwerke wie Awin und Rakuten Advertising.",
+    "pinterest": "Mein Pinterest ansehen"
   }
 }

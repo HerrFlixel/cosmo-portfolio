@@ -3,6 +3,7 @@ import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import CameraNav from "@/components/layout/CameraNav";
+import SiteFooter from "@/components/layout/SiteFooter";
 import { getSetting } from "@/lib/db/queries";
 
 export default async function LocaleLayout({
@@ -19,15 +20,21 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
-  const [instagramUrl, linkedinUrl] = await Promise.all([
+  const [instagramUrl, linkedinUrl, pinterestUrl] = await Promise.all([
     getSetting("instagram_url"),
     getSetting("linkedin_url"),
+    getSetting("pinterest_url"),
   ]);
 
   return (
     <NextIntlClientProvider messages={messages}>
       <CameraNav instagramUrl={instagramUrl} linkedinUrl={linkedinUrl} />
       <main>{children}</main>
+      <SiteFooter
+        instagramUrl={instagramUrl}
+        linkedinUrl={linkedinUrl}
+        pinterestUrl={pinterestUrl}
+      />
     </NextIntlClientProvider>
   );
 }

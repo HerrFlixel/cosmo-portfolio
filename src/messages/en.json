@@ -48,5 +48,16 @@
     "invalid": "Invalid or expired code",
     "downloadAll": "Download all",
     "emptyAlbum": "This album has no photos yet."
+  },
+  "footer": {
+    "advertising": "Advertising & Affiliate",
+    "pinterest": "Pinterest",
+    "rights": "All rights reserved"
+  },
+  "advertising": {
+    "title": "Advertising & Affiliate Disclosure",
+    "body1": "This website and my Pinterest profile contain advertising in the form of affiliate links. If you click such a link and then make a purchase, I receive a commission from the partner retailer. This does not cost you anything extra. These commissions help fund my content. They do not influence my recommendations: I only recommend what I genuinely find useful.",
+    "body2": "On my Pinterest profile I share product picks from fashion, sport, home and gift ideas. Pins that contain affiliate links are marked as advertising. Affiliate partnerships run through networks such as Awin and Rakuten Advertising.",
+    "pinterest": "View my Pinterest"
   }
 }

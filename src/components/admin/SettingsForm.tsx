@@ -10,6 +10,7 @@ const fields = [
   { key: "contact_email", label: "Kontakt E-Mail", type: "input" },
   { key: "instagram_url", label: "Instagram URL", type: "input" },
   { key: "linkedin_url", label: "LinkedIn URL", type: "input" },
+  { key: "pinterest_url", label: "Pinterest URL", type: "input" },
   { key: "facebook_url", label: "Facebook URL", type: "input" },
 ];
 

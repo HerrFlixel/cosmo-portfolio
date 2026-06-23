@@ -5,6 +5,9 @@ import { db } from "@/lib/db";
 import { projects, images } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
+// Drive listing + bulk inserts for large folders can take a while.
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

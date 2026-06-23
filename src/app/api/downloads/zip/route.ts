@@ -6,6 +6,9 @@ import { albums } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 import archiver from "archiver";
 
+// ZIP can bundle many full-size images; allow a longer serverless runtime.
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   const { code } = await request.json();
 

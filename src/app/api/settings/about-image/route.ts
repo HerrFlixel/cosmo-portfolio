@@ -7,6 +7,9 @@ import { setSetting } from "@/lib/db/queries";
 
 const MAX_SIZE = 15 * 1024 * 1024;
 
+// Uploading a large image to Google Drive can exceed the default timeout.
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

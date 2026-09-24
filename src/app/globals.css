@@ -1,26 +1,56 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Designsystem „Licht aus“ – Spec §4 */
+@theme {
+  --color-paper: #f1efea;
+  --color-ink: #141414;
+  --color-stone: #8b877e;
+  --color-mat: #ffffff;
+  --color-hall: #0b0b0c;
+  --color-hall-ink: #eceae4;
+  --color-signal: #ff3d2e;
+
+  --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-expo-in-out: cubic-bezier(0.87, 0, 0.13, 1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-martian), ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Editorial: Bodoni Moda in Display-Optik */
+@utility font-display {
+  font-family: var(--font-bodoni), ui-serif, Georgia, serif;
+  font-variation-settings: "opsz" 96;
+  letter-spacing: -0.02em;
+}
+
+/* Sport-Display: Archivo schmal, kursiv, schwarz, Versalien */
+@utility font-sport {
+  font-family: var(--font-archivo), ui-sans-serif, sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  font-variation-settings: "wdth" 62;
+  text-transform: uppercase;
+  line-height: 0.85;
+}
+
+/* Labels und Zähler: Martian Mono, leicht schmal */
+@utility font-label {
+  font-family: var(--font-martian), ui-monospace, monospace;
+  font-variation-settings: "wdth" 87;
+  letter-spacing: 0.02em;
+}
+
+html {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }

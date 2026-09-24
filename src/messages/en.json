@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "title": "Cosmo Photos · Sports photography from Hamburg",
+    "description": "Floorball, volleyball, football, weddings and studio – photography by Felix Vatterodt from Hamburg."
+  },
+  "home": {
+    "headline": "Halls, smoke, goosebumps.",
+    "intro": "Sports and wedding photography from Hamburg."
+  },
+  "categories": {
+    "floorball": "Floorball",
+    "volleyball": "Volleyball",
+    "fussball": "Football",
+    "hochzeiten": "Weddings",
+    "studio": "Studio"
+  },
+  "nav": {
+    "about": "About",
+    "contact": "Contact",
+    "clients": "Clients",
+    "imprint": "Imprint",
+    "privacy": "Privacy",
+    "switchLocale": "Deutsch"
+  },
+  "pages": {
+    "about": "About",
+    "contact": "Contact",
+    "clients": "Clients",
+    "imprint": "Imprint",
+    "privacy": "Privacy"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "back": "Back to home"
+  }
+}

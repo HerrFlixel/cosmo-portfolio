@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "title": "Cosmo Photos · Sportfotografie aus Hamburg",
+    "description": "Floorball, Volleyball, Fußball, Hochzeiten und Studio – Fotografie von Felix Vatterodt aus Hamburg."
+  },
+  "home": {
+    "headline": "Hallen, Rauch, Gänsehaut.",
+    "intro": "Sport- und Hochzeitsfotografie aus Hamburg."
+  },
+  "categories": {
+    "floorball": "Floorball",
+    "volleyball": "Volleyball",
+    "fussball": "Fußball",
+    "hochzeiten": "Hochzeiten",
+    "studio": "Studio"
+  },
+  "nav": {
+    "about": "Über mich",
+    "contact": "Kontakt",
+    "clients": "Kunden",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "switchLocale": "English"
+  },
+  "pages": {
+    "about": "Über mich",
+    "contact": "Kontakt",
+    "clients": "Kundenbereich",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "back": "Zur Startseite"
+  }
+}

@@ -1,0 +1,6 @@
+# macOS / exFAT-Metadaten
+._*
+.DS_Store
+
+# Brainstorming-Mockups (lokal)
+.superpowers/

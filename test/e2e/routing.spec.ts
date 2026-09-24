@@ -92,6 +92,14 @@ test.describe("Nicht lokalisierte Bereiche", () => {
     }
   });
 
+  test("unbekannte Seiten außerhalb der Sprachen zeigen die gestaltete 404-Seite", async ({ page }) => {
+    for (const path of ["/admin", "/g/vertippt", "/api/x"]) {
+      const res = await page.goto(path);
+      expect(res?.status(), path).toBe(404);
+      await expect(page.getByText("404 · Seite nicht gefunden / Page not found"), path).toBeVisible();
+    }
+  });
+
   test("Dateien werden nicht umgeleitet", async ({ request }) => {
     const res = await request.get("/favicon.ico", { maxRedirects: 0 });
     expect(res.status()).toBe(200);
@@ -103,6 +111,13 @@ test.describe("Robust gegen seltsame URLs", () => {
     for (const path of ["/quatsch", "/en/quatsch/tief/drin", "/fu%C3%9Fball", "/xx/floorball"]) {
       const res = await page.goto(path);
       expect(res?.status(), path).toBe(404);
+    }
+  });
+
+  test("kaputte Prozent-Kodierung gibt 400 statt 500", async ({ request }) => {
+    for (const path of ["/fu%DFball", "/%ff", "/g/%ff", "/admin/%ff", "/api/%ff"]) {
+      const res = await request.get(path, { maxRedirects: 0 });
+      expect(res.status(), path).toBe(400);
     }
   });
 

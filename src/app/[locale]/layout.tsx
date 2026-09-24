@@ -13,6 +13,10 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+// Nur de/en sind Sprachen: /admin, /g/…, /api/… landen sonst als locale="admin" hier
+// und zeigen die ungestylte Next-404 statt global-not-found.
+export const dynamicParams = false;
+
 export async function generateMetadata({ params }: Omit<Props, "children">): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });

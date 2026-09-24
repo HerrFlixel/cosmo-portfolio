@@ -9,6 +9,9 @@ export function generateStaticParams() {
   return CATEGORIES.map((category) => ({ category }));
 }
 
+// Nur die fünf Kategorien: sonst rendert z. B. /g/vertippt als locale="g" und endet in der ungestylten Next-404.
+export const dynamicParams = false;
+
 export default async function CategoryPage({ params }: Props) {
   const { locale, category } = await params;
   if (!isCategory(category)) notFound();

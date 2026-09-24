@@ -1,0 +1,2 @@
+# Lädt .env.development* bei `wrangler dev`
+NEXTJS_ENV=development

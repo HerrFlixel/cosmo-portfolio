@@ -9,9 +9,15 @@
     "lint": "eslint",
     "clean:dot": "find . \\( -path ./node_modules -o -path ./.git \\) -prune -o -name '._*' -type f -exec rm -f {} +",
     "prebuild": "npm run clean:dot",
-    "prelint": "npm run clean:dot"
+    "prelint": "npm run clean:dot",
+    "preview": "opennextjs-cloudflare build && npm run clean:dot && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "deploy:preview": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env=preview",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts"
   },
   "dependencies": {
+    "@opennextjs/cloudflare": "1.20.6",
     "next": "16.3.6",
     "react": "19.2.8",
     "react-dom": "19.2.8"
@@ -24,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "4.138.0"
   }
 }

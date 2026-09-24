@@ -1979,3 +1979,51 @@ Erwartet: 14 Tests PASS. Die Domain `cosmo-photos.de` bleibt unverändert, der U
 - Vorschau und Produktion laufen unter `*.workers.dev` und bestehen die E2E-Tests.
 - Die Remote-D1-Datenbanken haben das Schema, die R2-Buckets existieren.
 - Keine `._*`-Datei im Git-Index: `git ls-files | grep '/\._\|^\._'` liefert nichts.
+
+---
+
+## Review nach Abschluss (2026-09-24)
+
+**Status:** ✅ abgeschlossen. `main` @ `fd3680f`, gepusht nach `github.com/HerrFlixel/cosmo-portfolio`. Der Stand vor dem Neubau liegt als Branch `legacy` vor.
+
+**Live:**
+- Produktion: `https://cosmo-web.felix-vatterodt.workers.dev` (automatisch per Workers Builds aus `main`)
+- Vorschau: `https://cosmo-web-preview.felix-vatterodt.workers.dev` (per `npm run deploy:preview`)
+- E2E live: 16/16 auf Produktion und Vorschau
+
+**Tests lokal:** `npm run lint` grün · `npm test` 4 Dateien / 15 Tests · `npm run test:e2e` 16 Tests · `npm run check:lock` grün.
+
+### Abweichungen und Entscheidungen
+
+| Punkt | Entscheidung | Grund |
+|---|---|---|
+| Projektort | APFS-Disk-Image `SSD FELIX 3/CODING/CosmoDev.sparsebundle`, eingehängt als `/Volumes/CosmoDev/cosmo-website` | exFAT mit 1-MiB-Blöcken: `node_modules` hätte ~60 GB belegt |
+| Git | direkt auf `main` im neuen Repo, lokale Identität Felix Vatterodt | neues Repo ohne geteilte Branches |
+| Scaffold | Hilfsordner `cosmo-web` statt `_scaffold` | npm verbietet Paketnamen mit `_` am Anfang |
+| Versionen | vom Plan genannte Pakete exakt gepinnt | Globale Vorgabe |
+| Vitest-Konfiguration | `vitest.config.mts` | `@cloudflare/vitest-plugin` ist ESM-only |
+| Schrift-Test | prüft geladene `FontFace` statt `document.fonts.check()` | `check()` ist auch ohne Schrift `true` |
+| Kaputte URLs | `custom-worker.ts` vor OpenNext antwortet mit 400, `wrangler.jsonc` `main` → `./custom-worker.ts` | sonst 500 auf jedem Pfad (Review) |
+| 404 | `dynamicParams = false` in `[locale]`-Layout, `[category]` und `[...rest]` | sonst ungestylte Next-404 für `/admin`, `/g/x`, `/api/x` (Review) |
+| 404, Folge davon | unbekannte lokalisierte Pfade zeigen die zweisprachige `global-not-found` (`lang="de"`) | bis Plan 4 akzeptabel |
+| Migrationen remote | mit `CI=true` ausführen (Wrangler hat kein `-y`) | ohne Terminal automatisch bestätigt |
+| Lockfile | mit npm 10.9.2 erzeugt, Wächter `npm run check:lock` | Cloudflare-Build nutzt fest npm 10.9.2; npm-11-Lockfiles scheitern dort |
+| GitHub | Repo `cosmo-portfolio` weiterverwendet (Felix' Wahl) | Remote war leer, kein Force-Push nötig |
+| PR-Vorschauen | in Workers Builds aus, Vorschau-Umgebung manuell | Vorschau-Versionen würden Produktions-Bindings nutzen |
+
+### Für spätere Pläne (aufgeschobene Review-Hinweise)
+
+- **Plan 2 (Admin):** Sicherheits-Header (`X-Content-Type-Options`, `Referrer-Policy`, `frame-ancestors`) für `/admin`. `/admin` braucht ein eigenes Root-Layout (außerhalb von `[locale]`).
+- **Plan 3 (Galerien):**
+  - `galleries.updated_at` bekommt `$onUpdate`.
+  - Slugs immer kleinschreiben (Eindeutigkeit ist case-sensitiv).
+  - Sicherheits-Header und `noindex` für `/g`. `/g` bekommt ein eigenes Root-Layout.
+- **Plan 4 (öffentliche Seiten):**
+  - `staticAssetsIncrementalCache` ist read-only. Seiten, die D1 oder Settings lesen, müssen dynamisch werden oder einen R2-/KV-Cache nutzen.
+  - Sprachumschalter auf jeder Seite (das `NEXT_LOCALE`-Cookie leitet englische Besucher auch auf deutschen Deep-Links um).
+  - Gestaltete 404-Seiten auch ohne JavaScript (derzeit client-gerendert).
+- **Allgemein:**
+  - `README.md` ist noch Scaffold-Text (Disk-Image, Migrationen, `check:lock` und E2E dokumentieren).
+  - Scaffold-Pakete (`tailwindcss`, `typescript`, `eslint`) nutzen `^`-Bereiche; `@types/node` ^20 passt nicht zu Node 24.
+  - `deploy`/`upload` haben kein `clean:dot`.
+- **Vor jedem Push mit geänderten Abhängigkeiten:** `npm run check:lock`.

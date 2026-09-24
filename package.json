@@ -1,0 +1,29 @@
+{
+  "name": "cosmo-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "clean:dot": "find . \\( -path ./node_modules -o -path ./.git \\) -prune -o -name '._*' -type f -exec rm -f {} +",
+    "prebuild": "npm run clean:dot",
+    "prelint": "npm run clean:dot"
+  },
+  "dependencies": {
+    "next": "16.3.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

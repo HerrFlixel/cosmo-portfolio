@@ -47,6 +47,7 @@ Ohne `deps:lock` scheitert der Cloudflare-Build.
 | `ADMIN_PASSWORD_HASH` | Produktion, Vorschau | `npm run admin:password` (bzw. `npm run admin:password -- --env=preview`) |
 | `SESSION_SECRET` | Produktion, Vorschau | `openssl rand -base64 48 \| tr -d '\n' \| npx wrangler secret put SESSION_SECRET` |
 | `GALLERY_SECRET` | Produktion, Vorschau | `openssl rand -base64 48 \| tr -d '\n' \| npx wrangler secret put GALLERY_SECRET` (siehe unten: nicht rotieren) |
+| `RESEND_API_KEY`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `CONTACT_EMAIL` | Produktion, Vorschau | `bash scripts/set-contact-secrets.sh` (Vorschau: `… --env=preview`), siehe unten |
 
 Admin-Benutzername: `ADMIN_USERNAME` in `wrangler.jsonc` (`felix`).
 
@@ -56,3 +57,11 @@ Admin-Benutzername: `ADMIN_USERNAME` in `wrangler.jsonc` (`felix`).
 - Secret `GALLERY_SECRET` (≥ 32 Zeichen) signiert die Zugangs-Cookies und verschlüsselt die Galerie-Passwörter für die Anzeige im Admin.
   **Nicht rotieren**, außer im Notfall: Danach sind alle Kunden abgemeldet und jedes Galerie-Passwort muss im Admin neu gesetzt werden.
 - Originale: nur JPEG, max. 95 MB pro Datei. ZIPs werden ab 2 GB in Teile gesplittet.
+
+### Kontaktformular
+
+- Es ist nur aktiv, wenn alle vier Kontakt-Secrets gesetzt sind; sonst zeigt `/kontakt` die Mail-Adresse aus „Texte & Links“.
+- **Resend:** Bis `cosmo-photos.de` bei Resend geprüft ist (Plan 6, DNS), sendet Resend von `onboarding@resend.dev` und nur an die Adresse des Resend-Kontos. `CONTACT_EMAIL` muss bis dahin genau diese Adresse sein. Danach optional `CONTACT_FROM` (z. B. `Cosmo Photos <kontakt@cosmo-photos.de>`) setzen.
+- **Turnstile:** Widget im Cloudflare-Dashboard (Turnstile → Widget hinzufügen). Hostnamen: `cosmo-web.felix-vatterodt.workers.dev`, `cosmo-photos.de`. Modus „Managed“.
+- Lokal, in E2E-Tests und in der Vorschau: `RESEND_API_KEY=log` (verschickt nichts) und die öffentlichen Turnstile-Testschlüssel.
+- Logo-Pfade: `npm run logo:generate` nach Änderungen an `brand/logo-*.svg` (der Lint prüft es).

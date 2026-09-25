@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import { CategoryGrid } from "@/components/site/category/category-grid";
+import { CategoryPill } from "@/components/site/category/category-pill";
+import type { Locale } from "@/i18n/pathnames";
 import { CATEGORIES, isCategory } from "@/lib/categories";
+import { mediaUrl } from "@/lib/media/keys";
+import { loadCategory } from "@/lib/public/data";
+import { altText } from "@/lib/public/images";
 
 type Props = { params: Promise<{ locale: string; category: string }> };
 
@@ -12,18 +18,51 @@ export function generateStaticParams() {
 // Nur die fünf Kategorien: sonst rendert z. B. /g/vertippt als locale="g" und endet in der ungestylten Next-404.
 export const dynamicParams = false;
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, category } = await params;
+  if (!isCategory(category)) return {};
+  const t = await getTranslations({ locale, namespace: "categories" });
+  return { title: t(category) };
+}
+
+/** Kategorieseite (Spec §6.2): riesiger Titel bleibt stehen, die Bilder ziehen darüber in drei Spalten vorbei. */
 export default async function CategoryPage({ params }: Props) {
   const { locale, category } = await params;
   if (!isCategory(category)) notFound();
   setRequestLocale(locale);
-  const t = await getTranslations();
+  const lang = locale as Locale;
+  const [t, content] = await Promise.all([getTranslations(), loadCategory(category)]);
+  const name = t(`categories.${category}`);
+  const images = content.images.map((image, index) => ({
+    id: image.id,
+    width: image.width,
+    height: image.height,
+    color: image.color,
+    alt: altText(image, lang, t("home.photoAlt", { category: name, number: index + 1 })),
+  }));
+  const pill = content.nav.map((item) => ({
+    category: item.category,
+    name: t(`categories.${item.category}`),
+    count: item.count,
+    thumb: item.cover ? mediaUrl("portfolio", item.cover.id, 800) : null,
+  }));
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-24">
-      <h1 className="font-sport text-8xl">{t(`categories.${category}`)}</h1>
-      <p className="mt-10">
-        <Link href="/">{t("notFound.back")}</Link>
-      </p>
+    <main className="relative pb-40">
+      <div className="sticky top-0 grid h-[100dvh] place-items-center overflow-hidden px-4">
+        <div className="flex items-start gap-2 md:gap-4">
+          <h1 className="font-sport text-[clamp(3.25rem,15vw,19rem)]">{name}</h1>
+          <span className="pt-[0.6em] font-label text-sm text-stone md:text-base">({images.length})</span>
+        </div>
+      </div>
+      <div className="relative z-10 -mt-[45dvh]">
+        {images.length === 0 ? (
+          <p className="mx-auto max-w-[40ch] px-4 text-center text-lg text-stone">{t("category.empty")}</p>
+        ) : (
+          <CategoryGrid images={images} />
+        )}
+      </div>
+      <CategoryPill current={category} items={pill} />
     </main>
   );
 }

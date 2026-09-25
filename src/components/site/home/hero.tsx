@@ -44,11 +44,11 @@ export async function HomeHero({ headline, heroes, counts, locale }: Props) {
       </div>
 
       <nav id="arbeiten" aria-label={t("home.index")} className="mt-16 scroll-mt-6 border-t border-ink/15 pt-6 md:mt-24">
-        <ol className="grid gap-x-10 gap-y-3 sm:grid-cols-2 lg:flex lg:flex-wrap lg:justify-between">
+        <ol className="grid gap-x-10 gap-y-3 sm:grid-cols-2 lg:grid-cols-5 lg:gap-x-6">
           {CATEGORIES.map((category, index) => (
-            <li key={category} className="flex items-baseline gap-3">
+            <li key={category} className="flex items-baseline gap-3 lg:flex-col lg:gap-1">
               <span className="font-label text-xs text-stone">{String(index + 1).padStart(2, "0")}</span>
-              <Link href={`/${category}` as `/${Category}`} className="font-sport text-[clamp(2.25rem,4vw,3.5rem)] transition-colors hover:text-stone">
+              <Link href={`/${category}` as `/${Category}`} className="font-sport text-[clamp(1.75rem,2.6vw,2.5rem)] transition-colors hover:text-stone">
                 {t(`categories.${category}`)}
               </Link>
               <span className="font-label text-xs text-stone">({counts[category]})</span>

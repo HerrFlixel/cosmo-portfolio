@@ -39,3 +39,81 @@ test("Startseite: Index mit Anzahl, Kapitel mit Bild, Vorschau und Link", async 
   await chapter.getByRole("link", { name: "Alle Hochzeiten-Bilder" }).click();
   await expect(page).toHaveURL(/\/hochzeiten$/);
 });
+
+test("Kategorieseite: Titel mit Anzahl, alle sichtbaren Bilder, Alt-Texte in Admin-Reihenfolge", async ({ page }) => {
+  await page.goto("/hochzeiten");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Hochzeiten");
+  await expect(page.getByRole("main").getByText("(6)", { exact: true })).toBeVisible();
+  const photos = page.getByRole("button", { name: /^Hochzeiten, Foto \d$/ });
+  await expect(photos).toHaveCount(6);
+  await expect(photos.first()).toHaveAccessibleName("Hochzeiten, Foto 1");
+});
+
+test("Lightbox „Licht aus“: Tastatur, Knöpfe, Wischen, Fokus zurück", async ({ page }) => {
+  await page.goto("/hochzeiten");
+  const first = page.getByRole("button", { name: "Hochzeiten, Foto 1" });
+  await first.click();
+  const box = page.getByTestId("lightbox");
+  await expect(box.getByText("1 / 6")).toBeVisible();
+  expect(await box.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe("rgb(11, 11, 12)");
+
+  await page.keyboard.press("ArrowRight");
+  await expect(box.getByText("2 / 6")).toBeVisible();
+  await box.getByRole("button", { name: "Vorheriges Foto" }).click();
+  await expect(box.getByText("1 / 6")).toBeVisible();
+
+  const { width, height } = page.viewportSize()!;
+  await page.mouse.move(width * 0.65, height / 2);
+  await page.mouse.down();
+  await page.mouse.move(width * 0.3, height / 2, { steps: 6 });
+  await page.mouse.up();
+  await expect(box.getByText("2 / 6")).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await expect(box).toBeHidden();
+  await expect(first).toBeFocused();
+});
+
+test("Kategorie-Pille klappt die fünf Kategorien auf und wechselt", async ({ page }) => {
+  await page.goto("/hochzeiten");
+  const pill = page.getByRole("button", { name: "Hochzeiten, Kategorie wechseln" });
+  await expect(pill).toHaveAttribute("aria-expanded", "false");
+  await pill.click();
+  await expect(pill).toHaveAttribute("aria-expanded", "true");
+  const menu = page.locator("#category-menu");
+  await expect(menu.getByRole("link")).toHaveCount(5);
+  await expect(menu.getByRole("link", { name: /^Hochzeiten/ })).toHaveAttribute("aria-current", "page");
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await pill.click();
+  await menu.getByRole("link", { name: /^Studio/ }).click();
+  await expect(page).toHaveURL(/\/studio$/);
+});
+
+// Befunde aus der Sichtprüfung: nichts darf seitlich überlaufen, Overlays liegen über Kopf und Pille.
+test("Startseite und Kategorie laufen auf Handy, Tablet und Desktop nicht seitlich über", async ({ page }) => {
+  for (const width of [390, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const path of ["/", "/hochzeiten", "/en"]) {
+      await page.goto(path);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow, `${path} @ ${width}px`).toBeLessThanOrEqual(0);
+    }
+  }
+});
+
+test("Lightbox und Handy-Menü liegen über Kopf und Kategorie-Pille", async ({ page }) => {
+  await page.goto("/hochzeiten");
+  await page.getByRole("button", { name: "Hochzeiten, Foto 1" }).click();
+  const topmost = (x: number, y: number, selector: string) =>
+    page.evaluate(([px, py, sel]) => document.elementFromPoint(px as number, py as number)?.closest(sel as string) !== null, [x, y, selector] as const);
+  const { width, height } = page.viewportSize()!;
+  expect(await topmost(80, 30, '[data-testid="lightbox"]')).toBe(true);
+  expect(await topmost(width / 2, height - 40, '[data-testid="lightbox"]')).toBe(true);
+  await page.keyboard.press("Escape");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Menü" }).click();
+  expect(await topmost(195, 844 - 40, "#mobile-menu")).toBe(true);
+});
+

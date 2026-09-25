@@ -31,8 +31,9 @@ export async function ChapterSection({ chapter, index, locale }: { chapter: Chap
             sizes="(min-width: 768px) 56vw, 100vw"
             className={flip ? "md:col-span-7 md:col-start-6 md:row-start-1" : "md:col-span-7"}
           />
-          <div className={flip ? "md:col-span-5 md:col-start-1 md:row-start-1" : "md:col-span-5"}>
-            <h2 id={`chapter-${chapter.category}`} className="font-sport text-[clamp(4rem,11vw,10.5rem)]">
+          {/* Lange Titel ragen über das Kapitelbild statt aus der Seite; die Differenz-Mischung hält sie auf Schwarz und Weiß lesbar. */}
+          <div className={flip ? "md:col-span-5 md:col-start-1 md:row-start-1" : "md:col-span-5 md:flex md:flex-col md:items-end"}>
+            <h2 id={`chapter-${chapter.category}`} className="relative z-10 whitespace-nowrap font-sport text-[clamp(3.5rem,11vw,10.5rem)] mix-blend-difference">
               {name}
             </h2>
             <p className="mt-5 flex items-center gap-3 font-label text-sm text-hall-ink/70">

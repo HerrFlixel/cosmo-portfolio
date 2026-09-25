@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint && node scripts/check-server-actions.mjs",
     "clean:dot": "find . \\( -path ./node_modules -o -path ./.git \\) -prune -o -name '._*' -type f -exec rm -f {} +",
     "prebuild": "npm run clean:dot",
     "prelint": "npm run clean:dot",

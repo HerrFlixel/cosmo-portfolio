@@ -177,3 +177,97 @@ html[data-intro="pending"] [data-intro-hide] {
     visibility: visible;
   }
 }
+
+/* Cursor (Spec §6.4): nur Desktop mit Bewegung; Schicht 70. Differenz-Mischung: dunkel auf Papier, hell auf Hallenschwarz. */
+html.has-cursor,
+html.has-cursor * {
+  cursor: none;
+}
+html.has-cursor :is(input, textarea, select) {
+  cursor: text;
+}
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 70;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    width 0.45s var(--ease-expo-out),
+    height 0.45s var(--ease-expo-out),
+    margin 0.45s var(--ease-expo-out),
+    opacity 0.3s;
+}
+/* Die Form sitzt im ::before: GSAP bewegt das Element und setzt dort `rotate: none`. */
+.cursor::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #fff;
+  transition:
+    rotate 0.45s var(--ease-expo-out),
+    background-color 0.3s;
+}
+.cursor[data-visible] {
+  opacity: 1;
+}
+.cursor[data-state="link"] {
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+}
+/* Über Bildern: flacher, geneigter Ring wie der Orbit im Logo */
+.cursor[data-state="image"] {
+  width: 76px;
+  height: 30px;
+  margin: -15px 0 0 -38px;
+}
+.cursor[data-state="image"]::before {
+  background: transparent;
+  border: 1.5px solid #fff;
+  rotate: -12deg;
+}
+.cursor[data-state="text"] {
+  opacity: 0;
+}
+
+/* Menü-Rolle (Spec §6.4): nur mit Bewegung; ohne bleibt es beim Unterstrich. */
+.roll {
+  display: inline-grid;
+}
+.roll > span {
+  grid-area: 1 / 1;
+}
+.roll-b {
+  display: none;
+}
+.has-motion .roll {
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.has-motion .roll > span {
+  transition: transform 0.5s var(--ease-expo-out);
+}
+.has-motion .roll-b {
+  display: block;
+  font-family: var(--font-bodoni), ui-serif, Georgia, serif;
+  font-style: italic;
+  font-variation-settings: "opsz" 96;
+  transform: translateY(110%);
+}
+.has-motion :is(a, button):is(:hover, :focus-visible) .roll-a {
+  transform: translateY(-110%);
+}
+.has-motion :is(a, button):is(:hover, :focus-visible) .roll-b {
+  transform: none;
+}
+.has-motion a:has(> .roll) {
+  background-image: none;
+}

@@ -5,7 +5,9 @@ import Lenis from "lenis";
 import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useRef, useSyncExternalStore, type ReactNode, type RefObject } from "react";
 import { gsap, ScrollTrigger } from "./gsap";
+import { Cursor } from "./cursor";
 import { MotionEffects } from "./motion-effects";
+import { ScrollProgress } from "./scroll-progress";
 
 type Motion = { enabled: boolean; lenis: RefObject<Lenis | null> };
 
@@ -52,7 +54,13 @@ export function MotionRoot({ children }: { children: ReactNode }) {
   return (
     <MotionContext value={{ enabled, lenis }}>
       {children}
-      {enabled && <MotionEffects />}
+      {enabled && (
+        <>
+          <MotionEffects />
+          <ScrollProgress />
+          <Cursor />
+        </>
+      )}
     </MotionContext>
   );
 }

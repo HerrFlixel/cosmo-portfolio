@@ -115,3 +115,14 @@ test("Bewegung: Lightbox fliegt aus dem Passepartout auf und schließt normal", 
   await page.keyboard.press("Escape");
   await expect(page.getByTestId("lightbox")).toBeHidden();
 });
+
+test("Bewegung: Cursor wird über Bildern zum Orbit-Ring", async ({ page }) => {
+  await page.goto("/floorball");
+  await page.mouse.move(10, 10);
+  await page.getByRole("button", { name: "Floorball, Foto 1" }).hover();
+  const cursor = page.locator("[data-cursor]");
+  await expect(cursor).toHaveAttribute("data-state", "image");
+  // Geneigtes Oval wie der Orbit im Logo (die Form sitzt im ::before, GSAP setzt am Element selbst `rotate: none`).
+  await expect.poll(() => cursor.evaluate((element) => getComputedStyle(element, "::before").rotate)).toBe("-12deg");
+  expect(await cursor.evaluate((element) => getComputedStyle(element, "::before").borderRadius)).toBe("50%");
+});

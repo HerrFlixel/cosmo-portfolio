@@ -102,3 +102,57 @@ test.describe("Handy-Menü", () => {
     await expect(page.locator("html")).not.toHaveClass(/lenis-stopped/);
   });
 });
+
+test.describe("Mikro-Interaktionen", () => {
+  test.use({ reducedMotion: "no-preference" });
+
+  test("Bewegung: Cursor-Punkt folgt der Maus, wird über Links größer und ersetzt den System-Cursor", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/ueber-mich");
+    const cursor = page.locator("[data-cursor]");
+    // Erst nach der Hydration hört der Cursor zu; bis zur ersten Bewegung bleibt der System-Cursor sichtbar.
+    await expect(cursor).toBeAttached();
+    await expect(page.locator("html")).not.toHaveClass(/has-cursor/);
+    await page.mouse.move(380, 280);
+    await page.mouse.move(400, 300);
+    await expect(cursor).toHaveAttribute("data-visible", "");
+    await expect
+      .poll(() =>
+        cursor.evaluate((element) => {
+          const matrix = new DOMMatrix(getComputedStyle(element).transform);
+          return [Math.round(matrix.e), Math.round(matrix.f)];
+        }),
+      )
+      .toEqual([400, 300]);
+    await expect(page.locator("html")).toHaveClass(/has-cursor/);
+    await page.getByRole("banner").getByRole("link", { name: "Kontakt" }).hover();
+    await expect(cursor).toHaveAttribute("data-state", "link");
+  });
+
+  test("Bewegung: Scroll-Fortschritt schließt sich bis zum Seitenende", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/");
+    const ring = page.locator("[data-scroll-progress] circle").last();
+    const offset = async () => Number.parseFloat(await ring.evaluate((element) => getComputedStyle(element).strokeDashoffset));
+    expect(await offset()).toBeGreaterThan(90);
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect.poll(offset).toBeLessThan(2);
+  });
+
+  test("Bewegung: Menüpunkte rollen beim Hover in die Bodoni-Kursive", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/ueber-mich");
+    const link = page.getByRole("banner").getByRole("link", { name: "Kontakt" });
+    const italic = link.locator(".roll-b");
+    await link.hover();
+    await expect.poll(() => italic.evaluate((element) => getComputedStyle(element).transform)).toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
+    expect(await italic.evaluate((element) => getComputedStyle(element).fontStyle)).toBe("italic");
+  });
+});
+
+test("Bewegung: mit „weniger Bewegung“ kein eigener Cursor, kein Fortschrittsring, keine Rolle", async ({ page }) => {
+  await page.goto("/ueber-mich");
+  await expect(page.locator("[data-cursor]")).toHaveCount(0);
+  await expect(page.locator("[data-scroll-progress]")).toHaveCount(0);
+  await expect(page.getByRole("banner").getByRole("link", { name: "Kontakt" }).locator(".roll-b")).toBeHidden();
+});

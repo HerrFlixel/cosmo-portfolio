@@ -4,6 +4,7 @@ import { Link, getPathname } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/pathnames";
 import { LocaleSwitch } from "./locale-switch";
 import { Wordmark } from "./logo";
+import { RollText } from "./roll-text";
 import { MobileMenu } from "./mobile-menu";
 
 /** Kopf (Spec §5.1): Wortmarke ≈ 10 % der Breite, eine Zeile Navigation ab lg, darunter das Vollbild-Menü. */
@@ -18,14 +19,14 @@ export async function SiteHeader({ shopUrl }: { shopUrl: string }) {
         </Link>
         <nav aria-label={t("main")} data-intro="nav" data-intro-hide className="hidden items-center gap-8 text-[15px] lg:flex">
           <NextLink href={workHref} className="link-draw">
-            {t("work")}
+            <RollText>{t("work")}</RollText>
           </NextLink>
-          <Link href="/ueber-mich" className="link-draw">{t("about")}</Link>
-          <Link href="/kontakt" className="link-draw">{t("contact")}</Link>
-          <Link href="/kunden" className="link-draw">{t("clients")}</Link>
+          <Link href="/ueber-mich" className="link-draw"><RollText>{t("about")}</RollText></Link>
+          <Link href="/kontakt" className="link-draw"><RollText>{t("contact")}</RollText></Link>
+          <Link href="/kunden" className="link-draw"><RollText>{t("clients")}</RollText></Link>
           {shopUrl && (
             <a href={shopUrl} target="_blank" rel="noopener" className="link-draw">
-              {t("shop")} <span aria-hidden="true">↗</span>
+              <RollText>{t("shop")}</RollText> <span aria-hidden="true">↗</span>
             </a>
           )}
           <LocaleSwitch className="font-label text-xs uppercase tracking-[0.12em] text-muted transition-colors hover:text-ink" />

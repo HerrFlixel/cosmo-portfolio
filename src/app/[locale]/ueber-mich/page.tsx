@@ -36,7 +36,7 @@ export default async function AboutPage({ params }: Props) {
         )}
         <div className={portrait ? "md:col-span-7 lg:col-span-7 lg:col-start-6" : "md:col-span-10 md:col-start-2"}>
           <h1 className="font-label text-xs uppercase tracking-[0.18em] text-muted">{t("pages.about")}</h1>
-          <p className="font-display mt-6 pb-[0.08em] text-[clamp(2.5rem,5.5vw,5rem)] leading-[1.02]">
+          <p data-reveal="lines" className="font-display mt-6 pb-[0.08em] text-[clamp(2.5rem,5.5vw,5rem)] leading-[1.02]">
             {emphasis(statement).map((part, index) =>
               part.italic ? <em key={index}>{part.text}</em> : <Fragment key={index}>{part.text}</Fragment>,
             )}

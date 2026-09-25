@@ -54,3 +54,34 @@ test("Bewegung: mit „weniger Bewegung“ kein Intro, Logo und Headline sofort 
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.locator("[data-site-logo]")).toBeVisible();
 });
+
+test.describe("Überschriften und Fußzeile", () => {
+  test.use({ reducedMotion: "no-preference" });
+
+  test("Bewegung: Überschriften erscheinen Zeile für Zeile hinter einer Maske", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/ueber-mich");
+    const lines = page.locator("[data-reveal] .reveal-line");
+    await expect(lines.first()).toBeAttached();
+    await expect
+      .poll(() => lines.first().evaluate((element) => getComputedStyle(element).transform))
+      .toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  });
+
+  test("Bewegung: der Ring im Fußzeilen-Logo pendelt beim Scrollen", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/ueber-mich");
+    const ring = page.locator("footer [data-logo-ring-spin]");
+    const angle = () => ring.evaluate((element) => element.getAttribute("transform") ?? getComputedStyle(element).transform);
+    const before = await angle();
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect.poll(angle).not.toBe(before);
+  });
+});
+
+test("Bewegung: mit „weniger Bewegung“ werden Überschriften nicht zerlegt", async ({ page }) => {
+  await page.goto("/ueber-mich");
+  await expect(page.locator(".reveal-line")).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+});

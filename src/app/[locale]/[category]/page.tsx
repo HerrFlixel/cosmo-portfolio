@@ -52,7 +52,7 @@ export default async function CategoryPage({ params }: Props) {
       <div className="sticky top-0 grid h-[100dvh] place-items-center overflow-hidden px-4">
         <div className="flex flex-col items-center">
           <div className="flex items-start gap-2 md:gap-4">
-            <h1 className="font-sport text-[clamp(3.25rem,15vw,19rem)]">{name}</h1>
+            <h1 data-reveal="lines" className="font-sport text-[clamp(3.25rem,15vw,19rem)]">{name}</h1>
             <span className="pt-[0.6em] font-label text-sm text-muted md:text-base">({images.length})</span>
           </div>
           {/* Ohne Bilder steht der Hinweis unter dem Titel (nicht darübergezogen wie das Raster). */}

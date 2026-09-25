@@ -17,7 +17,7 @@ export default async function ClientsPage({ params }: Props) {
   return (
     <main className="mx-auto grid max-w-[1400px] gap-12 px-4 pb-16 pt-10 md:grid-cols-12 md:gap-8 md:px-8 md:pt-16">
       <div className="md:col-span-6">
-        <h1 className="font-display text-[clamp(2.5rem,6vw,5rem)] leading-none">{t("pages.clients")}</h1>
+        <h1 data-reveal="lines" className="font-display text-[clamp(2.5rem,6vw,5rem)] leading-none">{t("pages.clients")}</h1>
         <p className="mt-6 max-w-[48ch] text-lg text-ink/80">{t("clients.intro")}</p>
       </div>
       <div className="md:col-span-5 md:col-start-8 md:pt-4">

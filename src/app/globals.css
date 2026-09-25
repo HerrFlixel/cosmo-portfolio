@@ -166,3 +166,14 @@ body {
 html[data-intro="pending"] [data-intro-hide] {
   visibility: hidden;
 }
+
+/* Zeilen-Reveal (Spec §6.4): bis zum Zerlegen unsichtbar; das Sicherheitsnetz zeigt nach 3 s alles (z. B. Skriptfehler). */
+.has-motion [data-reveal] {
+  visibility: hidden;
+  animation: reveal-fallback 0s 3s forwards;
+}
+@keyframes reveal-fallback {
+  to {
+    visibility: visible;
+  }
+}

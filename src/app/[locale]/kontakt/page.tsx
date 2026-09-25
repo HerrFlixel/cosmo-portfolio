@@ -25,7 +25,7 @@ export default async function ContactPage({ params }: Props) {
   return (
     <main className="mx-auto grid max-w-[1400px] gap-16 px-4 pb-16 pt-10 md:grid-cols-12 md:gap-8 md:px-8 md:pt-16">
       <div className="md:col-span-5">
-        <h1 className="font-display text-[clamp(2.5rem,6vw,5rem)] leading-none">{t("pages.contact")}</h1>
+        <h1 data-reveal="lines" className="font-display text-[clamp(2.5rem,6vw,5rem)] leading-none">{t("pages.contact")}</h1>
         <p className="font-display mt-6 pb-1 text-[clamp(1.5rem,2.6vw,2.25rem)] italic leading-[1.15] text-ink/80">{t("contact.statement")}</p>
         {email && (
           <div className="mt-12">

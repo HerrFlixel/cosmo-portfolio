@@ -18,7 +18,7 @@ export async function AboutTeaser({ settings, locale }: { settings: Settings; lo
         <h2 id="about-teaser" className="sr-only">
           {t("aboutTitle")}
         </h2>
-        <p className="font-display pb-[0.08em] text-[clamp(2rem,4.2vw,3.75rem)] leading-[1.05]">
+        <p data-reveal="lines" className="font-display pb-[0.08em] text-[clamp(2rem,4.2vw,3.75rem)] leading-[1.05]">
           {emphasis(statement).map((part, index) =>
             part.italic ? <em key={index}>{part.text}</em> : <Fragment key={index}>{part.text}</Fragment>,
           )}

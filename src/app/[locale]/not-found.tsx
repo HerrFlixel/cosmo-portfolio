@@ -9,7 +9,7 @@ export default function NotFound() {
       <span aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 size-[min(88vw,680px)] -translate-x-[38%] -translate-y-[54%] rounded-full border-[1.5px] border-ink/15" />
       <div className="relative text-center">
         <p className="font-label text-sm text-muted">404</p>
-        <h1 className="font-display mt-4 text-[clamp(2.5rem,6vw,5rem)] leading-none">{t("title")}</h1>
+        <h1 data-reveal="lines" className="font-display mt-4 text-[clamp(2.5rem,6vw,5rem)] leading-none">{t("title")}</h1>
         <p className="mt-5 text-muted">{t("text")}</p>
         <Link href="/" className="link-draw mt-10 inline-block text-lg">
           {t("back")}

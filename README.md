@@ -46,5 +46,13 @@ Ohne `deps:lock` scheitert der Cloudflare-Build.
 |---|---|---|
 | `ADMIN_PASSWORD_HASH` | Produktion, Vorschau | `npm run admin:password` (bzw. `npm run admin:password -- --env=preview`) |
 | `SESSION_SECRET` | Produktion, Vorschau | `openssl rand -base64 48 \| tr -d '\n' \| npx wrangler secret put SESSION_SECRET` |
+| `GALLERY_SECRET` | Produktion, Vorschau | `openssl rand -base64 48 \| tr -d '\n' \| npx wrangler secret put GALLERY_SECRET` (siehe unten: nicht rotieren) |
 
 Admin-Benutzername: `ADMIN_USERNAME` in `wrangler.jsonc` (`felix`).
+
+### Kundengalerien
+
+- Dateien liegen im **privaten** Bucket `cosmo-galleries` (Vorschau: `cosmo-galleries-preview`) – nie eine Custom Domain oder r2.dev-URL daran hängen; ausgeliefert wird nur über den Worker mit Galerie-Cookie.
+- Secret `GALLERY_SECRET` (≥ 32 Zeichen) signiert die Zugangs-Cookies und verschlüsselt die Galerie-Passwörter für die Anzeige im Admin.
+  **Nicht rotieren**, außer im Notfall: Danach sind alle Kunden abgemeldet und jedes Galerie-Passwort muss im Admin neu gesetzt werden.
+- Originale: nur JPEG, max. 95 MB pro Datei. ZIPs werden ab 2 GB in Teile gesplittet.

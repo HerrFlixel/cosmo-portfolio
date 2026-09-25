@@ -56,3 +56,6 @@ next-env.d.ts
 # Playwright
 /test-results
 /playwright-report
+
+# Playwright: gespeicherte Admin-Sitzung
+test/e2e/.auth/

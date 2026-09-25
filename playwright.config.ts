@@ -9,7 +9,10 @@ export default defineConfig({
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
   use: { baseURL, locale: "de-DE" },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], locale: "de-DE" } }],
+  projects: [
+    { name: "setup", testMatch: /auth\.setup\.ts/ },
+    { name: "chromium", use: { ...devices["Desktop Chrome"], locale: "de-DE" }, dependencies: ["setup"] },
+  ],
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {

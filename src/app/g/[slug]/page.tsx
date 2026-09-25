@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getDb } from "@/lib/env";
 import { galleryI18n } from "@/lib/galleries/i18n";
-import { galleryState, getGalleryBySlug, listImages, logEvent, normalizeVisitorName } from "@/lib/galleries/repo";
+import { galleryState, getGalleryBySlug, listFavoriteIds, listImages, logEvent, normalizeVisitorName } from "@/lib/galleries/repo";
 import { gallerySecret } from "@/lib/galleries/secret";
 import { SLUG_PATTERN } from "@/lib/galleries/slug";
 import { GALLERY_COOKIE, VISITOR_COOKIE, verifyGalleryToken } from "@/lib/galleries/token";
@@ -60,7 +60,10 @@ export default async function GalleryPage({ params }: Props) {
 
   // Next liefert Cookie-Werte bereits dekodiert.
   const visitor = normalizeVisitorName(jar.get(VISITOR_COOKIE)?.value);
-  const images = await listImages(db, gallery.id);
+  const [images, favorites] = await Promise.all([
+    listImages(db, gallery.id),
+    visitor ? listFavoriteIds(db, gallery.id, visitor) : Promise.resolve([]),
+  ]);
   await logEvent(db, { galleryId: gallery.id, type: "view", visitorName: visitor });
 
   return (
@@ -70,6 +73,8 @@ export default async function GalleryPage({ params }: Props) {
       shootDate={gallery.shootDate}
       expiresAt={gallery.expiresAt}
       coverId={gallery.coverImageId}
+      initialFavorites={favorites}
+      initialVisitor={visitor}
       images={images.map(({ id, filename, width, height, color, bytes }) => ({ id, filename, width, height, color, bytes }))}
     />
   );

@@ -4,12 +4,14 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { formatDate } from "@/lib/format";
 import { getDb } from "@/lib/env";
-import { galleryState, getGalleryById, listImages, revealPassword } from "@/lib/galleries/repo";
+import { favoritesByVisitor, galleryState, getGalleryById, listEvents, listImages, revealPassword } from "@/lib/galleries/repo";
 import { gallerySecret } from "@/lib/galleries/secret";
 import { isUuid } from "@/lib/media/keys";
 import { STATE_LABELS } from "../labels";
 import { extendGalleryAction, setStatusAction } from "./actions";
 import { DeleteGalleryButton } from "./delete-button";
+import { EventsPanel } from "./events-panel";
+import { FavoritesPanel } from "./favorites-panel";
 import { GalleryImages } from "./gallery-images";
 import { GallerySettings } from "./gallery-settings";
 import { MessagePanel } from "./message-panel";
@@ -33,10 +35,12 @@ export default async function GalleryDetailPage({ params }: Props) {
   const db = getDb();
   const gallery = isUuid(id) ? await getGalleryById(db, id) : undefined;
   if (!gallery) notFound();
-  const [images, password] = await Promise.all([
+  const [images, password, visitors, events] = await Promise.all([
     listImages(db, gallery.id),
     // Nur nach einem Wechsel von GALLERY_SECRET nicht mehr lesbar → Hinweis statt Absturz.
     revealPassword(gallerySecret(), gallery).catch(() => null),
+    favoritesByVisitor(db, gallery.id),
+    listEvents(db, gallery.id),
   ]);
   const host = (await headers()).get("host") ?? "cosmo-photos.de";
   const url = `https://${host}/g/${gallery.slug}`;
@@ -70,6 +74,14 @@ export default async function GalleryDetailPage({ params }: Props) {
 
       <Section title="Bilder">
         <GalleryImages galleryId={gallery.id} coverImageId={gallery.coverImageId} initialImages={images} />
+      </Section>
+
+      <Section title="Favoriten">
+        <FavoritesPanel galleryId={gallery.id} visitors={visitors} />
+      </Section>
+
+      <Section title="Statistik">
+        <EventsPanel events={events} images={images} />
       </Section>
 
       {password && (

@@ -1,2 +1,6 @@
 # Lädt .env.development* bei `wrangler dev`
 NEXTJS_ENV=development
+# Nur lokal und für Tests: Benutzer "felix", Passwort "lokal-test-passwort". Nie in Produktion verwenden.
+# "$" ist als "\$" maskiert, weil Wrangler .dev.vars mit dotenv-expand liest.
+ADMIN_PASSWORD_HASH=pbkdf2-sha256\$100000\$eiuVrBDAiDEJTsj8p5EV5A\$L97myvKniSqZh47ey3Sii207l40A86NY5puEKB_7YOE
+SESSION_SECRET=lokal-nur-zum-testen-und-mindestens-32-zeichen-lang

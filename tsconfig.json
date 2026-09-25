@@ -30,7 +30,8 @@
     "types": [
       "./cloudflare-env.d.ts",
       "node"
-    ]
+    ],
+    "allowImportingTsExtensions": true
   },
   "include": [
     "next-env.d.ts",

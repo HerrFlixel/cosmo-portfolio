@@ -75,7 +75,7 @@ Neue Website für **Cosmo Photos**: Felix Vatterodt, Sportfotograf aus Hamburg m
 1. Du ziehst einen Ordner oder Dateien (JPG) in die Upload-Fläche.
 2. Pro Datei in einem Web Worker:
    - Der Browser dekodiert das Bild mit `createImageBitmap` (EXIF-Ausrichtung beachten).
-   - Er erzeugt WebP-Versionen per `OffscreenCanvas`.
+   - Er erzeugt WebP-Versionen per `OffscreenCanvas` (JPEG, falls der Browser kein WebP kodieren kann).
    - Er berechnet die **CRC32 des Originals** und den **Hauptfarbton** (Platzhalter).
 3. Erzeugte Größen:
    - **Portfolio:** 800 / 1600 / 2400 px
@@ -140,7 +140,7 @@ Neue Website für **Cosmo Photos**: Felix Vatterodt, Sportfotograf aus Hamburg m
 
 - Grundlage ist `brand/logo-original.svg`. Die Wortmarke COSMO besteht aus einzelnen Pfaden: Der Ring schneidet jeden Buchstaben in einen oberen und einen unteren Teil. Dazu kommt der Ring als eigener Pfad.
 - **Lockup-Regel:** „PHOTOS“ beginnt bündig unter der linken Kante des **C** (x ≈ 18) und endet mit dem **S** bündig an der rechten Kante des letzten **O** (x ≈ 194,5). Es läuft nie darüber hinaus.
-- **Offen:** „PHOTOS“ muss als **Pfade** geliefert werden (Illustrator: Schrift → In Pfade umwandeln). Die Schrift *Industry* wird nicht eingebunden.
+- **Erledigt:** `brand/logo-lockup.svg` (PHOTOS aus Industry Book in Pfade umgewandelt, exakte Illustrator-Positionen) und `brand/logo-wordmark.svg`. Die Schrift *Industry* wird nicht eingebunden.
 - Varianten:
   - Header: nur COSMO mit Ring, ca. 10 % der Viewport-Breite auf dem Desktop
   - Intro und Footer: voller Lockup
@@ -289,8 +289,8 @@ settings
 ```
 
 R2-Schlüssel:
-- `portfolio/<id>/{800,1600,2400}.webp`
-- `galleries/<galleryId>/<imageId>/{original.jpg,thumb.webp,preview.webp}`
+- `portfolio/<id>/{800,1600,2400}` und `site/<id>/{800,1600,2400}` (Content-Type in den R2-Metadaten: WebP, sonst JPEG)
+- `galleries/<galleryId>/<imageId>/{original,thumb,preview}`
 
 ## 10. Qualität
 
@@ -328,7 +328,7 @@ R2-Schlüssel:
 
 ## 13. Zulieferungen vom Nutzer (vor bzw. während der Umsetzung)
 
-1. Logo-SVG mit „PHOTOS“ **in Pfaden** (offen)
+1. Logo-SVG mit „PHOTOS“ **in Pfaden** (✓ `brand/logo-lockup.svg`)
 2. Impressum- und Datenschutztext, per Generator (später)
 3. Porträt für „Über mich“ (✓ `brand/portrait-felix.jpg`)
 4. Startbilder pro Kategorie (Upload später über den Admin)

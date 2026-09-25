@@ -15,12 +15,19 @@
     "studio": "Studio"
   },
   "nav": {
+    "home": "Cosmo Photos, zur Startseite",
+    "main": "Hauptnavigation",
+    "work": "Arbeiten",
     "about": "Über mich",
     "contact": "Kontakt",
     "clients": "Kunden",
+    "shop": "Shop",
     "imprint": "Impressum",
     "privacy": "Datenschutz",
-    "switchLocale": "English"
+    "switchLocale": "English",
+    "menu": "Menü",
+    "close": "Schließen",
+    "skip": "Zum Inhalt springen"
   },
   "pages": {
     "about": "Über mich",
@@ -31,6 +38,7 @@
   },
   "notFound": {
     "title": "Seite nicht gefunden",
+    "text": "Diese Seite gibt es nicht (mehr).",
     "back": "Zur Startseite"
   },
   "gallery": {
@@ -62,5 +70,65 @@
     "expiredText": "Schreib mir, wenn du sie noch einmal brauchst.",
     "contact": "Kontakt",
     "switchLocale": "English"
+  },
+  "category": {
+    "empty": "Hier kommen bald Bilder.",
+    "switch": "{category}, Kategorie wechseln"
+  },
+  "lightbox": {
+    "close": "Schließen",
+    "previous": "Vorheriges Foto",
+    "next": "Nächstes Foto"
+  },
+  "about": {
+    "statementFallback": "Fotografie aus Hamburg.",
+    "references": "Referenzen",
+    "cta": "Schreib mir"
+  },
+  "legal": {
+    "pending": "Dieser Text folgt in Kürze."
+  },
+  "clients": {
+    "intro": "Du hast von mir einen Link und ein Passwort bekommen? Gib hier den Galerie-Code ein oder öffne einfach den Link aus deiner Nachricht.",
+    "code": "Galerie-Code",
+    "hint": "Zum Beispiel final4-2026. Du kannst auch den ganzen Link einfügen.",
+    "open": "Galerie öffnen",
+    "errors": {
+      "invalid": "Bitte gib einen Galerie-Code ein.",
+      "unknown": "Diese Galerie gibt es nicht. Prüf den Code in deiner Nachricht.",
+      "tooMany": "Zu viele Versuche. Bitte eine Minute warten."
+    }
+  },
+  "contact": {
+    "statement": "Erzähl mir, was du vorhast.",
+    "name": "Name",
+    "email": "E-Mail",
+    "topic": "Worum geht's?",
+    "topics": {
+      "sport": "Sport",
+      "wedding": "Hochzeit",
+      "studio": "Studio",
+      "gallery": "Meine Galerie",
+      "other": "Etwas anderes"
+    },
+    "message": "Nachricht",
+    "send": "Nachricht senden",
+    "sending": "Wird gesendet …",
+    "sent": "Danke! Ich melde mich bald.",
+    "direct": "Lieber direkt?",
+    "unavailable": "Das Formular ist gerade nicht erreichbar. Schreib mir direkt:",
+    "errors": {
+      "name": "Bitte gib deinen Namen an.",
+      "email": "Bitte gib eine gültige E-Mail-Adresse an.",
+      "message": "Deine Nachricht ist etwas kurz (mindestens 10 Zeichen).",
+      "tooMany": "Zu viele Nachrichten in kurzer Zeit. Bitte versuch es gleich noch einmal.",
+      "bot": "Die Sicherheitsprüfung ist noch nicht fertig. Bitte kurz warten und erneut senden.",
+      "failed": "Das hat leider nicht geklappt. Schreib mir gern direkt an {email}.",
+      "failedNoMail": "Das hat leider nicht geklappt. Bitte versuch es später noch einmal."
+    }
+  },
+  "footer": {
+    "legal": "Rechtliches und Links",
+    "rights": "© {year} Felix Vatterodt"
   }
 }

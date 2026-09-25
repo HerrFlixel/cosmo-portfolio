@@ -25,17 +25,6 @@ export default async function HomePage({ params }: Props) {
           </li>
         ))}
       </ol>
-
-      <nav className="mt-16 flex flex-wrap gap-6 text-sm">
-        <Link href="/ueber-mich">{t("nav.about")}</Link>
-        <Link href="/kontakt">{t("nav.contact")}</Link>
-        <Link href="/kunden">{t("nav.clients")}</Link>
-        <Link href="/impressum">{t("nav.imprint")}</Link>
-        <Link href="/datenschutz">{t("nav.privacy")}</Link>
-        <Link href="/" locale={locale === "de" ? "en" : "de"}>
-          {t("nav.switchLocale")}
-        </Link>
-      </nav>
     </main>
   );
 }

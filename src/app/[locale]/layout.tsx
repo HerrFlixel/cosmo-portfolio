@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { fontVariables } from "@/app/fonts";
+import { SiteFooter } from "@/components/site/footer";
+import { SiteHeader } from "@/components/site/header";
 import { routing } from "@/i18n/routing";
+import { loadSettings } from "@/lib/public/data";
 import "../globals.css";
 
 type Props = { children: ReactNode; params: Promise<{ locale: string }> };
@@ -20,18 +23,28 @@ export const dynamicParams = false;
 export async function generateMetadata({ params }: Omit<Props, "children">): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
-  return { title: t("title"), description: t("description") };
+  return { title: { default: t("title"), template: "%s · Cosmo Photos" }, description: t("description") };
 }
 
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+  const [t, settings] = await Promise.all([getTranslations("nav"), loadSettings()]);
 
   return (
     <html lang={locale} className={fontVariables}>
-      <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      <body className="flex min-h-dvh flex-col">
+        <NextIntlClientProvider>
+          <a href="#inhalt" className="skip-link">
+            {t("skip")}
+          </a>
+          <SiteHeader shopUrl={settings.pictrs_url} />
+          <div id="inhalt" tabIndex={-1} className="flex-1 outline-none">
+            {children}
+          </div>
+          <SiteFooter settings={settings} />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

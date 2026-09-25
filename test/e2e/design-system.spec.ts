@@ -16,7 +16,7 @@ test("Schriften: Bodoni-Headline, Archivo-Kategorien (schmal, kursiv, 900), Mart
   const h1 = page.getByRole("heading", { level: 1 });
   expect(await h1.evaluate((el) => getComputedStyle(el).fontFamily)).toContain("Bodoni Moda");
 
-  const category = page.getByRole("link", { name: "Floorball" });
+  const category = page.getByRole("link", { name: "Floorball", exact: true });
   const sport = await category.evaluate((el) => {
     const s = getComputedStyle(el);
     return { family: s.fontFamily, style: s.fontStyle, weight: s.fontWeight, transform: s.textTransform };

@@ -15,12 +15,19 @@
     "studio": "Studio"
   },
   "nav": {
+    "home": "Cosmo Photos, home",
+    "main": "Main navigation",
+    "work": "Work",
     "about": "About",
     "contact": "Contact",
     "clients": "Clients",
+    "shop": "Shop",
     "imprint": "Imprint",
     "privacy": "Privacy",
-    "switchLocale": "Deutsch"
+    "switchLocale": "Deutsch",
+    "menu": "Menu",
+    "close": "Close",
+    "skip": "Skip to content"
   },
   "pages": {
     "about": "About",
@@ -31,6 +38,7 @@
   },
   "notFound": {
     "title": "Page not found",
+    "text": "This page doesn't exist (anymore).",
     "back": "Back to home"
   },
   "gallery": {
@@ -62,5 +70,65 @@
     "expiredText": "Write to me if you need it again.",
     "contact": "Contact",
     "switchLocale": "Deutsch"
+  },
+  "category": {
+    "empty": "Photos are coming soon.",
+    "switch": "{category}, change category"
+  },
+  "lightbox": {
+    "close": "Close",
+    "previous": "Previous photo",
+    "next": "Next photo"
+  },
+  "about": {
+    "statementFallback": "Photography from Hamburg.",
+    "references": "References",
+    "cta": "Write to me"
+  },
+  "legal": {
+    "pending": "This text will follow shortly."
+  },
+  "clients": {
+    "intro": "Did you get a link and a password from me? Enter the gallery code here or simply open the link from your message.",
+    "code": "Gallery code",
+    "hint": "For example final4-2026. You can also paste the whole link.",
+    "open": "Open gallery",
+    "errors": {
+      "invalid": "Please enter a gallery code.",
+      "unknown": "This gallery doesn't exist. Please check the code in your message.",
+      "tooMany": "Too many attempts. Please wait a minute."
+    }
+  },
+  "contact": {
+    "statement": "Tell me what you have in mind.",
+    "name": "Name",
+    "email": "Email",
+    "topic": "What is it about?",
+    "topics": {
+      "sport": "Sports",
+      "wedding": "Wedding",
+      "studio": "Studio",
+      "gallery": "My gallery",
+      "other": "Something else"
+    },
+    "message": "Message",
+    "send": "Send message",
+    "sending": "Sending …",
+    "sent": "Thank you! I'll get back to you soon.",
+    "direct": "Prefer email?",
+    "unavailable": "The form is currently unavailable. Write to me directly:",
+    "errors": {
+      "name": "Please enter your name.",
+      "email": "Please enter a valid email address.",
+      "message": "Your message is a bit short (at least 10 characters).",
+      "tooMany": "Too many messages in a short time. Please try again in a moment.",
+      "bot": "The security check isn't finished yet. Please wait a moment and send again.",
+      "failed": "That didn't work, sorry. Feel free to write to me directly at {email}.",
+      "failedNoMail": "That didn't work, sorry. Please try again later."
+    }
+  },
+  "footer": {
+    "legal": "Legal and links",
+    "rights": "© {year} Felix Vatterodt"
   }
 }

@@ -38,7 +38,7 @@ test.describe("Deutsch (Standard, ohne Präfix)", () => {
 
   test("Sprachumschalter führt zur englischen Startseite", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("link", { name: "English" }).click();
+    await page.getByRole("banner").getByRole("link", { name: "English" }).click();
     await expect(page).toHaveURL(/\/en$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });
@@ -66,9 +66,9 @@ test.describe("Englisch", () => {
 
   test("Links auf der englischen Startseite zeigen auf englische Pfade", async ({ page }) => {
     await page.goto("/en");
-    await expect(page.getByRole("link", { name: "Football" })).toHaveAttribute("href", "/en/football");
-    await expect(page.getByRole("link", { name: "Weddings" })).toHaveAttribute("href", "/en/weddings");
-    await expect(page.getByRole("link", { name: "About" })).toHaveAttribute("href", "/en/about");
+    await expect(page.getByRole("link", { name: "Football", exact: true })).toHaveAttribute("href", "/en/football");
+    await expect(page.getByRole("link", { name: "Weddings", exact: true })).toHaveAttribute("href", "/en/weddings");
+    await expect(page.getByRole("link", { name: "About", exact: true })).toHaveAttribute("href", "/en/about");
   });
 });
 

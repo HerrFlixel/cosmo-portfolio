@@ -9,6 +9,7 @@
   --color-hall: #0b0b0c;
   --color-hall-ink: #eceae4;
   --color-signal: #ff3d2e;
+  --color-alert: #b8241a;
 
   --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-expo-in-out: cubic-bezier(0.87, 0, 0.13, 1);
@@ -53,4 +54,108 @@ body {
   color: var(--color-ink);
   font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Fehlertexte: `alert` statt `signal` – signal erreicht auf Papier kein WCAG AA (Plan 4, Abweichungen).
+   Schichten: Kopf 20 · Kategorie-Pille 30 · Menü/Lightbox 50 · Sprunglink 60 */
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100px;
+  z-index: 60;
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: 0.75rem 1.25rem;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Unterstreichung zeichnet sich von links (Spec §6.4) */
+.link-draw {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  padding-bottom: 2px;
+  transition: background-size 0.5s var(--ease-expo-out);
+}
+.link-draw:hover,
+.link-draw:focus-visible,
+.link-draw[aria-current="page"] {
+  background-size: 100% 1px;
+}
+
+/* Passepartout (Spec §4.3): der Rahmen misst die eigene Breite (Container), Rand ≈ 6 % davon. */
+.passepartout {
+  container-type: inline-size;
+  display: block;
+}
+.passepartout-mat {
+  display: block;
+  background: var(--color-mat);
+  padding: 6cqw;
+  box-shadow:
+    0 0.3cqw 1.8cqw rgb(20 20 18 / 0.1),
+    0 0.05cqw 0.2cqw rgb(20 20 18 / 0.08);
+  transition:
+    transform 0.6s var(--ease-expo-out),
+    box-shadow 0.6s var(--ease-expo-out);
+}
+.passepartout-window {
+  display: block;
+  overflow: hidden;
+}
+.passepartout-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  filter: blur(12px);
+  transform: scale(1.02);
+  transition:
+    opacity 1s var(--ease-expo-out),
+    filter 1s var(--ease-expo-out),
+    transform 0.6s var(--ease-expo-out);
+}
+.passepartout-photo[data-loaded] {
+  opacity: 1;
+  filter: none;
+  transform: none;
+}
+@media (hover: hover) {
+  .passepartout:hover .passepartout-mat {
+    transform: translateY(-0.8cqw);
+    box-shadow:
+      0 2cqw 5cqw rgb(20 20 18 / 0.16),
+      0 0.3cqw 0.8cqw rgb(20 20 18 / 0.1);
+  }
+  .passepartout:hover .passepartout-photo[data-loaded] {
+    transform: scale(1.03);
+  }
+}
+/* Ohne JavaScript gibt es kein onLoad: Bilder sofort zeigen. */
+@media (scripting: none) {
+  .passepartout-photo {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .link-draw,
+  .passepartout-mat,
+  .passepartout-photo {
+    transition: opacity 0.3s linear;
+  }
+  .passepartout:hover .passepartout-mat,
+  .passepartout:hover .passepartout-photo[data-loaded],
+  .passepartout-photo {
+    transform: none;
+  }
 }

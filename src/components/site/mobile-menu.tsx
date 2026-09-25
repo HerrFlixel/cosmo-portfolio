@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { CATEGORIES, type Category } from "@/lib/categories";
 import { LocaleSwitch } from "./locale-switch";
+import { useScrollLock } from "@/components/motion/use-scroll-lock";
 import { useInertBackground } from "./use-inert-background";
 import { Wordmark } from "./logo";
 
@@ -20,12 +21,11 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
   const close = useCallback(() => setOpen(false), []);
   const dialog = useRef<HTMLDivElement>(null);
   useInertBackground(dialog, open);
+  useScrollLock(open);
 
   useEffect(() => {
     if (!open) return;
     const button = opener.current;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     closeButton.current?.focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
@@ -33,7 +33,6 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
     window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = overflow;
       button?.focus();
     };
   }, [open]);

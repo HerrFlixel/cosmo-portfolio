@@ -8,7 +8,8 @@ export default defineConfig({
   testIgnore: ["**/._*"],
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
-  use: { baseURL, locale: "de-DE" },
+  // Standard ohne Bewegung (stabil); Bewegungs-Tests schalten mit test.use({ reducedMotion: "no-preference" }) zu.
+  use: { baseURL, locale: "de-DE", reducedMotion: "reduce" },
   projects: [
     { name: "setup", testMatch: /auth\.setup\.ts/ },
     { name: "chromium", use: { ...devices["Desktop Chrome"], locale: "de-DE" }, dependencies: ["setup"] },

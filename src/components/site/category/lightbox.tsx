@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { imageSources } from "@/lib/public/images";
+import { useScrollLock } from "@/components/motion/use-scroll-lock";
 import { useInertBackground } from "../use-inert-background";
 
 export type LightboxImage = { id: string; width: number; height: number; color: string; alt: string };
@@ -19,15 +20,13 @@ export function PublicLightbox({ images, index, onIndex, onClose }: Props) {
   const swipeStart = useRef<number | null>(null);
   const dialog = useRef<HTMLDivElement>(null);
   useInertBackground(dialog, true);
+  useScrollLock(true);
 
-  // Scrollen sperren; Auslöser merken, bevor der Fokus in die Lightbox springt, und beim Schließen zurückgeben.
+  // Auslöser merken, bevor der Fokus in die Lightbox springt, und beim Schließen zurückgeben.
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null;
     closeButton.current?.focus();
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = overflow;
       opener?.focus();
     };
   }, []);

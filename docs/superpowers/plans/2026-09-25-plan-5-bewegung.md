@@ -2034,3 +2034,54 @@ Erwartet: `LIVE` (das Boot-Skript mit dem Intro-Schlüssel ist ausgeliefert), `t
 3. In den Systemeinstellungen „Bewegung reduzieren“ einschalten und neu laden: Die Seite ist ruhig und vollständig.
 
 Rückmeldungen (Tempo, Kapitel, Titel-Mischung über Fotos) als Feinschliff im Anschluss.
+
+---
+
+## Review nach Abschluss (2026-09-26)
+
+**Status:** ✅ abgeschlossen, auf `main` gepusht und in Produktion live (Boot-Skript nach ~110 s ausgeliefert). Offen ist nur Felix' Sichtprüfung (Task 7, Schritt 4).
+
+**Tests:**
+- lokal: Lint grün, Unit 32 Dateien / 149 Tests, E2E 110 (Chromium + WebKit), zweimal hintereinander grün
+- Vorschau: 110/110
+- Produktion: 47/47, davon 21 Bewegungs-Tests
+
+**Sichtprüfung (Screenshots, teils per CDP verlangsamt) während der Umsetzung:** Intro-Ablauf und pixelgleicher Kopf danach, Kapitel „Licht aus“, Lightbox-Flug, Menü-Staffel, Cursor-Zustände, Rolle, Vorhang und Kapitelbild-Flug. Die Befunde daraus (unten) sind behoben, jeweils mit Regressionstest.
+
+**Abschließendes Review:** 0 kritisch; 6 wichtige Befunde behoben:
+- ScrollTrigger sammelten sich pro Seitenwechsel an (`revertOnUpdate`)
+- Handy-Menü war bei gestopptem Lenis nicht scrollbar (`data-lenis-prevent`)
+- Zerlegte Absätze waren für Screenreader stumm (`aria-label` nur an Überschriften)
+- Sprachwechsel schaltete die Bewegung ab (`<html>` wird neu aufgebaut; `has-motion` wird nachgezogen)
+- Zurück/Vor landete oben statt an der vorherigen Stelle
+- Zeilenmasken schnitten Unterlängen ab (`clip-path` mit Luft statt `overflow`)
+
+### Entscheidungen während der Umsetzung
+
+| Punkt | Entscheidung | Grund |
+|---|---|---|
+| Kapiteltitel | behält in jeder Phase die Differenz-Mischung; Bühne mit Papiergrund; Titel und Zähler einzeln animiert | Plan schaltete auf Schwarz/normal – über dunklen Hallenfotos wären überlappende Buchstaben verschwunden; die fixierte Bühne ist eine eigene Mischgruppe |
+| Cursor | System-Cursor verschwindet erst mit dem Punkt; Punkt erscheint direkt an der Maus; Oval-Form im `::before` | sonst bis zur ersten Bewegung gar kein Cursor; GSAP setzt am Element `rotate: none` |
+| Seitenwechsel | eigene Grenze pro Pfad (`key`), `exit` bleibt stehen, `enter` wischt mit `inset(100vh …)`; Kopf, Inhalt und Fußzeile in einem Element; deckende Schnappschüsse; Kapitelbild über dem Vorhang | Planfassung morphte den ganzen hohen Inhalt (alte Seite rutschte weg), wischte elementbezogen und spielte bei jedem Formular-Absenden erneut |
+| Handy-Menü beim Seitenwechsel | Links auf andere Seiten schließen nicht selbst (der Neuaufbau schließt), eigener Transition-Name | sonst wischte der Vorhang über eine nackte alte Seite |
+| ScrollTrigger-Regression | kein dauerhafter Test, Beleg per vorübergehendem Zähler (3→7→11→15, danach 3→3→3→3) | GSAP ist von der Seite aus ohne Produktions-Hook nicht erreichbar |
+
+### Für spätere Pläne
+
+- **Plan 6 (Launch):**
+  - Kontaktformular: Netzwerkfehler als Hinweis abfangen statt Fehlerseite. Lokal enden Aktions-Antworten unter Last gelegentlich mit `ERR_ABORTED`, auch ohne Plan 5; einmal gab es daraus die Fehlerseite. Nach dem Setzen der Secrets auf Prod prüfen.
+  - Lighthouse/LCP der Startseite mit Intro (Spec-Spannung: Intro und zerlegte Überschriften verzögern LCP bewusst).
+- **Feinschliff nach Felix' Sichtprüfung:**
+  - Tempo, Kapitel, Titel-Mischung über echten Fotos
+  - Intro-Logo auf dem Handy (50 vw)
+  - Bodoni-Kursive in der Menü-Rolle wirkt bei 15 px klein
+- **Kleinere Punkte (aufgeschoben):**
+  - Intro überspringt den Reveal im Über-mich-Teaser.
+  - Scroll-Sperre bleibt, falls das Intro nach dem Sperren abbricht.
+  - `#arbeiten` auf „/“ doppelt behandelt (Lenis-Anker und Next).
+  - Mausrad über einem langen Textfeld scrollt die Seite.
+  - Handy-Grenze wird nur einmal pro Seite gelesen.
+  - Intro in `next dev` (StrictMode) nie sichtbar.
+  - Menü bleibt bei langsamer Seite ohne Rückmeldung offen.
+  - Cursor und Fortschrittsring sind während des Vorhangs unsichtbar.
+  - Collage-Neigung beim Wechsel über die lg-Grenze nach dem Laden.

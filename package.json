@@ -29,6 +29,9 @@
     "preview:e2e": "opennextjs-cloudflare build && npm run clean:dot && rm -rf .wrangler/e2e-state && CI=true npm run db:migrate:e2e && ([ -f .dev.vars ] || cp .dev.vars.example .dev.vars) && opennextjs-cloudflare preview --persist-to .wrangler/e2e-state"
   },
   "dependencies": {
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
     "@opennextjs/cloudflare": "1.20.6",
     "drizzle-orm": "0.45.3",
     "next": "16.3.6",

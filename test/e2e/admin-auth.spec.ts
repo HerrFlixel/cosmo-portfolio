@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { ADMIN, loginAsAdmin } from "./helpers/admin";
 
 // Weitere geschützte Seiten ergänzen Task 6 (Portfolio) und Task 7 (Texte).
-const PROTECTED_PAGES = ["/admin"];
+const PROTECTED_PAGES = ["/admin", "/admin/portfolio/floorball"];
 
 test("ohne Anmeldung führt jede Admin-Seite zum Login", async ({ page }) => {
   for (const path of PROTECTED_PAGES) {

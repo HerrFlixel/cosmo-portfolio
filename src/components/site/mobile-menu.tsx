@@ -34,7 +34,7 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
   useGSAP(() => {
     if (!open || !enabled || !dialog.current) return;
     gsap.from(dialog.current.querySelectorAll("[data-menu-item]"), { yPercent: 60, opacity: 0, duration: 0.8, ease: "expo.out", stagger: 0.05 });
-  }, { dependencies: [open, enabled] });
+  }, { dependencies: [open, enabled], revertOnUpdate: true });
 
   useEffect(() => {
     if (!open) return;
@@ -58,7 +58,7 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
       {/* Portal: Der Kopf ist ein Stapelkontext (z-20); das Menü muss auch über der Kategorie-Pille liegen. */}
       {open &&
         createPortal(
-          <div ref={dialog} id="mobile-menu" role="dialog" aria-modal="true" aria-label={t("nav.menu")} className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-paper px-4 pb-10 [view-transition-name:mobile-menu]">
+          <div ref={dialog} id="mobile-menu" role="dialog" aria-modal="true" aria-label={t("nav.menu")} data-lenis-prevent className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-paper px-4 pb-10 [view-transition-name:mobile-menu]">
             <div className="flex h-[72px] shrink-0 items-center justify-between">
               <Link href="/" onClick={closeIfHere("/")} aria-label={t("nav.home")} className="block w-[104px]">
                 <Wordmark id="logo-menu" decorative className="block h-auto w-full" />

@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
-import { difference } from "./helpers/pixels";
+import { expect, test, type Page } from "@playwright/test";
+import { difference, lowestInk } from "./helpers/pixels";
 
 const skipIntro = () => sessionStorage.setItem("cosmo-intro", "seen");
 
@@ -81,6 +81,28 @@ test.describe("Überschriften und Fußzeile", () => {
   });
 });
 
+test("Bewegung: Unterlängen bleiben nach dem Zeilen-Reveal vollständig (wie ohne Bewegung)", async ({ browser }) => {
+  const lowest = async (motion: "reduce" | "no-preference") => {
+    const context = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: "de-DE", reducedMotion: motion });
+    await context.addInitScript(skipIntro);
+    const page: Page = await context.newPage();
+    await page.goto("/impressum");
+    const heading = page.locator("main h1");
+    await page.evaluate(() => document.fonts.ready);
+    if (motion === "no-preference") {
+      const line = heading.locator(".reveal-line").first();
+      await expect(line).toBeAttached();
+      await expect.poll(() => line.evaluate((element) => getComputedStyle(element).transform)).toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
+    }
+    const box = (await heading.boundingBox())!;
+    const row = await lowestInk(page, { x: box.x, y: box.y, width: box.width, height: box.height + 40 });
+    await context.close();
+    return row;
+  };
+  // „Impressum“: Das p reicht unter die Zeilenbox; die Zeilenmaske darf es nicht abschneiden.
+  expect(Math.abs((await lowest("no-preference")) - (await lowest("reduce")))).toBeLessThanOrEqual(1);
+});
+
 test("Bewegung: mit „weniger Bewegung“ werden Überschriften nicht zerlegt", async ({ page }) => {
   await page.goto("/ueber-mich");
   await expect(page.locator(".reveal-line")).toHaveCount(0);
@@ -121,6 +143,19 @@ test.describe("Handy-Menü", () => {
     expect(await difference(page, before, await page.screenshot({ clip: band }))).toBeLessThan(0.02);
     await expect(page).toHaveURL(/\/kontakt$/);
     await expect(page.locator("#mobile-menu")).toHaveCount(0, { timeout: 10_000 });
+  });
+
+  test("Bewegung: das Handy-Menü lässt sich scrollen, wenn es höher als der Bildschirm ist", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 500 });
+    await page.addInitScript(skipIntro);
+    await page.goto("/ueber-mich");
+    await page.getByRole("button", { name: "Menü" }).click();
+    const menu = page.locator("#mobile-menu");
+    await expect(page.locator("html")).toHaveClass(/lenis-stopped/);
+    expect(await menu.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+    await page.mouse.move(180, 300);
+    await page.mouse.wheel(0, 400);
+    await expect.poll(() => menu.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
   });
 });
 
@@ -229,5 +264,29 @@ test.describe("Seitenwechsel", () => {
     await page.getByRole("button", { name: "Galerie öffnen" }).click();
     await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
     expect(await page.evaluate(transitions)).toBe(0);
+  });
+});
+
+test.describe("Barrierefreiheit und Sprache mit Bewegung", () => {
+  test.use({ reducedMotion: "no-preference" });
+
+  test("Bewegung: zerlegte Absätze bleiben für Screenreader lesbar", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/ueber-mich");
+    const statement = page.locator("main p[data-reveal]");
+    await expect(statement.locator(".reveal-line").first()).toBeAttached();
+    // Der Absatz muss als Text im Barrierefreiheitsbaum stehen (ein aria-label auf <p> lesen Screenreader nicht vor).
+    const text = (await statement.evaluate((element) => element.getAttribute("aria-label") ?? element.textContent ?? "")).trim();
+    expect(await page.locator("main").ariaSnapshot()).toContain(`paragraph: ${text.split(/\s+/)[0]}`);
+  });
+
+  test("Bewegung: nach dem Sprachwechsel bleibt die Bewegung an", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/ueber-mich");
+    await expect(page.locator("html")).toHaveClass(/lenis/);
+    await page.getByRole("banner").getByRole("link", { name: "English" }).click();
+    await expect(page).toHaveURL(/\/en\/about$/);
+    await expect(page.locator("html")).toHaveClass(/has-motion/);
+    await expect(page.locator("html")).toHaveClass(/lenis/);
   });
 });

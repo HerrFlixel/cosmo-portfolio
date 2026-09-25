@@ -59,7 +59,7 @@ export function Cursor() {
         root.classList.remove("has-cursor");
       };
     },
-    { dependencies: [fine] },
+    { dependencies: [fine], revertOnUpdate: true },
   );
 
   if (!fine) return null;

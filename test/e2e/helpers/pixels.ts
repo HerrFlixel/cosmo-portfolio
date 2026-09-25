@@ -55,3 +55,22 @@ export async function difference(page: Page, a: Buffer, b: Buffer) {
   await decoder.close();
   return share;
 }
+
+/** Abstand (px) der untersten dunklen Bildpunktreihe vom oberen Rand des Kastens, z. B. für Unterlängen. */
+export async function lowestInk(page: Page, box: Box) {
+  const png = await page.screenshot({ clip: box });
+  const decoder = await page.context().newPage();
+  const row = await decoder.evaluate(async (data) => {
+    const bitmap = await createImageBitmap(await (await fetch(`data:image/png;base64,${data}`)).blob());
+    const context = new OffscreenCanvas(bitmap.width, bitmap.height).getContext("2d")!;
+    context.drawImage(bitmap, 0, 0);
+    const pixels = context.getImageData(0, 0, bitmap.width, bitmap.height).data;
+    let lowest = -1;
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (0.2126 * pixels[i] + 0.7152 * pixels[i + 1] + 0.0722 * pixels[i + 2] < 100) lowest = Math.floor(i / 4 / bitmap.width);
+    }
+    return lowest;
+  }, png.toString("base64"));
+  await decoder.close();
+  return row;
+}

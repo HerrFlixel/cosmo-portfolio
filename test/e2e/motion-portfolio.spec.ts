@@ -118,3 +118,19 @@ test("Bewegung: das Kapitelbild fliegt beim Wechsel auf die Kategorieseite (ohne
   await expect.poll(() => page.evaluate(() => (window as unknown as { transitions: number }).transitions)).toBeGreaterThan(0);
   expect(errors).toEqual([]);
 });
+
+test("Bewegung: Zurück landet wieder an der vorherigen Stelle der Startseite", async ({ page }) => {
+  await page.goto("/");
+  const link = page.locator('[data-chapter="floorball"]').getByRole("link", { name: "Alle Floorball-Bilder" });
+  await link.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(800);
+  const before = await page.evaluate(() => window.scrollY);
+  expect(before).toBeGreaterThan(500);
+  await link.click();
+  await expect(page).toHaveURL(/\/floorball$/);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(50);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 }).toBeGreaterThan(before - 80);
+  expect(await page.evaluate(() => window.scrollY)).toBeLessThan(before + 80);
+});

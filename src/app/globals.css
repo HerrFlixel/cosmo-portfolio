@@ -177,6 +177,12 @@ html[data-intro="pending"] [data-intro-hide] {
     visibility: visible;
   }
 }
+/* Die Zeilenmasken bleiben nach dem Reveal. Bodoni ragt bei engem Zeilenabstand über die Zeilenbox (Unterlängen,
+   Umlaut-Punkte): clip-path mit Luft statt overflow (von SplitText inline gesetzt) – verschiebt kein Layout. */
+.reveal-line-mask {
+  overflow: visible !important;
+  clip-path: inset(-0.2em -0.5em);
+}
 
 /* Cursor (Spec §6.4): nur Desktop mit Bewegung; Schicht 70. Differenz-Mischung: dunkel auf Papier, hell auf Hallenschwarz. */
 html.has-cursor,

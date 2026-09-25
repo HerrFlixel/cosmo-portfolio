@@ -81,7 +81,7 @@ export function ChapterScene({ children }: { children: ReactNode }) {
         .to(mat, { backgroundColor: "rgba(255, 255, 255, 1)", duration: 0.2 }, 0.8)
         .set(mat, { clearProps: "boxShadow" }, 0.95);
     },
-    { dependencies: [enabled], scope: stage },
+    { dependencies: [enabled], scope: stage, revertOnUpdate: true },
   );
 
   // Papiergrund: Die fixierte Bühne ist eine eigene Mischgruppe; ohne deckenden Grund mischte der Titel (Differenz) gegen „transparent“.

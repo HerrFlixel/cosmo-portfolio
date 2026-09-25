@@ -5,7 +5,7 @@ import { parallaxDistance } from "@/lib/motion/geometry";
 import { gsap, SplitText, useGSAP } from "./gsap";
 
 /**
- * Bewegung an Ankern im Server-Markup, pro Seite neu aufgebaut (useGSAP räumt beim Pfadwechsel auf):
+ * Bewegung an Ankern im Server-Markup, pro Seite neu aufgebaut (revertOnUpdate: beim Pfadwechsel wird alles Alte entfernt):
  * - [data-reveal="lines"]: Zeilen erscheinen hinter einer Maske, wenn sie sichtbar werden (Spec §6.4).
  * - [data-speed]: Parallaxe, Weg = Tempo × Bildschirmhöhe, auf dem Handy halbiert (Spec §6.1/6.2/6.5).
  * - [data-logo-ring-spin]: Ring im Fußzeilen-Logo pendelt beim Scrollen um ±10° (Spec §6.1).
@@ -29,11 +29,14 @@ export function MotionEffects() {
           type: "lines",
           mask: "lines",
           linesClass: "reveal-line",
+          // Überschriften bekommen ein aria-label; auf <p> lesen Screenreader das nicht vor, dort bleibt der Text normal lesbar.
+          aria: element.matches("h1, h2, h3, h4, h5, h6") ? "auto" : "none",
           autoSplit: true,
           onSplit(self) {
             gsap.set(element, { visibility: "visible" });
             return gsap.from(self.lines, {
-              yPercent: 110,
+              // Weit genug unter die (gepolsterte) Maske, dass auch Umlaut-Punkte anfangs verborgen sind.
+              yPercent: 130,
               duration: 1.1,
               ease: "expo.out",
               stagger: 0.08,
@@ -60,7 +63,7 @@ export function MotionEffects() {
         );
       }
     },
-    { dependencies: [pathname] },
+    { dependencies: [pathname], revertOnUpdate: true },
   );
 
   return null;

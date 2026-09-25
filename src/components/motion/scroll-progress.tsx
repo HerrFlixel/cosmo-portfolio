@@ -23,7 +23,7 @@ export function ScrollProgress() {
       const trigger = ScrollTrigger.create({ start: 0, end: "max", onUpdate: (self) => update(self.progress) });
       update(trigger.progress);
     },
-    { dependencies: [pathname] },
+    { dependencies: [pathname], revertOnUpdate: true },
   );
 
   return (

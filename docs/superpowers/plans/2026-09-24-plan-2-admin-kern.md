@@ -3298,3 +3298,51 @@ Erwartet: Alle ausgewählten Tests PASS. 👤 Felix meldet sich unter `/admin/lo
 - `npm run lint` grün (inkl. Server-Action-Wächter), `npm test` 12 Dateien / 55 Tests, `npm run test:e2e` 35 Tests.
 - Vorschau: alle 35 E2E-Tests PASS. Produktion: Auswahl ohne Login PASS, Felix' Login funktioniert.
 - `npm run check:lock` grün, Secrets in beiden Umgebungen gesetzt, README aktuell.
+
+---
+
+## Review nach Abschluss (2026-09-25)
+
+**Status:** ✅ abgeschlossen und auf `main` gepusht (Produktion per Workers Builds).
+**Tests:**
+- lokal: `npm run lint` grün (inkl. Server-Action-Wächter), `npm test` 13 Dateien / 57 Tests, `npm run test:e2e` 48 Tests (Chromium und WebKit/Safari)
+- Vorschau live: 40/40 (Chromium)
+- Produktion: Auswahl ohne Login
+
+### Abweichungen und Entscheidungen
+
+| Punkt | Entscheidung | Grund |
+|---|---|---|
+| `.dev.vars` | Hash **ohne** Maskierung von `$` | Wrangler liest `.dev.vars` mit `dotenv.parse` ohne Variablen-Ersetzung; die Maskierung aus Task 1 hatte den lokalen Login gebrochen und wurde zurückgenommen |
+| E2E-Login | Setup-Projekt `auth.setup.ts` speichert **eine** Admin-Sitzung (`test/e2e/.auth/`, nicht im Git) | Das echte Rate-Limit (5/min) hätte die eigenen Tests blockiert |
+| E2E-Meldungen | `alert`-Prüfungen auf `form`/`main` eingegrenzt | Next.js blendet einen Seitenwechsel-Ansager mit `role="alert"` ein |
+| Geschützte Seiten im Test | Liste wächst mit Task 6/7 | Seiten existierten in Task 2 noch nicht |
+| Portfolio-Karten | Änderungen sofort sichtbar (optimistisch); bei Fehler wird der Server-Stand neu geladen | Häkchen sprang erst nach der Antwort um; Momentaufnahmen liefen bei parallelen Uploads auseinander (Review) |
+| Upload | Eine seitenweite Warteschlange (max. 3), Ordner-Auswahl und Ordner-Drop, Meldung übersprungener Dateien (auch `._`), Hinweis bei abgelaufener Anmeldung und „Alle fehlgeschlagenen erneut versuchen“ | Review-Befunde 2 und 3, Spec §3.3 („Ordner“) |
+| Safari | Playwright-Projekt `webkit` für `admin-portfolio.spec.ts` | Bildverarbeitung (Worker, OffscreenCanvas, EXIF, Fallback) auch in Safaris Engine abgesichert |
+| Deployment-Tests | `test:e2e:prod` mit `--no-deps` | Produktion ohne Test-Zugangsdaten |
+| Reihenfolge Task 8 | Review und Vorschau vor Felix' Passwort und vor dem Push | Push = Produktions-Deployment |
+
+### Für spätere Pläne
+
+- **Plan 3 (Galerien):**
+  - Originale **streamen** (die Medien-Route puffert den Body).
+  - Eigener Upload-Weg für Originale, nicht die 10-MB-Varianten-Route.
+  - Doppelte UUID liefert 409 statt 500.
+- **Plan 3/6:** Eine R2-Custom-Domain gibt den **ganzen** Bucket frei. Galerien brauchen deshalb einen eigenen Bucket oder bleiben hinter einer Worker-Route mit Zugangsprüfung.
+- **Plan 4 (öffentliche Seiten):**
+  - `srcset`-Breiten = `min(Größe, längste Kante)`.
+  - Hero und Kapitel nur aus sichtbaren Bildern.
+  - `saveSettings` behandelt fehlende Felder als leer, also nur vollständige Formulare senden.
+- **Kleinere Punkte (aufgeschoben):**
+  - Skalierung als Kette 2400 → 1600 → 800 (weniger CPU).
+  - Der Server-Action-Wächter prüft pro Datei, nicht pro Aktion.
+  - Es gibt keinen E2E-Test für die Einstellungs-Aktion ohne Anmeldung.
+  - Parallele Uploads bekommen ggf. dieselbe Sortierzahl.
+  - Verwaiste R2-Dateien (ausgetauschtes Porträt, fehlgeschlagene Varianten), und es fehlt der Hinweis „Porträt erst nach Speichern übernommen“.
+  - Secure-Cookie auf `http://localhost` in älteren Safari-Versionen.
+  - Abmelden entwertet Tokens nicht serverseitig (bei Verdacht `SESSION_SECRET` rotieren).
+  - Uploads erscheinen in der Reihenfolge ihres Abschlusses.
+- **Akzeptiert:**
+  - Rate-Limit pro Cloudflare-Standort und IP (ein Admin, PBKDF2)
+  - `/media` ohne Edge-Cache bis Plan 6

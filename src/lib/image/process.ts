@@ -8,7 +8,7 @@ export type ProcessedImage = {
 };
 
 /** Dreht, skaliert und kodiert ein Bild in einem Web Worker (blockiert die Oberfläche nicht). */
-export function processImage(file: File): Promise<ProcessedImage> {
+export function processImage(file: File, sizes: readonly ImageSize[] = IMAGE_SIZES): Promise<ProcessedImage> {
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./process.worker.ts", import.meta.url), { type: "module" });
     worker.onmessage = (event: MessageEvent<ProcessedImage | { error: string }>) => {
@@ -20,6 +20,6 @@ export function processImage(file: File): Promise<ProcessedImage> {
       worker.terminate();
       reject(new Error(event.message || "Bild konnte nicht verarbeitet werden."));
     };
-    worker.postMessage({ file, sizes: IMAGE_SIZES });
+    worker.postMessage({ file, sizes });
   });
 }

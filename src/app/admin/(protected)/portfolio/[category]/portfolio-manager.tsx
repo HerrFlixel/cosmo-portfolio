@@ -9,7 +9,7 @@ import { uploadVariants } from "@/lib/image/upload";
 import type { PortfolioImage } from "@/lib/portfolio/repo";
 import { ImageCard } from "./image-card";
 import { portfolioApi, type CardPatch } from "./portfolio-api";
-import { UploadZone } from "./upload-zone";
+import { UploadZone } from "@/components/admin/upload-zone";
 
 export function PortfolioManager({ category, initialImages }: { category: Category; initialImages: PortfolioImage[] }) {
   const [images, setImages] = useState(initialImages);

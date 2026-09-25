@@ -14,14 +14,14 @@ export async function uploadVariants(kind: MediaKind, image: ProcessedImage): Pr
   return id;
 }
 
-async function putWithRetry(url: string, blob: Blob): Promise<void> {
+/** PUT mit Wiederholung bei Netz- und 5xx-Fehlern; 4xx wird sofort als HttpError geworfen. */
+export async function putWithRetry(url: string, body: Blob, headers: Record<string, string> = {}): Promise<Response> {
   let lastError = new Error("Upload fehlgeschlagen.");
   for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
     try {
-      const response = await fetch(url, { method: "PUT", body: blob, headers: { "content-type": blob.type } });
-      if (response.ok) return;
+      const response = await fetch(url, { method: "PUT", body, headers: { "content-type": body.type, ...headers } });
+      if (response.ok) return response;
       const error = await httpErrorFrom(response, "Upload fehlgeschlagen");
-      // 4xx: Wiederholen bringt nichts (falsches Format, abgemeldet …)
       if (response.status < 500) throw error;
       lastError = error;
     } catch (error) {

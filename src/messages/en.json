@@ -32,5 +32,35 @@
   "notFound": {
     "title": "Page not found",
     "back": "Back to home"
+  },
+  "gallery": {
+    "private": "Private area",
+    "password": "Password",
+    "open": "Open",
+    "wrongPassword": "Wrong password.",
+    "tooMany": "Too many attempts. Please wait a minute.",
+    "images": "{count} photos",
+    "onlineUntil": "Online until {date}",
+    "downloadAll": "Download all ({size})",
+    "downloadPart": "Part {part} of {total} ({size})",
+    "downloadFavorites": "Download favourites ({count})",
+    "downloadFavoritesPart": "Favourites · part {part} of {total} ({size})",
+    "onlyFavorites": "Favourites only",
+    "showAll": "Show all",
+    "favorite": "Mark as favourite",
+    "unfavorite": "Remove favourite",
+    "download": "Download original",
+    "close": "Close",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "namePrompt": "What's your name?",
+    "nameHint": "So Felix knows whose selection this is.",
+    "nameContinue": "Continue",
+    "cancel": "Cancel",
+    "empty": "This gallery has no photos yet.",
+    "expiredTitle": "This gallery has expired.",
+    "expiredText": "Write to me if you need it again.",
+    "contact": "Contact",
+    "switchLocale": "Deutsch"
   }
 }

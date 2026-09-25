@@ -3,7 +3,8 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const ALLOW = new Set(["src/app/admin/login/actions.ts"]);
+// Öffentliche Aktionen, die den Zugang erst erzeugen: Admin-Login und Galerie-Passwort.
+const ALLOW = new Set(["src/app/admin/login/actions.ts", "src/app/g/[slug]/actions.ts"]);
 const unguarded = [];
 
 function walk(dir) {

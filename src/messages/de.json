@@ -32,5 +32,35 @@
   "notFound": {
     "title": "Seite nicht gefunden",
     "back": "Zur Startseite"
+  },
+  "gallery": {
+    "private": "Privater Bereich",
+    "password": "Passwort",
+    "open": "Öffnen",
+    "wrongPassword": "Falsches Passwort.",
+    "tooMany": "Zu viele Versuche. Bitte eine Minute warten.",
+    "images": "{count} Bilder",
+    "onlineUntil": "Online bis {date}",
+    "downloadAll": "Alle herunterladen ({size})",
+    "downloadPart": "Teil {part} von {total} ({size})",
+    "downloadFavorites": "Favoriten herunterladen ({count})",
+    "downloadFavoritesPart": "Favoriten · Teil {part} von {total} ({size})",
+    "onlyFavorites": "Nur Favoriten",
+    "showAll": "Alle zeigen",
+    "favorite": "Als Favorit markieren",
+    "unfavorite": "Favorit entfernen",
+    "download": "Original herunterladen",
+    "close": "Schließen",
+    "previous": "Vorheriges Bild",
+    "next": "Nächstes Bild",
+    "namePrompt": "Wie heißt du?",
+    "nameHint": "Damit Felix weiß, wessen Auswahl das ist.",
+    "nameContinue": "Weiter",
+    "cancel": "Abbrechen",
+    "empty": "Diese Galerie enthält noch keine Fotos.",
+    "expiredTitle": "Diese Galerie ist abgelaufen.",
+    "expiredText": "Schreib mir, wenn du sie noch einmal brauchst.",
+    "contact": "Kontakt",
+    "switchLocale": "English"
   }
 }

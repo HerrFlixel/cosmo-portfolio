@@ -31,6 +31,15 @@ export function listByCategory(db: Db, category: Category): Promise<PortfolioIma
     .orderBy(asc(portfolioImages.sort), asc(portfolioImages.createdAt));
 }
 
+/** Alle sichtbaren Bilder (öffentliche Seiten), in Admin-Reihenfolge. */
+export function listVisible(db: Db): Promise<PortfolioImage[]> {
+  return db
+    .select()
+    .from(portfolioImages)
+    .where(eq(portfolioImages.visible, true))
+    .orderBy(asc(portfolioImages.sort), asc(portfolioImages.createdAt));
+}
+
 export async function countByCategory(db: Db): Promise<Record<Category, { total: number; visible: number }>> {
   const rows = await db
     .select({ category: portfolioImages.category, total: count(), visible: sql<number>`sum(${portfolioImages.visible})` })

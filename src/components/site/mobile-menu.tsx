@@ -39,7 +39,7 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
 
   return (
     <>
-      <button ref={opener} type="button" aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(true)} className={`${label} lg:hidden`}>
+      <button ref={opener} type="button" data-intro="nav" data-intro-hide aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(true)} className={`${label} lg:hidden`}>
         {t("nav.menu")}
       </button>
       {/* Portal: Der Kopf ist ein Stapelkontext (z-20); das Menü muss auch über der Kategorie-Pille liegen. */}
@@ -48,7 +48,7 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
           <div ref={dialog} id="mobile-menu" role="dialog" aria-modal="true" aria-label={t("nav.menu")} className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-paper px-4 pb-10">
             <div className="flex h-[72px] shrink-0 items-center justify-between">
               <Link href="/" onClick={close} aria-label={t("nav.home")} className="block w-[104px]">
-                <Wordmark decorative className="block h-auto w-full" />
+                <Wordmark id="logo-menu" decorative className="block h-auto w-full" />
               </Link>
               <button ref={closeButton} type="button" onClick={close} className={label}>
                 {t("nav.close")}

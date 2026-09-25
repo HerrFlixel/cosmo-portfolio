@@ -161,3 +161,8 @@ body {
     transform: none;
   }
 }
+
+/* Intro „Orbit“ (Spec §5.2): Bis das Intro startet, sind Logo und Startseite unsichtbar (bootMotion, Sicherheitsnetz 4 s). */
+html[data-intro="pending"] [data-intro-hide] {
+  visibility: hidden;
+}

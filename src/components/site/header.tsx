@@ -13,10 +13,10 @@ export async function SiteHeader({ shopUrl }: { shopUrl: string }) {
   return (
     <header className="relative z-20">
       <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between gap-6 px-4 md:px-8">
-        <Link href="/" aria-label={t("home")} className="block w-[clamp(104px,10vw,150px)]">
-          <Wordmark decorative className="block h-auto w-full" />
+        <Link href="/" aria-label={t("home")} data-site-logo data-intro-hide className="block w-[clamp(104px,10vw,150px)]">
+          <Wordmark id="logo-header" withPhotos decorative className="block h-auto w-full" />
         </Link>
-        <nav aria-label={t("main")} className="hidden items-center gap-8 text-[15px] lg:flex">
+        <nav aria-label={t("main")} data-intro="nav" data-intro-hide className="hidden items-center gap-8 text-[15px] lg:flex">
           <NextLink href={workHref} className="link-draw">
             {t("work")}
           </NextLink>

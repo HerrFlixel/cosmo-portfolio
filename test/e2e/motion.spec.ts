@@ -22,3 +22,35 @@ test("Bewegung: mit „weniger Bewegung“ weder has-motion noch Lenis", async (
   await page.goto("/ueber-mich");
   await expect(page.locator("html")).not.toHaveClass(/has-motion|lenis/);
 });
+
+test.describe("Intro", () => {
+  test.use({ reducedMotion: "no-preference" });
+
+  test("Bewegung: Intro „Orbit“ läuft beim ersten Besuch und nur einmal pro Sitzung", async ({ page }) => {
+    await page.goto("/");
+    const html = page.locator("html");
+    await expect(html).toHaveAttribute("data-intro", "running");
+    await expect(page.locator("[data-site-logo] [data-logo-photos]")).toBeAttached();
+    await expect(html).toHaveAttribute("data-intro", "done", { timeout: 6000 });
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect.poll(() => page.locator("[data-site-logo]").evaluate((element) => getComputedStyle(element).transform)).toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
+    await page.reload();
+    await expect(html).not.toHaveAttribute("data-intro", /pending|running/);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  });
+
+  test("Bewegung: eine Taste überspringt das Intro (auch auf Englisch)", async ({ page }) => {
+    await page.goto("/en");
+    const html = page.locator("html");
+    await expect(html).toHaveAttribute("data-intro", "running");
+    await page.keyboard.press("Space");
+    await expect(html).toHaveAttribute("data-intro", "done", { timeout: 1000 });
+  });
+});
+
+test("Bewegung: mit „weniger Bewegung“ kein Intro, Logo und Headline sofort sichtbar", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("html")).not.toHaveAttribute("data-intro", /.+/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.locator("[data-site-logo]")).toBeVisible();
+});

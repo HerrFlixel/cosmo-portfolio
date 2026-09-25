@@ -22,13 +22,13 @@ export async function HomeHero({ headline, heroes, counts, locale }: Props) {
   return (
     <section aria-labelledby="hero-title" className="mx-auto max-w-[1400px] px-4 pt-8 md:px-8 md:pt-14">
       <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
-        <h1 id="hero-title" className="font-display pb-[0.08em] text-[clamp(2.75rem,7vw,6.75rem)] leading-[0.98] lg:col-span-6">
+        <h1 id="hero-title" data-intro="headline" data-intro-hide className="font-display pb-[0.08em] text-[clamp(2.75rem,7vw,6.75rem)] leading-[0.98] lg:col-span-6">
           {emphasis(headline).map((part, index) =>
             part.italic ? <em key={index}>{part.text}</em> : <Fragment key={index}>{part.text}</Fragment>,
           )}
         </h1>
         {heroes.length > 0 && (
-          <div className="grid grid-cols-2 gap-4 lg:relative lg:col-span-6 lg:block lg:h-[min(68vh,700px)]">
+          <div data-intro="collage" data-intro-hide className="grid grid-cols-2 gap-4 lg:relative lg:col-span-6 lg:block lg:h-[min(68vh,700px)]">
             {heroes.map((image, index) => (
               <Passepartout
                 key={image.id}
@@ -43,7 +43,7 @@ export async function HomeHero({ headline, heroes, counts, locale }: Props) {
         )}
       </div>
 
-      <nav id="arbeiten" aria-label={t("home.index")} className="mt-16 scroll-mt-6 border-t border-ink/15 pt-6 md:mt-24">
+      <nav id="arbeiten" aria-label={t("home.index")} data-intro="index" data-intro-hide className="mt-16 scroll-mt-6 border-t border-ink/15 pt-6 md:mt-24">
         <ol className="grid gap-x-10 gap-y-3 sm:grid-cols-2 lg:grid-cols-5 lg:gap-x-6">
           {CATEGORIES.map((category, index) => (
             <li key={category} className="flex items-baseline gap-3 lg:flex-col lg:gap-1">

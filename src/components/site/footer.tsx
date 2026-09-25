@@ -12,7 +12,7 @@ export async function SiteFooter({ settings }: { settings: Settings }) {
   return (
     <footer className="mt-32 md:mt-48">
       <div className="mx-auto max-w-[1400px] px-4 pb-10 md:px-8">
-        <Lockup className="block h-auto w-[min(640px,84vw)]" />
+        <Lockup spinRing className="block h-auto w-[min(640px,84vw)]" />
         <div className="mt-12 flex flex-col gap-6 border-t border-ink/15 pt-6 text-sm md:flex-row md:items-center md:justify-between">
           <nav aria-label={t("footer.legal")} className="flex flex-wrap gap-x-6 gap-y-2">
             <Link href="/impressum" className="link-draw">{t("nav.imprint")}</Link>

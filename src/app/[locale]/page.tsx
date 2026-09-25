@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { HomeIntro } from "@/components/motion/home-intro";
 import { AboutTeaser } from "@/components/site/home/about-teaser";
 import { ChapterSection } from "@/components/site/home/chapter";
 import { Closing } from "@/components/site/home/closing";
@@ -17,14 +18,18 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <main>
+      <HomeIntro />
       <HomeHero headline={headline} heroes={home.heroes} counts={home.counts} locale={lang} />
-      {home.chapters
-        .filter((chapter) => chapter.image)
-        .map((chapter, index) => (
-          <ChapterSection key={chapter.category} chapter={chapter} index={index} locale={lang} />
-        ))}
-      <AboutTeaser settings={settings} locale={lang} />
-      <Closing settings={settings} />
+      {/* Alles unter dem Hero erscheint im Intro zuletzt. */}
+      <div data-intro="rest" data-intro-hide>
+        {home.chapters
+          .filter((chapter) => chapter.image)
+          .map((chapter, index) => (
+            <ChapterSection key={chapter.category} chapter={chapter} index={index} locale={lang} />
+          ))}
+        <AboutTeaser settings={settings} locale={lang} />
+        <Closing settings={settings} />
+      </div>
     </main>
   );
 }

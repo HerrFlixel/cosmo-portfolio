@@ -4479,3 +4479,59 @@ Erwartet:
 1. `https://cosmo-web.felix-vatterodt.workers.dev/admin/galerien` → Galerie anlegen, 20–50 echte JPEGs (auch große) per Ordner hochladen, Titelbild wählen, veröffentlichen.
 2. „Nachricht kopieren“ → an sich selbst schicken → auf dem Handy öffnen, Passwort eingeben, Herz setzen (Name), Original und ZIP laden.
 3. Im Admin Favoriten („Dateinamen kopieren“) und Statistik ansehen.
+
+---
+
+## Review nach Abschluss (2026-09-25)
+
+**Status:** ✅ abgeschlossen, auf `main` gepusht und in Produktion live.
+- Cloudflare: private Buckets `cosmo-galleries` und `cosmo-galleries-preview` (kein r2.dev-Zugang, keine Custom Domain), `GALLERY_SECRET` in Produktion und Vorschau, Migration 0001 remote angewandt.
+
+**Tests:**
+- lokal: Lint grün, Unit 25 Dateien / 116 Tests, E2E 61 (Chromium + WebKit)
+- Vorschau: 61/61; zusätzlich ein 40-MB-Original hochgeladen, das ZIP besteht `unzip -t`
+- Produktion: 20/20 (inkl. `gallery-public.spec.ts`)
+
+**Abschließendes Review:** 0 kritisch; 6 Befunde nach Wirkung als wichtig behoben, jeweils mit Test, der vorher fehlschlug.
+- ZIP-Teile höchstens 500 Dateien (Worker-Aufrufgrenze)
+- abgelehnte Originale räumen Vorschau und Web-Größe auf; eine fehlgeschlagene Wiederholung löscht kein registriertes Original
+- ZIP-Namen eindeutig, auch ohne Groß/Klein-Unterschied
+- feste Reihenfolge bei gleichen Dateinamen (Sortierung zuletzt nach ID)
+- Ablauf „Online bis <Tag>“ gilt bis Tagesende Berlin, auch für den Standard und „Verlängern“
+- Passwort mit Leerzeichen drumherum wird akzeptiert
+
+### Entscheidungen während der Umsetzung
+
+| Punkt | Entscheidung | Grund |
+|---|---|---|
+| Galerie-404 | `src/app/g/not-found.tsx` ergänzt | `/g/[slug]` rendert `notFound()` im eigenen Root-Layout; sonst erschien Nexts Standard-404 statt der gestalteten |
+| Lightbox-Fokus | Schließen-Knopf per Ref fokussieren statt `autoFocus` | React setzt `autoFocus` vor den Effekten; der Fokus ging beim Schließen verloren |
+| Galerie-Seite | `nowSeconds()`-Helfer und `next/link` | Lint (Reinheit im Render, Links) |
+| Favoriten-E2E | Namensfeld per `getByRole("textbox")`, vor dem Neuladen auf die Speicher-Antwort warten | Dialog und Feld tragen denselben Namen; unter Last brach das Neuladen die laufende Speicherung ab |
+| README | Secret-Zeile + Abschnitt „Kundengalerien“ unter „Secrets“ | Abschnitt „Deploy und Secrets“ gibt es nicht |
+
+### Für spätere Pläne
+
+- **Plan 4 (öffentliche Seiten):**
+  - Einstiegsseite `/kunden` mit Feld „Galerie-Code“.
+  - Pluralformen („1 Bild“).
+- **Plan 5 (Bewegung):**
+  - dezente Einblendungen in der Galerie (Spec §7.1: „bewusst ruhig“)
+  - Fokusfalle für Lightbox und Namensdialog
+- **Plan 6 (Launch):**
+  - `robots.txt` mit `/g/`.
+  - Ein Aufräum-Job für verwaiste R2-Dateien, etwa nach abgelaufener Sitzung mitten im Upload.
+  - Die Rate-Limit-Frage:
+    - Das Binding zählt auch erfolgreiche Anmeldungen, sodass mehr als 5 Personen im selben WLAN auf dieselbe Galerie pro Minute kurz gebremst werden.
+    - Alternative: Fehlversuche in D1 zählen.
+  - Ein Test mit einer großen Galerie (über 1 000 Dateien, über 2 GB) in der Vorschau, dabei CPU-Zeit beobachten.
+- **Kleinere Punkte (aufgeschoben):**
+  - JSON statt Seite beim Klick auf Datei/ZIP nach Ablauf oder Passwortwechsel.
+  - ZIP-Abbrüche werden nicht geloggt.
+  - Download-Buttons einer veralteten Seite.
+  - Tests für Rate-Limit und 411 fehlen.
+  - Größenprüfung vor dem Dekodieren.
+  - `filename*` lässt `'()*` unkodiert.
+  - Favoriten-Speichern ohne `keepalive`.
+  - Ereignisse ohne Änderung.
+  - Varianten-PUT ohne Content-Length puffert den Body.

@@ -4,21 +4,42 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { imageSources } from "@/lib/public/images";
+import { gsap, useGSAP } from "@/components/motion/gsap";
+import { useMotion } from "@/components/motion/motion-root";
 import { useScrollLock } from "@/components/motion/use-scroll-lock";
+import type { Box } from "@/lib/motion/geometry";
 import { useInertBackground } from "../use-inert-background";
 
 export type LightboxImage = { id: string; width: number; height: number; color: string; alt: string };
 
-type Props = { images: LightboxImage[]; index: number; onIndex: (index: number) => void; onClose: () => void };
+type Props = { images: LightboxImage[]; index: number; origin?: Box | null; onIndex: (index: number) => void; onClose: () => void };
 
 /** Lightbox „Licht aus“ (Spec §6.2): Hallenschwarz, Pfeiltasten, Wischen, ESC, dezenter Positionszähler. */
-export function PublicLightbox({ images, index, onIndex, onClose }: Props) {
+export function PublicLightbox({ images, index, origin = null, onIndex, onClose }: Props) {
   const t = useTranslations("lightbox");
   const image = images[index];
   const { src, srcSet } = imageSources("portfolio", image);
   const closeButton = useRef<HTMLButtonElement>(null);
   const swipeStart = useRef<number | null>(null);
   const dialog = useRef<HTMLDivElement>(null);
+  const photo = useRef<HTMLImageElement>(null);
+  const { enabled } = useMotion();
+
+  // Öffnen (Spec §6.2): Das Bild fliegt aus seinem Passepartout (FLIP), das Hallenschwarz blendet auf.
+  useGSAP(() => {
+    const element = photo.current;
+    if (!enabled || !element || !dialog.current) return;
+    gsap.from(dialog.current, { backgroundColor: "rgba(11, 11, 12, 0)", duration: 0.5, ease: "power1.out" });
+    const target = element.getBoundingClientRect();
+    if (!origin || target.width === 0) return;
+    gsap.from(element, {
+      x: origin.left + origin.width / 2 - (target.left + target.width / 2),
+      y: origin.top + origin.height / 2 - (target.top + target.height / 2),
+      scale: origin.width / target.width,
+      duration: 0.7,
+      ease: "expo.inOut",
+    });
+  }, []);
   useInertBackground(dialog, true);
   useScrollLock(true);
 
@@ -81,10 +102,13 @@ export function PublicLightbox({ images, index, onIndex, onClose }: Props) {
         {/* eslint-disable-next-line @next/next/no-img-element -- eigene Größen aus R2 (srcset) */}
         <img
           key={image.id}
+          ref={photo}
           src={src}
           srcSet={srcSet}
           sizes="100vw"
           alt={image.alt}
+          width={image.width}
+          height={image.height}
           draggable={false}
           className="max-h-full max-w-full object-contain"
           style={{ aspectRatio: `${image.width} / ${image.height}`, backgroundColor: image.color }}

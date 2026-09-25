@@ -94,3 +94,24 @@ test("Bewegung: mit „weniger Bewegung“ bleibt das Kapitel ein statisches dun
   await expect(page.locator(".pin-spacer")).toHaveCount(0);
   await context.close();
 });
+
+test("Bewegung: Spalten der Kategorieseite laufen unterschiedlich schnell", async ({ page }) => {
+  await page.goto("/floorball");
+  const columns = page.locator("main [data-speed]");
+  await expect(columns).toHaveCount(2);
+  await page.evaluate(() => window.scrollTo(0, window.innerHeight));
+  await expect
+    .poll(() => columns.evaluateAll((elements) => elements.map((element) => new DOMMatrix(getComputedStyle(element).transform).m42)))
+    .not.toEqual([0, 0]);
+});
+
+test("Bewegung: Lightbox fliegt aus dem Passepartout auf und schließt normal", async ({ page }) => {
+  await page.goto("/floorball");
+  await page.getByRole("button", { name: "Floorball, Foto 1" }).click();
+  const image = page.getByTestId("lightbox").locator("img");
+  const scaleNow = () => image.evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a);
+  expect(await scaleNow()).not.toBeCloseTo(1, 2);
+  await expect.poll(scaleNow).toBeCloseTo(1, 2);
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("lightbox")).toBeHidden();
+});

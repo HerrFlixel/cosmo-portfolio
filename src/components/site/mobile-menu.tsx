@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { CATEGORIES, type Category } from "@/lib/categories";
 import { LocaleSwitch } from "./locale-switch";
+import { gsap, useGSAP } from "@/components/motion/gsap";
+import { useMotion } from "@/components/motion/motion-root";
 import { useScrollLock } from "@/components/motion/use-scroll-lock";
 import { useInertBackground } from "./use-inert-background";
 import { Wordmark } from "./logo";
@@ -22,6 +24,13 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
   const dialog = useRef<HTMLDivElement>(null);
   useInertBackground(dialog, open);
   useScrollLock(open);
+  const { enabled } = useMotion();
+
+  // Vollbild-Menü mit gestaffeltem Reveal (Spec §6.5).
+  useGSAP(() => {
+    if (!open || !enabled || !dialog.current) return;
+    gsap.from(dialog.current.querySelectorAll("[data-menu-item]"), { yPercent: 60, opacity: 0, duration: 0.8, ease: "expo.out", stagger: 0.05 });
+  }, { dependencies: [open, enabled] });
 
   useEffect(() => {
     if (!open) return;
@@ -57,7 +66,7 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
             <nav aria-label={t("nav.main")} className="mt-6 flex flex-1 flex-col gap-12">
               <ol className="space-y-1">
                 {CATEGORIES.map((category, index) => (
-                  <li key={category}>
+                  <li key={category} data-menu-item>
                     <Link href={`/${category}` as `/${Category}`} onClick={close} className="flex items-baseline gap-3">
                       <span className="font-label text-xs text-muted">{String(index + 1).padStart(2, "0")}</span>
                       <span className="font-sport text-[clamp(3rem,14vw,4.5rem)]">{t(`categories.${category}`)}</span>
@@ -66,24 +75,26 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
                 ))}
               </ol>
               <ul className="space-y-3 font-display text-3xl">
-                <li>
+                <li data-menu-item>
                   <Link href="/ueber-mich" onClick={close}>{t("nav.about")}</Link>
                 </li>
-                <li>
+                <li data-menu-item>
                   <Link href="/kontakt" onClick={close}>{t("nav.contact")}</Link>
                 </li>
-                <li>
+                <li data-menu-item>
                   <Link href="/kunden" onClick={close}>{t("nav.clients")}</Link>
                 </li>
                 {shopUrl && (
-                  <li>
+                  <li data-menu-item>
                     <a href={shopUrl} target="_blank" rel="noopener">
                       {t("nav.shop")} <span aria-hidden="true">↗</span>
                     </a>
                   </li>
                 )}
               </ul>
-              <LocaleSwitch onNavigate={close} className={`${label} mt-auto text-muted`} />
+              <div data-menu-item className="mt-auto">
+                <LocaleSwitch onNavigate={close} className={`${label} text-muted`} />
+              </div>
             </nav>
           </div>,
           document.body,

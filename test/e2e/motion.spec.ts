@@ -85,3 +85,20 @@ test("Bewegung: mit „weniger Bewegung“ werden Überschriften nicht zerlegt",
   await expect(page.locator(".reveal-line")).toHaveCount(0);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
+
+test.describe("Handy-Menü", () => {
+  test.use({ reducedMotion: "no-preference", viewport: { width: 390, height: 844 } });
+
+  test("Bewegung: Handy-Menü baut sich gestaffelt auf und sperrt das Scrollen", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/ueber-mich");
+    await page.getByRole("button", { name: "Menü" }).click();
+    const items = page.locator("#mobile-menu [data-menu-item]");
+    await expect(items.first()).toBeVisible();
+    expect(Number(await items.last().evaluate((element) => getComputedStyle(element).opacity))).toBeLessThan(1);
+    await expect.poll(async () => Number(await items.last().evaluate((element) => getComputedStyle(element).opacity))).toBe(1);
+    await expect(page.locator("html")).toHaveClass(/lenis-stopped/);
+    await page.keyboard.press("Escape");
+    await expect(page.locator("html")).not.toHaveClass(/lenis-stopped/);
+  });
+});

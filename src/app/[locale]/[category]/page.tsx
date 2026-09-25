@@ -49,7 +49,7 @@ export default async function CategoryPage({ params }: Props) {
 
   return (
     <main className="relative pb-40">
-      <div className="sticky top-0 grid h-[100dvh] place-items-center overflow-hidden px-4">
+      <div className="sticky top-0 grid h-[100svh] place-items-center overflow-hidden px-4">
         <div className="flex flex-col items-center">
           <div className="flex items-start gap-2 md:gap-4">
             <h1 data-reveal="lines" className="font-sport text-[clamp(3.25rem,15vw,19rem)]">{name}</h1>
@@ -60,7 +60,7 @@ export default async function CategoryPage({ params }: Props) {
         </div>
       </div>
       {images.length > 0 && (
-        <div className="relative z-10 -mt-[45dvh]">
+        <div className="relative z-10 -mt-[45svh]">
           <CategoryGrid images={images} />
         </div>
       )}

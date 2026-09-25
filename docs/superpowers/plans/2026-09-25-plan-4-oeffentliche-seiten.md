@@ -3402,3 +3402,65 @@ Erwartet:
 
 Danach (🤖): `/kontakt` in der Produktion zeigt das Formular; eine echte Testnachricht kommt bei Felix an.
 
+
+---
+
+## Review nach Abschluss (2026-09-25)
+
+**Status:** ✅ abgeschlossen, auf `main` gepusht und in Produktion live. Die Kontaktseite zeigt dort die Mail-Adresse, bis 👤 Felix die Kontakt-Secrets setzt (Task 7, Schritt 5).
+
+**Tests:**
+- lokal: Lint grün (inkl. Server-Action-Wächter und Logo-Prüfung), Unit 31 Dateien / 141 Tests, E2E 81 (Chromium + WebKit)
+- Vorschau: 81/81
+- Produktion: 26/26
+
+**Sichtprüfung (Screenshots) während der Umsetzung:** Lightbox und Handy-Menü lagen unter Kopf und Pille, lange Kapiteltitel liefen über die Seite, der Index brach unruhig um. Alles behoben, mit Regressionstests.
+
+**Abschließendes Review:** 0 kritisch; 8 Befunde behoben:
+- WCAG-AA-Kontrast für Meta-Texte und Feldlinien (neuer Token `muted`)
+- Fokus bleibt in Dialogen
+- Hero-Bild ohne Warten auf JavaScript
+- Englische Rechtstexte fallen auf Deutsch zurück
+- Leere Kategorie ohne Überlappung
+- Gestaltete Fehlerseiten (`error.tsx`, `global-error.tsx`)
+- Kontaktseite ohne Mail-Adresse
+- Formularfehler werden Screenreadern angesagt
+
+### Entscheidungen während der Umsetzung
+
+| Punkt | Entscheidung | Grund |
+|---|---|---|
+| 404 für `/admin/…`, `/api/…`, tiefe `/g/…` | `/api` läuft durch die Middleware, Catch-alls `admin/[...missing]` und `g/[slug]/[...missing]` | Ein dynamisches `[locale]`-Layout zeigte für ungültige „Sprachen“ die ungestaltete Next-404 (per Experiment belegt) |
+| Lokalisierte 404 | nur auf Kategorie-Ebene (`/en/quatsch`), tiefere Pfade zeigen die gestaltete globale 404 | `dynamicParams = false` auf `[...rest]` |
+| Overlays | Lightbox und Menü als Portal in `<body>` + inerter Hintergrund | Stapelkontexte deckelten `z-50` |
+| Kapiteltitel | ragen über das Kapitelbild, `mix-blend-difference` | kein Seitenüberlauf; auf Schwarz und Weiß lesbar (Designfrage für Plan 5) |
+| Sprachumschalter | Link auf `/de/…`, Middleware leitet auf den Pfad ohne Präfix um | Verhalten von next-intl |
+| Fehlerseiten | von Hand geprüft (Fehler vorübergehend erzwungen) | Serverfehler lassen sich im E2E nicht auslösen |
+
+### Für spätere Pläne
+
+- **Plan 5 (Bewegung):**
+  - Dialoge ggf. als natives `<dialog>`, dann entfallen Portal und Inert.
+  - Menü- und Lightbox-Übergänge.
+  - Pinch-Zoom in der Lightbox.
+  - Kapiteltitel-Mischung mit echten Fotos beurteilen.
+  - `svh`/`lvh` statt `dvh`.
+- **Plan 6 (Launch):**
+  - SEO, OG, Sitemap, `robots.txt`, `hreflang`, CSP für öffentliche Seiten, Lighthouse.
+  - Favicon „C mit Ringausschnitt“.
+  - Resend-Domain prüfen (danach `CONTACT_FROM`).
+  - Turnstile-Hostnamen.
+  - `/g` → `/kunden`.
+  - Rechtstexte vor dem Umzug vollständig (DE, optional EN).
+- **Kleinere Punkte (aufgeschoben):**
+  - Tab-Reihenfolge der Pille; Rasterreihenfolge unter lg.
+  - Lightbox-Knöpfe auf dem Handy.
+  - Sehr lange Einzelwörter.
+  - Kurations-Randfälle (gleiches Bild als Kapitel- und Vorschaubild, 1–2 Hero-Bilder).
+  - Kleines Vorschaubild der Pille (800 px).
+  - Turnstile-Blockade ohne Mail-Hinweis.
+  - `#`-Überschrift ohne Leerzeile; Referenzen als React-Key.
+  - Schwacher Fokusrahmen an Feldern.
+  - z-Werte außerhalb der Skala.
+  - Veralteter Middleware-Kommentar.
+  - Testlücken.

@@ -56,3 +56,29 @@ test("Rahmen: Sprunglink führt zum Inhalt", async ({ page }) => {
   await page.keyboard.press("Enter");
   await expect(page.locator("#inhalt")).toBeFocused();
 });
+
+// WCAG AA (Spec §10): Meta-Texte ≥ 4,5:1, Feldlinien ≥ 3:1 gegen Papier.
+test("Rahmen: Meta-Texte und Feldlinien erfüllen WCAG AA", async ({ page }) => {
+  const ratio = (selector: string, property: "color" | "borderBottomColor") =>
+    page.evaluate(
+      ([sel, prop]) => {
+        const channel = (value: number) => {
+          const c = value / 255;
+          return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        };
+        const luminance = (rgb: string) => {
+          const [r, g, b] = rgb.match(/\d+(\.\d+)?/g)!.map(Number);
+          return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+        };
+        const element = document.querySelector(sel as string)!;
+        const fg = luminance(getComputedStyle(element)[prop as "color"]);
+        const bg = luminance(getComputedStyle(document.body).backgroundColor);
+        return (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05);
+      },
+      [selector, property] as const,
+    );
+  await page.goto("/kunden");
+  expect(await ratio('header nav a[hreflang="en"]', "color")).toBeGreaterThanOrEqual(4.5);
+  expect(await ratio("#gallery-code-hint", "color")).toBeGreaterThanOrEqual(4.5);
+  expect(await ratio("#gallery-code", "borderBottomColor")).toBeGreaterThanOrEqual(3);
+});

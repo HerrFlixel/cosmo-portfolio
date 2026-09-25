@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { imageSources } from "@/lib/public/images";
+import { useInertBackground } from "../use-inert-background";
 
 export type LightboxImage = { id: string; width: number; height: number; color: string; alt: string };
 
@@ -16,6 +17,8 @@ export function PublicLightbox({ images, index, onIndex, onClose }: Props) {
   const { src, srcSet } = imageSources("portfolio", image);
   const closeButton = useRef<HTMLButtonElement>(null);
   const swipeStart = useRef<number | null>(null);
+  const dialog = useRef<HTMLDivElement>(null);
+  useInertBackground(dialog, true);
 
   // Scrollen sperren; Auslöser merken, bevor der Fokus in die Lightbox springt, und beim Schließen zurückgeben.
   useEffect(() => {
@@ -47,6 +50,7 @@ export function PublicLightbox({ images, index, onIndex, onClose }: Props) {
   // Portal: Die Kategorieseite ist ein eigener Stapelkontext (z-10); die Lightbox muss über Kopf und Pille liegen.
   return createPortal(
     <div
+      ref={dialog}
       data-testid="lightbox"
       role="dialog"
       aria-modal="true"

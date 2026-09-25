@@ -44,7 +44,7 @@ export function CategoryPill({ current, items }: { current: Category; items: Pil
                   className="flex items-baseline gap-3 px-3 py-2 transition-colors hover:bg-mat"
                 >
                   <span className="font-sport text-2xl">{item.name}</span>
-                  <span className="ml-auto font-label text-xs text-stone">({item.count})</span>
+                  <span className="ml-auto font-label text-xs text-muted">({item.count})</span>
                 </Link>
               </li>
             ))}

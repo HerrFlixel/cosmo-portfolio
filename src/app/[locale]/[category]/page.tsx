@@ -50,18 +50,20 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <main className="relative pb-40">
       <div className="sticky top-0 grid h-[100dvh] place-items-center overflow-hidden px-4">
-        <div className="flex items-start gap-2 md:gap-4">
-          <h1 className="font-sport text-[clamp(3.25rem,15vw,19rem)]">{name}</h1>
-          <span className="pt-[0.6em] font-label text-sm text-stone md:text-base">({images.length})</span>
+        <div className="flex flex-col items-center">
+          <div className="flex items-start gap-2 md:gap-4">
+            <h1 className="font-sport text-[clamp(3.25rem,15vw,19rem)]">{name}</h1>
+            <span className="pt-[0.6em] font-label text-sm text-muted md:text-base">({images.length})</span>
+          </div>
+          {/* Ohne Bilder steht der Hinweis unter dem Titel (nicht darübergezogen wie das Raster). */}
+          {images.length === 0 && <p className="mt-8 max-w-[40ch] text-center text-lg text-muted">{t("category.empty")}</p>}
         </div>
       </div>
-      <div className="relative z-10 -mt-[45dvh]">
-        {images.length === 0 ? (
-          <p className="mx-auto max-w-[40ch] px-4 text-center text-lg text-stone">{t("category.empty")}</p>
-        ) : (
+      {images.length > 0 && (
+        <div className="relative z-10 -mt-[45dvh]">
           <CategoryGrid images={images} />
-        )}
-      </div>
+        </div>
+      )}
       <CategoryPill current={category} items={pill} />
     </main>
   );

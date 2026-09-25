@@ -29,7 +29,7 @@ export default async function ContactPage({ params }: Props) {
         <p className="font-display mt-6 pb-1 text-[clamp(1.5rem,2.6vw,2.25rem)] italic leading-[1.15] text-ink/80">{t("contact.statement")}</p>
         {email && (
           <div className="mt-12">
-            <p className="text-sm text-stone">{t("contact.direct")}</p>
+            <p className="text-sm text-muted">{t("contact.direct")}</p>
             <a href={`mailto:${email}`} className="link-draw mt-2 inline-block text-lg">
               {email}
             </a>
@@ -46,11 +46,15 @@ export default async function ContactPage({ params }: Props) {
           <ContactForm siteKey={siteKey} fallbackEmail={email} />
         ) : (
           <p className="text-lg">
-            {t("contact.unavailable")}{" "}
-            {email && (
-              <a href={`mailto:${email}`} className="underline underline-offset-4">
-                {email}
-              </a>
+            {email ? (
+              <>
+                {t("contact.unavailable")}{" "}
+                <a href={`mailto:${email}`} className="underline underline-offset-4">
+                  {email}
+                </a>
+              </>
+            ) : (
+              t("contact.unavailableNoMail")
             )}
           </p>
         )}

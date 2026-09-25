@@ -94,7 +94,8 @@
     "cta": "Schreib mir"
   },
   "legal": {
-    "pending": "Dieser Text folgt in Kürze."
+    "pending": "Dieser Text folgt in Kürze.",
+    "germanOnly": "Dieser Text liegt nur auf Deutsch vor."
   },
   "clients": {
     "intro": "Du hast von mir einen Link und ein Passwort bekommen? Gib hier den Galerie-Code ein oder öffne einfach den Link aus deiner Nachricht.",
@@ -133,10 +134,16 @@
       "bot": "Die Sicherheitsprüfung ist noch nicht fertig. Bitte kurz warten und erneut senden.",
       "failed": "Das hat leider nicht geklappt. Schreib mir gern direkt an {email}.",
       "failedNoMail": "Das hat leider nicht geklappt. Bitte versuch es später noch einmal."
-    }
+    },
+    "unavailableNoMail": "Das Formular ist gerade nicht erreichbar. Bitte versuch es später noch einmal."
   },
   "footer": {
     "legal": "Rechtliches und Links",
     "rights": "© {year} Felix Vatterodt"
+  },
+  "error": {
+    "title": "Da ist etwas schiefgelaufen.",
+    "text": "Bitte versuch es gleich noch einmal.",
+    "retry": "Neu laden"
   }
 }

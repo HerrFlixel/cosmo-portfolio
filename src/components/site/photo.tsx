@@ -33,6 +33,8 @@ export function Photo({ alt, priority = false, className = "", ...image }: Props
       fetchPriority={priority ? "high" : "auto"}
       decoding="async"
       draggable={false}
+      // Prioritätsbilder (LCP) sofort zeigen; alle anderen blenden nach dem Laden ein.
+      data-loaded={priority ? "" : undefined}
       onLoad={(event) => {
         event.currentTarget.dataset.loaded = "";
       }}

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { CATEGORIES, type Category } from "@/lib/categories";
 import { LocaleSwitch } from "./locale-switch";
+import { useInertBackground } from "./use-inert-background";
 import { Wordmark } from "./logo";
 
 const label = "font-label text-xs uppercase tracking-[0.12em]";
@@ -17,6 +18,8 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
   const opener = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => setOpen(false), []);
+  const dialog = useRef<HTMLDivElement>(null);
+  useInertBackground(dialog, open);
 
   useEffect(() => {
     if (!open) return;
@@ -43,7 +46,7 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
       {/* Portal: Der Kopf ist ein Stapelkontext (z-20); das Menü muss auch über der Kategorie-Pille liegen. */}
       {open &&
         createPortal(
-          <div id="mobile-menu" role="dialog" aria-modal="true" aria-label={t("nav.menu")} className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-paper px-4 pb-10">
+          <div ref={dialog} id="mobile-menu" role="dialog" aria-modal="true" aria-label={t("nav.menu")} className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-paper px-4 pb-10">
             <div className="flex h-[72px] shrink-0 items-center justify-between">
               <Link href="/" onClick={close} aria-label={t("nav.home")} className="block w-[104px]">
                 <Wordmark decorative className="block h-auto w-full" />
@@ -57,7 +60,7 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
                 {CATEGORIES.map((category, index) => (
                   <li key={category}>
                     <Link href={`/${category}` as `/${Category}`} onClick={close} className="flex items-baseline gap-3">
-                      <span className="font-label text-xs text-stone">{String(index + 1).padStart(2, "0")}</span>
+                      <span className="font-label text-xs text-muted">{String(index + 1).padStart(2, "0")}</span>
                       <span className="font-sport text-[clamp(3rem,14vw,4.5rem)]">{t(`categories.${category}`)}</span>
                     </Link>
                   </li>
@@ -81,7 +84,7 @@ export function MobileMenu({ shopUrl }: { shopUrl: string }) {
                   </li>
                 )}
               </ul>
-              <LocaleSwitch onNavigate={close} className={`${label} mt-auto text-stone`} />
+              <LocaleSwitch onNavigate={close} className={`${label} mt-auto text-muted`} />
             </nav>
           </div>,
           document.body,

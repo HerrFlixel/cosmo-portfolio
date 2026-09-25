@@ -29,7 +29,7 @@ export async function SiteFooter({ settings }: { settings: Settings }) {
             )}
             <LocaleSwitch className="link-draw" />
           </nav>
-          <p className="font-label text-xs text-stone">{t("footer.rights", { year: currentYear() })}</p>
+          <p className="font-label text-xs text-muted">{t("footer.rights", { year: currentYear() })}</p>
         </div>
       </div>
     </footer>

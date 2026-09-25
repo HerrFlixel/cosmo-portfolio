@@ -35,7 +35,7 @@ export default async function AboutPage({ params }: Props) {
           </div>
         )}
         <div className={portrait ? "md:col-span-7 lg:col-span-7 lg:col-start-6" : "md:col-span-10 md:col-start-2"}>
-          <h1 className="font-label text-xs uppercase tracking-[0.18em] text-stone">{t("pages.about")}</h1>
+          <h1 className="font-label text-xs uppercase tracking-[0.18em] text-muted">{t("pages.about")}</h1>
           <p className="font-display mt-6 pb-[0.08em] text-[clamp(2.5rem,5.5vw,5rem)] leading-[1.02]">
             {emphasis(statement).map((part, index) =>
               part.italic ? <em key={index}>{part.text}</em> : <Fragment key={index}>{part.text}</Fragment>,
@@ -48,7 +48,7 @@ export default async function AboutPage({ params }: Props) {
           )}
           {references.length > 0 && (
             <section aria-labelledby="references" className="mt-20">
-              <h2 id="references" className="font-label text-xs text-stone">
+              <h2 id="references" className="font-label text-xs text-muted">
                 {t("about.references")}
               </h2>
               <ul className="mt-6 columns-2 gap-8 font-sport text-3xl md:columns-3 md:text-4xl [&>li]:mb-3 [&>li]:break-inside-avoid">

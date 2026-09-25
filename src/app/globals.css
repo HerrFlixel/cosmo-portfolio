@@ -10,6 +10,8 @@
   --color-hall-ink: #eceae4;
   --color-signal: #ff3d2e;
   --color-alert: #b8241a;
+  /* Meta-Texte: stone erreicht auf Papier nur 3,1:1, muted 4,9:1 (WCAG AA). stone bleibt für Linien und Flächen. */
+  --color-muted: #6b675f;
 
   --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-expo-in-out: cubic-bezier(0.87, 0, 0.13, 1);

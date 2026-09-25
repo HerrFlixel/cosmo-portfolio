@@ -8,11 +8,11 @@ export async function Closing({ settings }: { settings: Settings }) {
   if (!email && !instagram && !shop) return null;
   return (
     <section aria-labelledby="closing-title" className="mx-auto mt-32 max-w-[1400px] px-4 md:mt-48 md:px-8">
-      <h2 id="closing-title" className="font-label text-xs uppercase tracking-[0.18em] text-stone">
+      <h2 id="closing-title" className="font-label text-xs uppercase tracking-[0.18em] text-muted">
         {t("home.closingTitle")}
       </h2>
       {email && (
-        <a href={`mailto:${email}`} className="font-display mt-6 block break-words pb-[0.1em] text-[clamp(2.25rem,6.5vw,6rem)] italic leading-[1.05] transition-colors hover:text-stone">
+        <a href={`mailto:${email}`} className="font-display mt-6 block break-words pb-[0.1em] text-[clamp(2.25rem,6.5vw,6rem)] italic leading-[1.05] transition-colors hover:text-muted">
           {email}
         </a>
       )}

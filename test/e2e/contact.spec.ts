@@ -15,6 +15,8 @@ test("Kontakt: Fehler am Feld, Eingaben bleiben, dann Versand mit Sicherheitspr√
 
   await expect(page.getByText("Deine Nachricht ist etwas kurz (mindestens 10 Zeichen).")).toBeVisible();
   await expect(page.getByLabel("Nachricht", { exact: true })).toHaveAttribute("aria-invalid", "true");
+  // Screenreader: Der Fokus springt ins erste fehlerhafte Feld, dessen Fehlertext per aria-describedby vorgelesen wird.
+  await expect(page.getByLabel("Nachricht", { exact: true })).toBeFocused();
   await expect(page.getByLabel("Name", { exact: true })).toHaveValue("Anna Keller");
   await expect(page.getByRole("radio", { name: "Hochzeit" })).toBeChecked();
 

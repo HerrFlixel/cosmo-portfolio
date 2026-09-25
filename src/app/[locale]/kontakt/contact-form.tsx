@@ -20,7 +20,7 @@ declare global {
 }
 
 const control =
-  "mt-2 block w-full border-b border-ink/40 bg-transparent py-3 text-lg outline-none transition-colors focus:border-ink aria-[invalid=true]:border-alert";
+  "mt-2 block w-full border-b border-ink/60 bg-transparent py-3 text-lg outline-none transition-colors focus:border-ink aria-[invalid=true]:border-alert";
 
 export function ContactForm({ siteKey, fallbackEmail }: { siteKey: string; fallbackEmail: string }) {
   const t = useTranslations("contact");
@@ -29,6 +29,7 @@ export function ContactForm({ siteKey, fallbackEmail }: { siteKey: string; fallb
   const widget = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
   const token = useRef<HTMLInputElement>(null);
+  const form = useRef<HTMLFormElement>(null);
 
   // Turnstile explizit rendern; das Token landet direkt im versteckten Feld (kein React-State nötig).
   const renderWidget = useCallback(() => {
@@ -53,6 +54,11 @@ export function ContactForm({ siteKey, fallbackEmail }: { siteKey: string; fallb
       widgetId.current = null;
     };
   }, [renderWidget]);
+
+  // Screenreader: bei Fehlern ins erste fehlerhafte Feld springen, dessen Fehlertext per aria-describedby vorgelesen wird.
+  useEffect(() => {
+    if (state.status === "invalid") form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }, [state]);
 
   // Jeder Versuch verbraucht das Token: Feld leeren, Widget zurücksetzen, es holt ein neues.
   useEffect(() => {
@@ -85,7 +91,7 @@ export function ContactForm({ siteKey, fallbackEmail }: { siteKey: string; fallb
   return (
     <>
       <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" strategy="afterInteractive" onReady={renderWidget} />
-      <form action={action} className="grid gap-8">
+      <form ref={form} action={action} className="grid gap-8">
         <div>
           <label htmlFor="contact-name" className="text-sm">
             {t("name")}

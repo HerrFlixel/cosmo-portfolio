@@ -94,7 +94,8 @@
     "cta": "Write to me"
   },
   "legal": {
-    "pending": "This text will follow shortly."
+    "pending": "This text will follow shortly.",
+    "germanOnly": "This text is only available in German."
   },
   "clients": {
     "intro": "Did you get a link and a password from me? Enter the gallery code here or simply open the link from your message.",
@@ -133,10 +134,16 @@
       "bot": "The security check isn't finished yet. Please wait a moment and send again.",
       "failed": "That didn't work, sorry. Feel free to write to me directly at {email}.",
       "failedNoMail": "That didn't work, sorry. Please try again later."
-    }
+    },
+    "unavailableNoMail": "The form is currently unavailable. Please try again later."
   },
   "footer": {
     "legal": "Legal and links",
     "rights": "© {year} Felix Vatterodt"
+  },
+  "error": {
+    "title": "Something went wrong.",
+    "text": "Please try again in a moment.",
+    "retry": "Try again"
   }
 }

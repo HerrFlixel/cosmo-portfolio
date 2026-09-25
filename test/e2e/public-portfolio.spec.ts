@@ -117,3 +117,33 @@ test("Lightbox und Handy-Menü liegen über Kopf und Kategorie-Pille", async ({ 
   expect(await topmost(195, 844 - 40, "#mobile-menu")).toBe(true);
 });
 
+test("Dialoge halten den Fokus: Umschalt+Tab landet nie hinter Lightbox oder Menü", async ({ page }) => {
+  const outside = (selector: string) =>
+    page.evaluate((sel) => document.activeElement !== document.body && document.activeElement?.closest(sel) === null, selector);
+  await page.goto("/hochzeiten");
+  await page.getByRole("button", { name: "Hochzeiten, Foto 1" }).click();
+  await page.keyboard.press("Shift+Tab");
+  expect(await outside('[data-testid="lightbox"]')).toBe(false);
+  await page.keyboard.press("Escape");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Menü" }).click();
+  await page.keyboard.press("Shift+Tab");
+  expect(await outside("#mobile-menu")).toBe(false);
+});
+
+test("Das erste Hero-Bild ist ohne JavaScript sofort sichtbar (LCP)", async ({ page }) => {
+  const html = await (await page.request.get("/")).text();
+  const tag = html.match(/<img\b[^>]*fetchpriority="high"[^>]*>/i)?.[0];
+  expect(tag).toBeDefined();
+  expect(tag).toContain("data-loaded");
+});
+
+test("Leere Kategorie: Hinweis steht unter dem Titel statt darüber", async ({ page }) => {
+  await page.goto("/fussball");
+  const empty = page.getByText("Hier kommen bald Bilder.");
+  test.skip((await empty.count()) === 0, "Fußball ist in dieser Umgebung nicht leer");
+  const title = await page.getByRole("heading", { level: 1 }).boundingBox();
+  const note = await empty.boundingBox();
+  expect(note!.y).toBeGreaterThanOrEqual(title!.y + title!.height);
+});

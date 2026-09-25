@@ -28,7 +28,7 @@ export async function SiteHeader({ shopUrl }: { shopUrl: string }) {
               {t("shop")} <span aria-hidden="true">↗</span>
             </a>
           )}
-          <LocaleSwitch className="font-label text-xs uppercase tracking-[0.12em] text-stone transition-colors hover:text-ink" />
+          <LocaleSwitch className="font-label text-xs uppercase tracking-[0.12em] text-muted transition-colors hover:text-ink" />
         </nav>
         <MobileMenu shopUrl={shopUrl} />
       </div>

@@ -2,9 +2,10 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { readAdminConfig, type AdminConfig } from "./admin-config";
-import { SESSION_TTL_SECONDS, createSessionToken, verifySessionToken } from "./session";
+import { sameHost } from "./origin";
+import { ADMIN_COOKIE, SESSION_TTL_SECONDS, createSessionToken, verifySessionToken } from "./session";
 
-export const ADMIN_COOKIE = "cosmo_admin";
+export { ADMIN_COOKIE };
 const COOKIE_OPTIONS = { httpOnly: true, secure: true, sameSite: "lax", path: "/admin" } as const;
 const nowSeconds = () => Math.floor(Date.now() / 1000);
 
@@ -39,12 +40,4 @@ export async function adminApiGuard(request: Request): Promise<Response | null> 
   }
   if (!(await isAdmin())) return Response.json({ error: "Nicht angemeldet." }, { status: 401 });
   return null;
-}
-
-function sameHost(origin: string, url: string): boolean {
-  try {
-    return new URL(origin).host === new URL(url).host;
-  } catch {
-    return false;
-  }
 }

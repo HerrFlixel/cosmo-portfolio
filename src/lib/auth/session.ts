@@ -1,5 +1,7 @@
 import { fromBase64Url, toBase64Url } from "./encoding.ts";
 
+/** Cookie der Admin-Sitzung (Pfad /admin). Hier statt in admin.ts, damit der Worker ihn ohne next/headers nutzen kann. */
+export const ADMIN_COOKIE = "cosmo_admin";
 export const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 type Payload = { sub: "admin"; exp: number };

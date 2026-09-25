@@ -1,10 +1,9 @@
+import { HttpError, httpErrorFrom } from "@/lib/http-error";
 import type { MediaKind } from "@/lib/media/keys";
 import type { ProcessedImage } from "./process";
 
 /** 1 Versuch + 2 automatische Wiederholungen (Spec §3.3). */
 const ATTEMPTS = 3;
-
-class ClientError extends Error {}
 
 /** Lädt alle Varianten unter einer neuen UUID hoch und gibt die UUID zurück. */
 export async function uploadVariants(kind: MediaKind, image: ProcessedImage): Promise<string> {
@@ -21,13 +20,12 @@ async function putWithRetry(url: string, blob: Blob): Promise<void> {
     try {
       const response = await fetch(url, { method: "PUT", body: blob, headers: { "content-type": blob.type } });
       if (response.ok) return;
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      const message = body?.error ?? `Upload fehlgeschlagen (${response.status}).`;
+      const error = await httpErrorFrom(response, "Upload fehlgeschlagen");
       // 4xx: Wiederholen bringt nichts (falsches Format, abgemeldet …)
-      if (response.status < 500) throw new ClientError(message);
-      lastError = new Error(message);
+      if (response.status < 500) throw error;
+      lastError = error;
     } catch (error) {
-      if (error instanceof ClientError) throw error;
+      if (error instanceof HttpError && error.status < 500) throw error;
       lastError = error instanceof Error ? error : lastError;
     }
     if (attempt < ATTEMPTS) await new Promise((resolve) => setTimeout(resolve, 400 * attempt));

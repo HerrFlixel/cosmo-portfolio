@@ -35,6 +35,15 @@ export function PortfolioManager({ category, initialImages }: { category: Catego
     setImages((current) => [...current, created]);
   }
 
+  /** Nach einem Fehler gilt der Server-Stand (parallele Uploads, gelöschte Bilder …); nur wenn auch das scheitert, zurück zum alten Stand. */
+  async function resync(previous: PortfolioImage[]) {
+    try {
+      setImages(await portfolioApi.list(category));
+    } catch {
+      setImages(previous);
+    }
+  }
+
   function saveOrder(next: PortfolioImage[]) {
     const previous = images;
     setImages(next);
@@ -42,7 +51,7 @@ export function PortfolioManager({ category, initialImages }: { category: Catego
       try {
         await portfolioApi.reorder(category, next.map((image) => image.id));
       } catch (cause) {
-        setImages(previous);
+        await resync(previous);
         throw cause;
       }
     });
@@ -71,7 +80,7 @@ export function PortfolioManager({ category, initialImages }: { category: Catego
           }),
         );
       } catch (cause) {
-        setImages(previous);
+        await resync(previous);
         throw cause;
       }
     });

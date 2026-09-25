@@ -28,3 +28,15 @@ export async function clearCategory(page: Page, category: string) {
     expect((await page.request.delete(`/admin/api/portfolio/${image.id}`)).status()).toBe(204);
   }
 }
+
+/** Legt ein Bild direkt über die API an (simuliert einen parallel laufenden Upload, den die Seite noch nicht kennt). */
+export async function createImageViaApi(page: Page, category: string): Promise<string> {
+  const id = crypto.randomUUID();
+  for (const size of [800, 1600, 2400]) {
+    const put = await page.request.put(`/admin/api/media/portfolio/${id}/${size}`, { data: TINY_WEBP, headers: { "content-type": "image/webp" } });
+    expect(put.status()).toBe(204);
+  }
+  const created = await page.request.post("/admin/api/portfolio", { data: { id, category, width: 10, height: 10, color: "#000000" } });
+  expect(created.status()).toBe(201);
+  return id;
+}

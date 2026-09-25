@@ -1,5 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { ADMIN_STATE, clearCategory } from "./helpers/admin";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { ADMIN_STATE, clearCategory, createImageViaApi } from "./helpers/admin";
 import { makeJpeg, withExifOrientation } from "./helpers/images";
 
 test.describe.configure({ mode: "serial" });
@@ -95,4 +98,57 @@ test("Übersicht zählt die Bilder pro Kategorie", async ({ page }) => {
   await upload(page, [{ name: "x.jpg", buffer: await makeJpeg(page, 400, 400, "#444444") }]);
   await page.goto("/admin");
   await expect(page.getByRole("main").getByRole("link", { name: /Studio/ })).toContainText("1 sichtbar · 1 gesamt");
+});
+
+// --- Review-Fix 1: Liste läuft nicht auseinander, wenn der Server etwas anderes weiß als die Seite ---
+
+test("Sortieren nach einem gleichzeitig angelegten Bild lädt die Liste neu statt auseinanderzulaufen", async ({ page }) => {
+  await upload(page, [
+    { name: "a.jpg", buffer: await makeJpeg(page, 600, 900, "#555555") },
+    { name: "b.jpg", buffer: await makeJpeg(page, 600, 900, "#666666") },
+  ]);
+  await createImageViaApi(page, "studio"); // „paralleler Upload“, den die Seite noch nicht kennt
+  await cards(page).first().getByRole("button", { name: "Nach hinten" }).click();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("Reihenfolge");
+  await expect(cards(page)).toHaveCount(3);
+  await andWait(page, "PUT", () => cards(page).first().getByRole("button", { name: "Nach hinten" }).click());
+});
+
+test("Ändern eines inzwischen gelöschten Bildes zeigt einen Fehler und aktualisiert die Liste", async ({ page }) => {
+  await upload(page, [{ name: "weg.jpg", buffer: await makeJpeg(page, 600, 900, "#777777") }]);
+  const id = await cards(page).first().getAttribute("data-id");
+  expect((await page.request.delete(`/admin/api/portfolio/${id}`)).status()).toBe(204);
+  await cards(page).first().getByLabel("Sichtbar").click();
+  await expect(page.getByRole("main").getByRole("alert")).toHaveText("Bild nicht gefunden.");
+  await expect(cards(page)).toHaveCount(0);
+});
+
+// --- Review-Fix 2: Ordner, übersprungene Dateien, abgelaufene Anmeldung ---
+
+test("Ordner hochladen: Bilder werden übernommen, andere Dateien gemeldet", async ({ page }) => {
+  const dir = mkdtempSync(join(tmpdir(), "cosmo-ordner-"));
+  writeFileSync(join(dir, "eins.jpg"), await makeJpeg(page, 600, 900, "#123456"));
+  writeFileSync(join(dir, "zwei.jpg"), await makeJpeg(page, 900, 600, "#654321"));
+  writeFileSync(join(dir, "notizen.txt"), "kein Bild");
+  await page.getByLabel("Ordner wählen").setInputFiles(dir);
+  await expect(page.locator('[data-testid="upload-item"][data-status="done"]')).toHaveCount(2, { timeout: 30_000 });
+  await expect(cards(page)).toHaveCount(2);
+  await expect(page.getByTestId("upload-skipped")).toHaveText("1 Datei übersprungen (kein Bild).");
+});
+
+test("abgelaufene Anmeldung: Hinweis mit Login-Link, danach alle Fehlgeschlagenen erneut versuchen", async ({ page, context }) => {
+  const session = await context.cookies();
+  await context.clearCookies();
+  await page.getByLabel("Bilder hinzufügen").setInputFiles([
+    { name: "x.jpg", mimeType: "image/jpeg", buffer: await makeJpeg(page, 600, 900, "#222222") },
+    { name: "y.jpg", mimeType: "image/jpeg", buffer: await makeJpeg(page, 600, 900, "#333333") },
+  ]);
+  await expect(page.locator('[data-testid="upload-item"][data-status="error"]')).toHaveCount(2, { timeout: 30_000 });
+  await expect(page.getByTestId("upload-session")).toContainText("Anmeldung abgelaufen");
+  await expect(page.getByRole("link", { name: "Neu anmelden" })).toHaveAttribute("target", "_blank");
+
+  await context.addCookies(session);
+  await page.getByRole("button", { name: "Alle fehlgeschlagenen erneut versuchen" }).click();
+  await expect(page.locator('[data-testid="upload-item"][data-status="done"]')).toHaveCount(2, { timeout: 30_000 });
+  await expect(cards(page)).toHaveCount(2);
 });

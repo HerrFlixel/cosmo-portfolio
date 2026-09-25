@@ -12,6 +12,13 @@ export default defineConfig({
   projects: [
     { name: "setup", testMatch: /auth\.setup\.ts/ },
     { name: "chromium", use: { ...devices["Desktop Chrome"], locale: "de-DE" }, dependencies: ["setup"] },
+    // Safari-Engine: Bildverarbeitung (Worker, OffscreenCanvas, EXIF, WebP→JPEG-Fallback) auch dort prüfen.
+    {
+      name: "webkit",
+      testMatch: /admin-portfolio\.spec\.ts/,
+      use: { ...devices["Desktop Safari"], locale: "de-DE" },
+      dependencies: ["chromium"],
+    },
   ],
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined

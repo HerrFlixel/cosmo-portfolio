@@ -4,7 +4,7 @@ import { sameHost } from "@/lib/auth/origin";
 import { ADMIN_COOKIE, verifySessionToken } from "@/lib/auth/session";
 import { readCookie } from "@/lib/cookies";
 import { createDb, type Db } from "@/lib/db/client";
-import { galleryKey, type GalleryVariant } from "@/lib/galleries/keys";
+import { GALLERY_VARIANTS, galleryKey, type GalleryVariant } from "@/lib/galleries/keys";
 import {
   GalleryError,
   addImage,
@@ -109,31 +109,40 @@ function meter() {
   return { stream, result };
 }
 
+/**
+ * Nach jeder Ablehnung aufräumen – aber nur, wenn das Bild nicht registriert ist: Vorschau und Web-Größe liegen
+ * dann schon im Bucket und würden sonst verwaisen. Ein fehlgeschlagener Wiederholungsversuch darf ein fertiges
+ * Bild nicht zerstören (ein abgebrochenes R2-put ersetzt das vorhandene Objekt nicht).
+ */
 async function uploadOriginal(request: Request, env: EdgeEnv, db: Db, galleryId: string, imageId: string): Promise<Response> {
+  const response = await storeOriginal(request, env, db, galleryId, imageId);
+  if (response.status >= 400 && !(await getImage(db, galleryId, imageId))) {
+    await env.GALLERIES.delete(GALLERY_VARIANTS.map((variant) => galleryKey(galleryId, imageId, variant)));
+  }
+  return response;
+}
+
+async function storeOriginal(request: Request, env: EdgeEnv, db: Db, galleryId: string, imageId: string): Promise<Response> {
   const length = Number(request.headers.get("content-length"));
   if (!Number.isInteger(length) || length <= 0) return error("Dateigröße fehlt.", 411);
   if (length > MAX_ORIGINAL_BYTES) return error("Original zu groß (max. 95 MB).", 413);
   const meta = imageHeaders(request);
   if (!meta || !request.body) return error("Bildangaben fehlen oder sind ungültig.", 400);
 
-  const key = galleryKey(galleryId, imageId, "original");
   const counted = meter();
   // FixedLengthStream: R2 braucht die Länge vorab; stimmt sie nicht, schlägt der Upload fehl.
   const fixed = new FixedLengthStream(length);
   try {
     await Promise.all([
       request.body.pipeThrough(counted.stream).pipeTo(fixed.writable),
-      env.GALLERIES.put(key, fixed.readable, { httpMetadata: { contentType: "image/jpeg" } }),
+      env.GALLERIES.put(galleryKey(galleryId, imageId, "original"), fixed.readable, { httpMetadata: { contentType: "image/jpeg" } }),
     ]);
   } catch {
-    await env.GALLERIES.delete(key);
     return error("Upload abgebrochen oder unvollständig.", 400);
   }
   const head = counted.result.head.subarray(0, Math.min(counted.result.bytes, counted.result.head.length));
-  if (counted.result.bytes !== length || sniffImageType(head) !== "image/jpeg") {
-    await env.GALLERIES.delete(key);
-    return counted.result.bytes !== length ? error("Upload unvollständig.", 400) : error("Nur JPEG-Originale.", 415);
-  }
+  if (counted.result.bytes !== length) return error("Upload unvollständig.", 400);
+  if (sniffImageType(head) !== "image/jpeg") return error("Nur JPEG-Originale.", 415);
   try {
     const image = await addImage(db, env.GALLERIES, {
       id: imageId,
@@ -144,7 +153,6 @@ async function uploadOriginal(request: Request, env: EdgeEnv, db: Db, galleryId:
     });
     return json(image, 201);
   } catch (cause) {
-    await env.GALLERIES.delete(key);
     if (cause instanceof GalleryError) return error(cause.message, cause.status);
     throw cause;
   }

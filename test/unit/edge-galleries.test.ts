@@ -119,6 +119,40 @@ describe("admin uploads", () => {
   });
 });
 
+describe("review fixes: no orphaned files", () => {
+  const original = (galleryId: string, id: string, body: Uint8Array, headers: Record<string, string>) =>
+    call(`/admin/api/galleries/${galleryId}/images/${id}/original`, {
+      method: "PUT",
+      body,
+      headers: { "content-type": "image/jpeg", "content-length": String(body.length), "x-file-name": "a.jpg", "x-width": "1", "x-height": "1", "x-color": "#000000", ...headers },
+    });
+
+  it("removes the already uploaded variants when the original is rejected", async () => {
+    const cookie = await adminCookie();
+    const cases: [Uint8Array, Record<string, string>, number][] = [
+      [new TextEncoder().encode("<html>kein jpeg</html>"), {}, 415],
+      [JPEG(10), { "content-length": String(MAX_ORIGINAL_BYTES + 1) }, 413],
+      [JPEG(10), { "x-width": "abc" }, 400],
+    ];
+    for (const [body, headers, status] of cases) {
+      const id = crypto.randomUUID();
+      for (const variant of ["thumb", "preview"]) {
+        await call(`/admin/api/galleries/${gallery.id}/images/${id}/${variant}`, { method: "PUT", body: WEBP, headers: { cookie, "content-type": "image/webp" } });
+      }
+      expect((await original(gallery.id, id, body, { cookie, ...headers }))?.status).toBe(status);
+      expect((await env.GALLERIES.list({ prefix: `${gallery.id}/${id}/` })).objects).toHaveLength(0);
+    }
+  });
+
+  it("keeps a registered original when a retry of the same upload fails", async () => {
+    const { id } = await uploadImage(gallery, "a.jpg", JPEG(5000));
+    const res = await original(gallery.id, id, JPEG(10), { cookie: await adminCookie(), "content-length": "20" });
+    expect(res?.status).toBe(400);
+    expect((await env.GALLERIES.head(galleryKey(gallery.id, id, "original")))?.size).toBe(5000);
+    expect(await listImages(db(), gallery.id)).toHaveLength(1);
+  });
+});
+
 describe("gallery files", () => {
   it("serves files only with this gallery's cookie and logs original downloads with the visitor name", async () => {
     const { id } = await uploadImage(gallery, "IMG_1.jpg");

@@ -2,6 +2,7 @@ import { and, asc, count, desc, eq, sql } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { decryptText, encryptText } from "@/lib/crypto/box";
 import type { Db } from "@/lib/db/client";
+import { endOfBerlinDay, formatDateInput } from "@/lib/format";
 import { favorites, galleries, galleryEvents, galleryImages } from "@/lib/db/schema";
 import { GALLERY_VARIANTS, galleryKey } from "./keys";
 import { generateGalleryPassword } from "./password";
@@ -17,6 +18,9 @@ export type EventType = GalleryEvent["type"];
 
 export const GALLERY_TTL_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** „Online bis <Tag>“ gilt bis zum Ende dieses Berliner Tages, nicht bis zur Uhrzeit, zu der die Galerie angelegt wurde. */
+const expiryAfter = (fromMs: number) => endOfBerlinDay(formatDateInput(new Date(fromMs + GALLERY_TTL_DAYS * DAY_MS).toISOString()));
 
 export class GalleryError extends Error {
   readonly status: 400 | 404 | 409;
@@ -67,7 +71,7 @@ export async function createGallery(db: Db, secret: string, input: { title: stri
       slug: await uniqueSlug(db, slugify(title)),
       title,
       shootDate: input.shootDate || null,
-      expiresAt: new Date(now.getTime() + GALLERY_TTL_DAYS * DAY_MS).toISOString(),
+      expiresAt: expiryAfter(now.getTime()),
       ...(await passwordFields(password, secret)),
     })
     .returning();
@@ -108,7 +112,7 @@ export async function extendGallery(db: Db, id: string, now: Date): Promise<Gall
   const gallery = await getGalleryById(db, id);
   if (!gallery) throw galleryNotFound();
   const from = Math.max(now.getTime(), gallery.expiresAt ? Date.parse(gallery.expiresAt) : 0);
-  return updateGallery(db, id, { expiresAt: new Date(from + GALLERY_TTL_DAYS * DAY_MS).toISOString() });
+  return updateGallery(db, id, { expiresAt: expiryAfter(from) });
 }
 
 export async function setGalleryPassword(db: Db, secret: string, id: string, password: string): Promise<Gallery> {
@@ -123,8 +127,9 @@ export function revealPassword(secret: string, gallery: Gallery): Promise<string
   return decryptText(gallery.passwordCipher, secret);
 }
 
+/** Leerzeichen/Zeilenumbruch drumherum ignorieren (kopiert aus WhatsApp oder Mail); gespeichert wird ohnehin getrimmt. */
 export function checkGalleryPassword(gallery: Gallery, password: string): Promise<boolean> {
-  return verifyPassword(password, gallery.passwordHash);
+  return verifyPassword(password.trim(), gallery.passwordHash);
 }
 
 export async function listGalleries(db: Db): Promise<GalleryListItem[]> {
@@ -154,7 +159,8 @@ export function listImages(db: Db, galleryId: string): Promise<GalleryImage[]> {
     .select()
     .from(galleryImages)
     .where(eq(galleryImages.galleryId, galleryId))
-    .orderBy(asc(sql`${galleryImages.filename} COLLATE NOCASE`), asc(galleryImages.filename));
+    // Die ID als letzte Stufe macht die Reihenfolge eindeutig: Jede ZIP-Teil-Anfrage muss dieselbe Aufteilung sehen.
+    .orderBy(asc(sql`${galleryImages.filename} COLLATE NOCASE`), asc(galleryImages.filename), asc(galleryImages.id));
 }
 
 export async function getImage(db: Db, galleryId: string, imageId: string): Promise<GalleryImage | undefined> {

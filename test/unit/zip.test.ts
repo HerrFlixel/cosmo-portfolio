@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { crc32 } from "@/lib/zip/crc32";
-import { ZIP_PART_MAX_BYTES, splitIntoParts, uniqueNames, zipPartsFor, zipSize, zipStream, type ZipEntry } from "@/lib/zip/zip";
+import { ZIP_PART_MAX_BYTES, ZIP_PART_MAX_FILES, splitIntoParts, uniqueNames, zipPartsFor, zipSize, zipStream, type ZipEntry } from "@/lib/zip/zip";
 
 const bytesOf = (s: string) => new TextEncoder().encode(s);
 const streamOf = (data: Uint8Array, chunk = 3) =>
@@ -123,5 +123,21 @@ describe("zipPartsFor", () => {
     expect(parts[1].files[0].item).toBe(images[1]);
     expect(parts[1].size).toBe(zipSize([{ name: "a (2).jpg", size: 5 }, { name: "b.jpg", size: 4 }]));
     expect(zipPartsFor([])).toEqual([]);
+  });
+});
+
+describe("review fixes: parts and names", () => {
+  it("caps the number of files per part (one R2 call per file, Worker call limit)", () => {
+    expect(ZIP_PART_MAX_FILES).toBe(500);
+    const items = Array.from({ length: 5 }, () => ({ bytes: 1 }));
+    expect(splitIntoParts(items, 1_000, 2).map((part) => part.length)).toEqual([2, 2, 1]);
+    const many = Array.from({ length: 1001 }, (_, i) => ({ filename: `f${i}.jpg`, bytes: 10 }));
+    expect(zipPartsFor(many).map((part) => part.files.length)).toEqual([500, 500, 1]);
+  });
+
+  it("never produces the same name twice, also ignoring case (macOS/Windows would overwrite on unzip)", () => {
+    const names = uniqueNames(["a (2).jpg", "a.jpg", "a.jpg", "DSC_0001.JPG", "dsc_0001.jpg"]);
+    expect(names).toEqual(["a (2).jpg", "a.jpg", "a (3).jpg", "DSC_0001.JPG", "dsc_0001 (2).jpg"]);
+    expect(new Set(names.map((name) => name.toLowerCase())).size).toBe(names.length);
   });
 });

@@ -2,6 +2,8 @@ export type ZipEntry = { name: string; size: number; crc32: number; open: () => 
 
 /** Teile ≤ 2 GB: jeder Teil bleibt < 4 GiB, deshalb genügt das klassische ZIP-Format (kein Zip64). */
 export const ZIP_PART_MAX_BYTES = 2_000_000_000;
+/** Pro Datei ein R2-Aufruf: Viele kleine Dateien dürfen die Aufruf-Grenze einer Worker-Anfrage nicht erreichen. */
+export const ZIP_PART_MAX_FILES = 500;
 
 const encoder = new TextEncoder();
 const FLAG_UTF8 = 0x0800;
@@ -110,12 +112,12 @@ export function zipStream(entries: ZipEntry[]): ReadableStream<Uint8Array> {
   });
 }
 
-export function splitIntoParts<T extends { bytes: number }>(items: T[], maxBytes = ZIP_PART_MAX_BYTES): T[][] {
+export function splitIntoParts<T extends { bytes: number }>(items: T[], maxBytes = ZIP_PART_MAX_BYTES, maxFiles = ZIP_PART_MAX_FILES): T[][] {
   const parts: T[][] = [];
   let current: T[] = [];
   let size = 0;
   for (const item of items) {
-    if (current.length > 0 && size + item.bytes > maxBytes) {
+    if (current.length > 0 && (size + item.bytes > maxBytes || current.length >= maxFiles)) {
       parts.push(current);
       current = [];
       size = 0;
@@ -127,14 +129,17 @@ export function splitIntoParts<T extends { bytes: number }>(items: T[], maxBytes
   return parts;
 }
 
+/** Eindeutig auch ohne Groß/Klein-Unterschied: macOS und Windows würden beim Entpacken sonst eine Datei überschreiben. */
 export function uniqueNames(names: string[]): string[] {
-  const seen = new Map<string, number>();
+  const used = new Set<string>();
   return names.map((name) => {
-    const n = (seen.get(name) ?? 0) + 1;
-    seen.set(name, n);
-    if (n === 1) return name;
     const dot = name.lastIndexOf(".");
-    return dot > 0 ? `${name.slice(0, dot)} (${n})${name.slice(dot)}` : `${name} (${n})`;
+    let candidate = name;
+    for (let n = 2; used.has(candidate.toLowerCase()); n++) {
+      candidate = dot > 0 ? `${name.slice(0, dot)} (${n})${name.slice(dot)}` : `${name} (${n})`;
+    }
+    used.add(candidate.toLowerCase());
+    return candidate;
   });
 }
 
@@ -144,10 +149,14 @@ export type ZipPart<T> = { files: { item: T; name: string }[]; size: number };
  * Aufteilung für „Alle/Favoriten herunterladen“: Namen über die ganze Auswahl eindeutig (Teile überschreiben sich
  * beim Entpacken nicht), exakte Größe je Teil. Worker und Galerie-Seite rufen dieselbe Funktion auf.
  */
-export function zipPartsFor<T extends { filename: string; bytes: number }>(items: T[], maxBytes = ZIP_PART_MAX_BYTES): ZipPart<T>[] {
+export function zipPartsFor<T extends { filename: string; bytes: number }>(
+  items: T[],
+  maxBytes = ZIP_PART_MAX_BYTES,
+  maxFiles = ZIP_PART_MAX_FILES,
+): ZipPart<T>[] {
   const names = uniqueNames(items.map((item) => item.filename));
   const named = items.map((item, index) => ({ item, name: names[index], bytes: item.bytes }));
-  return splitIntoParts(named, maxBytes).map((part) => ({
+  return splitIntoParts(named, maxBytes, maxFiles).map((part) => ({
     files: part.map(({ item, name }) => ({ item, name })),
     size: zipSize(part.map(({ name, bytes }) => ({ name, size: bytes }))),
   }));

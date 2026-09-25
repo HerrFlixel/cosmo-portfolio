@@ -49,7 +49,7 @@ describe("galleries", () => {
   it("creates drafts with a unique lowercase slug, a 30-day expiry and a retrievable password", async () => {
     const { gallery, password } = await createGallery(db(), SECRET, { title: "Final4 Zwickau 2026" }, NOW);
     const second = await createGallery(db(), SECRET, { title: "final4 ZWICKAU 2026" }, NOW);
-    expect(gallery).toMatchObject({ slug: "final4-zwickau-2026", status: "draft", expiresAt: "2026-10-25T10:00:00.000Z" });
+    expect(gallery).toMatchObject({ slug: "final4-zwickau-2026", status: "draft", expiresAt: "2026-10-25T21:59:59.000Z" });
     expect(second.gallery.slug).toBe("final4-zwickau-2026-2");
     expect(password).toMatch(/^[a-z]+-[a-z]+-\d\d$/);
     expect(await revealPassword(SECRET, gallery)).toBe(password);
@@ -57,12 +57,19 @@ describe("galleries", () => {
     expect(await checkGalleryPassword(gallery, "falsch-falsch-00")).toBe(false);
   });
 
+  it("accepts a pasted password with surrounding whitespace", async () => {
+    const { gallery, password } = await createGallery(db(), SECRET, { title: "Leerzeichen" }, NOW);
+    expect(await checkGalleryPassword(gallery, ` ${password}\n`)).toBe(true);
+  });
+
   it("knows draft, online and expired", async () => {
     const { gallery } = await createGallery(db(), SECRET, { title: "Zustand" }, NOW);
     expect(galleryState(gallery, NOW)).toBe("draft");
     const online = await updateGallery(db(), gallery.id, { status: "online" });
     expect(galleryState(online, NOW)).toBe("online");
-    expect(galleryState(online, new Date("2026-10-25T10:00:00.000Z"))).toBe("expired");
+    // „Online bis 25.10.“ gilt bis zum Ende des Tages (Berlin), nicht bis zur Uhrzeit der Erstellung.
+    expect(galleryState(online, new Date("2026-10-25T20:00:00.000Z"))).toBe("online");
+    expect(galleryState(online, new Date("2026-10-25T21:59:59.000Z"))).toBe("expired");
     const unlimited = await updateGallery(db(), gallery.id, { expiresAt: null });
     expect(galleryState(unlimited, new Date("2030-01-01T00:00:00.000Z"))).toBe("online");
   });
@@ -85,9 +92,9 @@ describe("galleries", () => {
 
   it("extends by 30 days from the later of now and the current expiry", async () => {
     const { gallery } = await createGallery(db(), SECRET, { title: "Verlängern" }, NOW);
-    expect((await extendGallery(db(), gallery.id, NOW)).expiresAt).toBe("2026-11-24T10:00:00.000Z");
+    expect((await extendGallery(db(), gallery.id, NOW)).expiresAt).toBe("2026-11-24T21:59:59.000Z");
     const late = new Date("2027-01-01T00:00:00.000Z");
-    expect((await extendGallery(db(), gallery.id, late)).expiresAt).toBe("2027-01-31T00:00:00.000Z");
+    expect((await extendGallery(db(), gallery.id, late)).expiresAt).toBe("2027-01-31T21:59:59.000Z");
   });
 });
 
@@ -115,6 +122,16 @@ describe("gallery images", () => {
     const { gallery: other } = await createGallery(db(), SECRET, { title: "Fremd" }, NOW);
     await storeFiles(other.id, image.id);
     await expect(addImage(db(), env.GALLERIES, { ...retry, galleryId: other.id })).rejects.toMatchObject({ status: 409 });
+  });
+
+  it("orders identical filenames by id so ZIP parts stay stable between requests", async () => {
+    const { gallery } = await createGallery(db(), SECRET, { title: "Gleiche Namen" }, NOW);
+    const ids = ["ffffffff-0000-4000-8000-000000000000", "00000000-0000-4000-8000-000000000000"];
+    for (const id of ids) {
+      await storeFiles(gallery.id, id);
+      await addImage(db(), env.GALLERIES, { id, galleryId: gallery.id, filename: "DSC_0001.jpg", bytes: 1, crc32: 1, width: 1, height: 1, color: "#000000" });
+    }
+    expect((await listImages(db(), gallery.id)).map((image) => image.id)).toEqual([...ids].reverse());
   });
 
   it("removes an image with its files and clears it as cover", async () => {

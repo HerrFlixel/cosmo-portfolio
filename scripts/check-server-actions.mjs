@@ -3,8 +3,13 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-// Öffentliche Aktionen, die den Zugang erst erzeugen: Admin-Login, Galerie-Passwort, Galerie-Code.
-const ALLOW = new Set(["src/app/admin/login/actions.ts", "src/app/g/[slug]/actions.ts", "src/app/[locale]/kunden/actions.ts"]);
+// Öffentliche Aktionen: Admin-Login, Galerie-Passwort, Galerie-Code, Kontaktformular.
+const ALLOW = new Set([
+  "src/app/admin/login/actions.ts",
+  "src/app/g/[slug]/actions.ts",
+  "src/app/[locale]/kunden/actions.ts",
+  "src/app/[locale]/kontakt/actions.ts",
+]);
 const unguarded = [];
 
 function walk(dir) {

@@ -1,0 +1,25 @@
+import { expect, test } from "@playwright/test";
+
+// Turnstile mit den öffentlichen Testschlüsseln (besteht immer, lädt aber das Skript von Cloudflare).
+test("Kontakt: Fehler am Feld, Eingaben bleiben, dann Versand mit Sicherheitsprüfung", async ({ page }) => {
+  await page.goto("/kontakt");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Kontakt");
+  const token = page.locator('input[name="turnstile"]');
+
+  await page.getByLabel("Name", { exact: true }).fill("Anna Keller");
+  await page.getByLabel("E-Mail", { exact: true }).fill("anna@example.org");
+  await page.getByText("Hochzeit", { exact: true }).click();
+  await page.getByLabel("Nachricht", { exact: true }).fill("kurz");
+  await expect(token).not.toHaveValue("", { timeout: 20_000 });
+  await page.getByRole("button", { name: "Nachricht senden" }).click();
+
+  await expect(page.getByText("Deine Nachricht ist etwas kurz (mindestens 10 Zeichen).")).toBeVisible();
+  await expect(page.getByLabel("Nachricht", { exact: true })).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByLabel("Name", { exact: true })).toHaveValue("Anna Keller");
+  await expect(page.getByRole("radio", { name: "Hochzeit" })).toBeChecked();
+
+  await page.getByLabel("Nachricht", { exact: true }).fill("Wir heiraten im Juni in Hamburg und suchen noch einen Fotografen.");
+  await expect(token).not.toHaveValue("", { timeout: 20_000 });
+  await page.getByRole("button", { name: "Nachricht senden" }).click();
+  await expect(page.getByRole("status")).toHaveText("Danke! Ich melde mich bald.");
+});

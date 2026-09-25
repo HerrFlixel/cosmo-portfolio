@@ -65,3 +65,9 @@ Admin-Benutzername: `ADMIN_USERNAME` in `wrangler.jsonc` (`felix`).
 - **Turnstile:** Widget im Cloudflare-Dashboard (Turnstile → Widget hinzufügen). Hostnamen: `cosmo-web.felix-vatterodt.workers.dev`, `cosmo-photos.de`. Modus „Managed“.
 - Lokal, in E2E-Tests und in der Vorschau: `RESEND_API_KEY=log` (verschickt nichts) und die öffentlichen Turnstile-Testschlüssel.
 - Logo-Pfade: `npm run logo:generate` nach Änderungen an `brand/logo-*.svg` (der Lint prüft es).
+
+### Bewegung
+
+- Aktiv nur ohne „Bewegung reduzieren“ (Systemeinstellung). Ein Inline-Skript (`src/lib/motion/boot.ts`) setzt dann `html.has-motion`; alle Bewegungs-Stile hängen daran.
+- Das Intro „Orbit“ läuft beim ersten Aufruf der Startseite pro Browser-Sitzung (`sessionStorage["cosmo-intro"]`). Zum erneuten Ansehen: neues privates Fenster, oder in den Entwicklertools `sessionStorage.removeItem("cosmo-intro")`.
+- E2E-Tests laufen standardmäßig mit reduzierter Bewegung; Bewegungs-Tests stehen in `motion.spec.ts` und `motion-portfolio.spec.ts`.

@@ -23,18 +23,25 @@
     {
       "binding": "MEDIA",
       "bucket_name": "cosmo-media"
+    },
+    // Privat: Galerie-Dateien nur über den Worker mit Galerie-Cookie – nie eine Custom Domain daran hängen.
+    {
+      "binding": "GALLERIES",
+      "bucket_name": "cosmo-galleries"
     }
   ],
   "vars": { "ADMIN_USERNAME": "felix" },
   "ratelimits": [
-    { "name": "LOGIN_LIMITER", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }
+    { "name": "LOGIN_LIMITER", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } },
+    { "name": "GALLERY_LIMITER", "namespace_id": "1003", "simple": { "limit": 5, "period": 60 } }
   ],
   "env": {
     "preview": {
       "name": "cosmo-web-preview",
       "vars": { "ADMIN_USERNAME": "felix" },
       "ratelimits": [
-        { "name": "LOGIN_LIMITER", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } }
+        { "name": "LOGIN_LIMITER", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } },
+        { "name": "GALLERY_LIMITER", "namespace_id": "1004", "simple": { "limit": 5, "period": 60 } }
       ],
       "d1_databases": [
         {
@@ -48,6 +55,10 @@
         {
           "binding": "MEDIA",
           "bucket_name": "cosmo-media-preview"
+        },
+        {
+          "binding": "GALLERIES",
+          "bucket_name": "cosmo-galleries-preview"
         }
       ]
     }

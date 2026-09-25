@@ -1,4 +1,4 @@
-export type RequiredBinding = "DB" | "MEDIA";
+export type RequiredBinding = "DB" | "MEDIA" | "GALLERIES";
 
 /** Wirft eine verständliche Meldung, wenn ein Binding in dieser Umgebung fehlt. */
 export function assertBindings(

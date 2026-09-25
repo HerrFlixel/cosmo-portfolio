@@ -5,7 +5,7 @@ import { createDb, type Db } from "./db/client";
 /** Cloudflare-Bindings der aktuellen Anfrage. Nur in Server-Code aufrufen. */
 export function getEnv(): CloudflareEnv {
   const { env } = getCloudflareContext();
-  assertBindings(env, ["DB", "MEDIA"]);
+  assertBindings(env, ["DB", "MEDIA", "GALLERIES"]);
   return env;
 }
 

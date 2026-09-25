@@ -1,0 +1,1 @@
+ALTER TABLE `galleries` ADD `password_cipher` text DEFAULT '' NOT NULL;

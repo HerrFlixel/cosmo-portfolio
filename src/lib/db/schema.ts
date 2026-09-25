@@ -30,11 +30,12 @@ export const galleries = sqliteTable("galleries", {
   shootDate: text("shoot_date"),
   passwordHash: text("password_hash").notNull(),
   passwordSalt: text("password_salt").notNull(),
+  passwordCipher: text("password_cipher").notNull().default(""),
   expiresAt: text("expires_at"),
   status: text("status", { enum: ["draft", "online"] }).notNull().default("draft"),
   coverImageId: text("cover_image_id"),
   createdAt: createdAt(),
-  updatedAt: text("updated_at").notNull().default(now),
+  updatedAt: text("updated_at").notNull().default(now).$onUpdate(() => now),
 });
 
 export const galleryImages = sqliteTable(

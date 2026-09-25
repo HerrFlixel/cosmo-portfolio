@@ -1,5 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { newContext } from "./helpers/galleries";
+import { luminance } from "./helpers/pixels";
 import { seedCategory } from "./helpers/portfolio";
 
 test.describe.configure({ mode: "serial" });
@@ -32,34 +33,6 @@ test("Bewegung: Kapitel „Licht aus“ dunkelt beim Scrollen ab und wird wieder
   await page.evaluate((y) => window.scrollTo(0, y), top + height * 2.2);
   await expect.poll(opacity(bg), { timeout: 5000 }).toBeLessThan(0.1);
 });
-
-/** Hellster und dunkelster Bildpunkt (Luminanz 0–255) im Kasten, dekodiert in einer leeren Seite (ohne CSP). */
-async function luminance(page: Page, box: { x: number; y: number; width: number; height: number }) {
-  // Nur der sichtbare Teil; liegt nichts im Bild (Szene noch unterwegs), gilt „kein Kontrast“ und expect.poll versucht es erneut.
-  const viewport = page.viewportSize()!;
-  const x = Math.max(0, box.x);
-  const y = Math.max(0, box.y);
-  const clip = { x, y, width: Math.min(viewport.width, box.x + box.width) - x, height: Math.min(viewport.height, box.y + box.height) - y };
-  if (clip.width < 4 || clip.height < 4) return { min: 255, max: 0 };
-  const png = await page.screenshot({ clip });
-  const decoder = await page.context().newPage();
-  const range = await decoder.evaluate(async (data) => {
-    const bitmap = await createImageBitmap(await (await fetch(`data:image/png;base64,${data}`)).blob());
-    const context = new OffscreenCanvas(bitmap.width, bitmap.height).getContext("2d")!;
-    context.drawImage(bitmap, 0, 0);
-    const pixels = context.getImageData(0, 0, bitmap.width, bitmap.height).data;
-    let min = 255;
-    let max = 0;
-    for (let i = 0; i < pixels.length; i += 4) {
-      const value = 0.2126 * pixels[i] + 0.7152 * pixels[i + 1] + 0.0722 * pixels[i + 2];
-      min = Math.min(min, value);
-      max = Math.max(max, value);
-    }
-    return { min, max };
-  }, png.toString("base64"));
-  await decoder.close();
-  return range;
-}
 
 test("Bewegung: der Kapiteltitel bleibt lesbar – hell im Dunkeln, dunkel bei Tageslicht, auch beim Zurückscrollen", async ({ page }) => {
   await page.goto("/");
@@ -125,4 +98,23 @@ test("Bewegung: Cursor wird über Bildern zum Orbit-Ring", async ({ page }) => {
   // Geneigtes Oval wie der Orbit im Logo (die Form sitzt im ::before, GSAP setzt am Element selbst `rotate: none`).
   await expect.poll(() => cursor.evaluate((element) => getComputedStyle(element, "::before").rotate)).toBe("-12deg");
   expect(await cursor.evaluate((element) => getComputedStyle(element, "::before").borderRadius)).toBe("50%");
+});
+
+test("Bewegung: das Kapitelbild fliegt beim Wechsel auf die Kategorieseite (ohne Fehler)", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/");
+  await page.evaluate(() => {
+    const counter = window as unknown as { transitions: number };
+    counter.transitions = 0;
+    const start = document.startViewTransition.bind(document);
+    document.startViewTransition = ((...args: Parameters<typeof start>) => {
+      counter.transitions++;
+      return start(...args);
+    }) as typeof document.startViewTransition;
+  });
+  await page.locator('[data-chapter="floorball"]').getByRole("link", { name: "Alle Floorball-Bilder" }).click();
+  await expect(page).toHaveURL(/\/floorball$/);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { transitions: number }).transitions)).toBeGreaterThan(0);
+  expect(errors).toEqual([]);
 });

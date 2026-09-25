@@ -271,3 +271,43 @@ html.has-cursor :is(input, textarea, select) {
 .has-motion a:has(> .roll) {
   background-image: none;
 }
+
+/* Seitenwechsel (Spec §6.2): Papier-Vorhang – die alte Seite bleibt stehen, die neue wischt vom unteren
+   Bildschirmrand darüber (100vh statt 100 %: die Seite ist viel höher als der Bildschirm). */
+::view-transition-old(.page-exit) {
+  animation: none;
+}
+::view-transition-new(.page-enter) {
+  animation: page-curtain 0.7s var(--ease-expo-in-out) both;
+}
+/* Schnappschüsse sind sonst durchsichtig (das Papier liegt auf body): Die alte Seite schiene durch den Vorhang. */
+::view-transition-old(.page-exit),
+::view-transition-new(.page-enter) {
+  background-color: var(--color-paper);
+}
+/* Offenes Handy-Menü: bleibt stehen, bis der Vorhang es deckt, statt hinter der alten Seite zu verschwinden. */
+::view-transition-old(mobile-menu) {
+  animation: none;
+}
+@keyframes page-curtain {
+  from {
+    clip-path: inset(100vh 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+/* Das Kapitelbild fliegt von der Startseite auf seinen Platz in der Kategorieseite. */
+::view-transition-group(.chapter-flight) {
+  /* Über dem Vorhang: Die neue Seite hat an dieser Stelle ein Loch, das Bild fliegt hinein. */
+  z-index: 1;
+  animation-duration: 0.8s;
+  animation-timing-function: var(--ease-expo-in-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

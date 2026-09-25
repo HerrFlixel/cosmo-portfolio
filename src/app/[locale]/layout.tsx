@@ -7,6 +7,7 @@ import { fontVariables } from "@/app/fonts";
 import { SiteFooter } from "@/components/site/footer";
 import { SiteHeader } from "@/components/site/header";
 import { MotionRoot } from "@/components/motion/motion-root";
+import { PageTransition } from "@/components/motion/page-transition";
 import { routing } from "@/i18n/routing";
 import { bootMotion } from "@/lib/motion/boot";
 import { loadSettings } from "@/lib/public/data";
@@ -39,18 +40,23 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} className={fontVariables} suppressHydrationWarning>
-      <body className="flex min-h-dvh flex-col">
+      <body>
         <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
         <NextIntlClientProvider>
           <MotionRoot>
             <a href="#inhalt" className="skip-link">
               {t("skip")}
             </a>
-            <SiteHeader shopUrl={settings.pictrs_url} />
-            <div id="inhalt" tabIndex={-1} className="flex-1 outline-none">
-              {children}
-            </div>
-            <SiteFooter settings={settings} />
+            {/* Kopf, Inhalt und Fußzeile wechseln gemeinsam: ein bildschirmhoher Vorhang statt einzelner Teile. */}
+            <PageTransition>
+              <div className="flex min-h-dvh flex-col">
+                <SiteHeader shopUrl={settings.pictrs_url} />
+                <div id="inhalt" tabIndex={-1} className="flex-1 outline-none">
+                  {children}
+                </div>
+                <SiteFooter settings={settings} />
+              </div>
+            </PageTransition>
           </MotionRoot>
         </NextIntlClientProvider>
       </body>

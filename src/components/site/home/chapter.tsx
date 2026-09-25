@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { ViewTransition } from "react";
 import { ChapterScene } from "@/components/motion/chapter-scene";
 import { Passepartout } from "@/components/site/passepartout";
 import { Link } from "@/i18n/navigation";
@@ -30,7 +31,9 @@ export async function ChapterSection({ chapter, index, locale }: { chapter: Chap
         <span data-chapter-bg aria-hidden="true" className="absolute inset-0 bg-hall" />
         <div className="relative mx-auto grid w-full max-w-[1400px] items-end gap-10 px-4 py-20 md:grid-cols-12 md:gap-8 md:px-8 md:py-32">
           <div data-chapter-frame className={`relative ${flip ? "md:col-span-7 md:col-start-6 md:row-start-1" : "md:col-span-7"}`}>
-            <Passepartout image={chapter.image} alt={alt(chapter.image, 1)} sizes="(min-width: 768px) 56vw, 100vw" />
+            <ViewTransition name={`chapter-${chapter.category}`} share="chapter-flight">
+              <Passepartout image={chapter.image} alt={alt(chapter.image, 1)} sizes="(min-width: 768px) 56vw, 100vw" />
+            </ViewTransition>
             <span data-chapter-dim aria-hidden="true" className="pointer-events-none absolute inset-0 bg-hall opacity-0" />
           </div>
           {/* Lange Titel ragen über das Kapitelbild statt aus der Seite; die Differenz-Mischung hält sie auf Schwarz und Weiß lesbar. */}

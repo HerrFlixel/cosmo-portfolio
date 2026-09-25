@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { difference } from "./helpers/pixels";
 
 const skipIntro = () => sessionStorage.setItem("cosmo-intro", "seen");
 
@@ -101,6 +102,26 @@ test.describe("Handy-Menü", () => {
     await page.keyboard.press("Escape");
     await expect(page.locator("html")).not.toHaveClass(/lenis-stopped/);
   });
+
+  test("Bewegung: Seitenwechsel aus dem Menü – das Menü bleibt stehen, bis der Vorhang es deckt", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/ueber-mich");
+    await page.getByRole("button", { name: "Menü" }).click();
+    const link = page.locator("#mobile-menu").getByRole("link", { name: "Kontakt" });
+    await link.hover();
+    await page.waitForTimeout(1200);
+    const band = { x: 0, y: 80, width: 390, height: 300 };
+    const before = await page.screenshot({ clip: band });
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Animation.enable");
+    await cdp.send("Animation.setPlaybackRate", { playbackRate: 0.1 });
+    await link.click();
+    await page.waitForFunction(() => document.documentElement.matches(":active-view-transition"));
+    await page.waitForTimeout(1500);
+    expect(await difference(page, before, await page.screenshot({ clip: band }))).toBeLessThan(0.02);
+    await expect(page).toHaveURL(/\/kontakt$/);
+    await expect(page.locator("#mobile-menu")).toHaveCount(0, { timeout: 10_000 });
+  });
 });
 
 test.describe("Mikro-Interaktionen", () => {
@@ -155,4 +176,58 @@ test("Bewegung: mit „weniger Bewegung“ kein eigener Cursor, kein Fortschritt
   await expect(page.locator("[data-cursor]")).toHaveCount(0);
   await expect(page.locator("[data-scroll-progress]")).toHaveCount(0);
   await expect(page.getByRole("banner").getByRole("link", { name: "Kontakt" }).locator(".roll-b")).toBeHidden();
+});
+
+const countTransitions = () => {
+  const counter = window as unknown as { transitions: number };
+  counter.transitions = 0;
+  const start = document.startViewTransition.bind(document);
+  document.startViewTransition = ((...args: Parameters<typeof start>) => {
+    counter.transitions++;
+    return start(...args);
+  }) as typeof document.startViewTransition;
+};
+const transitions = () => (window as unknown as { transitions: number }).transitions;
+
+test.describe("Seitenwechsel", () => {
+  test.use({ reducedMotion: "no-preference" });
+
+  test("Bewegung: Seitenwechsel läuft als View Transition (Papier-Vorhang)", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/ueber-mich");
+    await page.evaluate(countTransitions);
+    await page.getByRole("banner").getByRole("link", { name: "Kontakt" }).click();
+    await expect(page).toHaveURL(/\/kontakt$/);
+    await expect.poll(() => page.evaluate(transitions)).toBeGreaterThan(0);
+  });
+
+  test("Bewegung: beim Seitenwechsel bleibt die alte Seite stehen, bis der Vorhang sie von unten deckt", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/");
+    const link = page.getByRole("link", { name: "Mehr über mich" });
+    await link.scrollIntoViewIfNeeded();
+    await link.hover();
+    await page.waitForTimeout(1500);
+    // Oberes Band des Bildschirms: Dort zeigt der Vorhang anfangs noch die alte Seite, genau wie vor dem Klick.
+    const band = { x: 0, y: 90, width: 900, height: 300 };
+    const before = await page.screenshot({ clip: band });
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Animation.enable");
+    await cdp.send("Animation.setPlaybackRate", { playbackRate: 0.1 });
+    await link.click();
+    await page.waitForFunction(() => document.documentElement.matches(":active-view-transition"));
+    await page.waitForTimeout(1500);
+    const during = await page.screenshot({ clip: band });
+    expect(await difference(page, before, during)).toBeLessThan(0.02);
+  });
+
+  test("Bewegung: ein Formular in der Seite löst keinen Vorhang aus", async ({ page }) => {
+    await page.addInitScript(skipIntro);
+    await page.goto("/kunden");
+    await page.evaluate(countTransitions);
+    await page.getByLabel("Galerie-Code").fill("gibt-es-nicht");
+    await page.getByRole("button", { name: "Galerie öffnen" }).click();
+    await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
+    expect(await page.evaluate(transitions)).toBe(0);
+  });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, ViewTransition } from "react";
 import { Passepartout } from "@/components/site/passepartout";
 import type { Box } from "@/lib/motion/geometry";
 import { PublicLightbox, type LightboxImage } from "./lightbox";
@@ -10,7 +10,7 @@ const COLUMN_OFFSETS = ["", "lg:mt-[24vh]", "lg:mt-[10vh]"];
 // Unterschiedliches Scrolltempo pro Spalte (Spec §6.2); unter lg lösen sich die Spalten auf, dann wirkt es nicht.
 const COLUMN_SPEEDS: (string | undefined)[] = [undefined, "0.18", "0.08"];
 
-export function CategoryGrid({ images }: { images: LightboxImage[] }) {
+export function CategoryGrid({ images, category, chapterImageId }: { images: LightboxImage[]; category: string; chapterImageId: string | null }) {
   const [open, setOpen] = useState<number | null>(null);
   const [origin, setOrigin] = useState<Box | null>(null);
   const close = useCallback(() => setOpen(null), []);
@@ -37,7 +37,14 @@ export function CategoryGrid({ images }: { images: LightboxImage[] }) {
                 style={{ order: index }}
                 className="block w-full cursor-zoom-in text-left"
               >
-                <Passepartout image={image} alt={image.alt} sizes="(min-width: 1024px) 28vw, (min-width: 768px) 44vw, 86vw" />
+                {image.id === chapterImageId ? (
+                  // Ziel des Kapitelbild-Flugs von der Startseite (Spec §6.2).
+                  <ViewTransition name={`chapter-${category}`} share="chapter-flight">
+                    <Passepartout image={image} alt={image.alt} sizes="(min-width: 1024px) 28vw, (min-width: 768px) 44vw, 86vw" />
+                  </ViewTransition>
+                ) : (
+                  <Passepartout image={image} alt={image.alt} sizes="(min-width: 1024px) 28vw, (min-width: 768px) 44vw, 86vw" />
+                )}
               </button>
             ))}
           </div>

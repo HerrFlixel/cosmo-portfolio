@@ -61,7 +61,7 @@ export default async function CategoryPage({ params }: Props) {
       </div>
       {images.length > 0 && (
         <div className="relative z-10 -mt-[45svh]">
-          <CategoryGrid images={images} />
+          <CategoryGrid images={images} category={category} chapterImageId={content.nav.find((item) => item.category === category)?.cover?.id ?? null} />
         </div>
       )}
       <CategoryPill current={category} items={pill} />

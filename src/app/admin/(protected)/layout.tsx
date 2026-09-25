@@ -20,7 +20,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
             </li>
           ))}
           <li><Link href="/admin/texte">Texte &amp; Links</Link></li>
-          <li className="text-stone">Galerien (folgt)</li>
+          <li><Link href="/admin/galerien">Galerien</Link></li>
         </ul>
         <form action={logout} className="mt-10">
           <button type="submit" className="text-sm underline">Abmelden</button>

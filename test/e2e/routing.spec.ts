@@ -84,16 +84,21 @@ test.describe("Spracherkennung", () => {
 test.describe("Nicht lokalisierte Bereiche", () => {
   test.use({ locale: "en-US" });
 
-  test("/admin und /g/… werden nie umgeleitet", async ({ page }) => {
-    for (const path of ["/admin", "/g/test-galerie"]) {
+  test("/admin, /g/… und /media/… werden nie lokalisiert", async ({ page }) => {
+    const cases = [
+      ["/admin/login", 200],
+      ["/g/test-galerie", 404],
+      ["/media/portfolio/00000000-0000-4000-8000-000000000000/800", 404],
+    ] as const;
+    for (const [path, status] of cases) {
       const res = await page.goto(path);
       expect(pathOf(page.url()), path).toBe(path);
-      expect(res?.status(), path).toBe(404);
+      expect(res?.status(), path).toBe(status);
     }
   });
 
   test("unbekannte Seiten außerhalb der Sprachen zeigen die gestaltete 404-Seite", async ({ page }) => {
-    for (const path of ["/admin", "/g/vertippt", "/api/x"]) {
+    for (const path of ["/admin/gibts-nicht", "/g/vertippt", "/api/x"]) {
       const res = await page.goto(path);
       expect(res?.status(), path).toBe(404);
       await expect(page.getByText("404 · Seite nicht gefunden / Page not found"), path).toBeVisible();

@@ -5,6 +5,6 @@ import { routing } from "./i18n/routing";
 export default createMiddleware(routing);
 
 export const config = {
-  // Nicht lokalisiert: /api, /g (Kundengalerien), /admin, Next-Interna und Dateien mit Endung.
-  matcher: ["/((?!api(?:/|$)|g(?:/|$)|admin(?:/|$)|_next|_vercel|.*\\..*).*)"],
+  // Nicht lokalisiert: /api, /g (Kundengalerien), /admin, /media (Bilder), Next-Interna und Dateien mit Endung.
+  matcher: ["/((?!api(?:/|$)|g(?:/|$)|admin(?:/|$)|media(?:/|$)|_next|_vercel|.*\\..*).*)"],
 };

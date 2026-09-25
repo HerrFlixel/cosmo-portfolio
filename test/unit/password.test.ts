@@ -36,8 +36,6 @@ describe("password hashing (PBKDF2)", () => {
   it("verifies the local test hash that scripts/hash-password.mts wrote into .dev.vars.example", async () => {
     const line = devVars.split("\n").find((l) => l.startsWith("ADMIN_PASSWORD_HASH="));
     expect(line).toBeDefined();
-    // Wrangler liest .dev.vars mit dotenv-expand: "\$" wird dabei zu "$".
-    const hash = line!.slice("ADMIN_PASSWORD_HASH=".length).trim().replace(/\\\$/g, "$");
-    expect(await verifyPassword("lokal-test-passwort", hash)).toBe(true);
+    expect(await verifyPassword("lokal-test-passwort", line!.slice("ADMIN_PASSWORD_HASH=".length).trim())).toBe(true);
   });
 });

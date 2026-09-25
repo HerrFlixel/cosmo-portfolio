@@ -8,6 +8,20 @@ const nextConfig: NextConfig = {
   images: { unoptimized: true },
   // 404 für Anfragen außerhalb von [locale] (z. B. /admin vor Plan 2)
   experimental: { globalNotFound: true },
+  async headers() {
+    return [
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "same-origin" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

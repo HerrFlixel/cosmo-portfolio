@@ -1,30 +1,30 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
-import { CATEGORIES, type Category } from "@/lib/categories";
+import { AboutTeaser } from "@/components/site/home/about-teaser";
+import { ChapterSection } from "@/components/site/home/chapter";
+import { Closing } from "@/components/site/home/closing";
+import { HomeHero } from "@/components/site/home/hero";
+import type { Locale } from "@/i18n/pathnames";
+import { loadHome, loadSettings } from "@/lib/public/data";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations();
+  const lang = locale as Locale;
+  const [t, home, settings] = await Promise.all([getTranslations("home"), loadHome(), loadSettings()]);
+  const headline = (lang === "de" ? settings.hero_headline_de : settings.hero_headline_en) || t("headline");
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-24">
-      <p className="font-label text-xs text-stone">Cosmo Photos</p>
-      <h1 className="font-display mt-4 text-6xl leading-[0.95]">{t("home.headline")}</h1>
-      <p className="mt-6 max-w-md text-stone">{t("home.intro")}</p>
-
-      <ol className="mt-16 space-y-3">
-        {CATEGORIES.map((category, i) => (
-          <li key={category} className="flex items-baseline gap-4">
-            <span className="font-label text-xs text-stone">{String(i + 1).padStart(2, "0")}</span>
-            <Link href={`/${category}` as `/${Category}`} className="font-sport text-5xl">
-              {t(`categories.${category}`)}
-            </Link>
-          </li>
+    <main>
+      <HomeHero headline={headline} heroes={home.heroes} counts={home.counts} locale={lang} />
+      {home.chapters
+        .filter((chapter) => chapter.image)
+        .map((chapter, index) => (
+          <ChapterSection key={chapter.category} chapter={chapter} index={index} locale={lang} />
         ))}
-      </ol>
+      <AboutTeaser settings={settings} locale={lang} />
+      <Closing settings={settings} />
     </main>
   );
 }

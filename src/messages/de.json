@@ -4,8 +4,16 @@
     "description": "Floorball, Volleyball, Fußball, Hochzeiten und Studio – Fotografie von Felix Vatterodt aus Hamburg."
   },
   "home": {
-    "headline": "Hallen, Rauch, Gänsehaut.",
-    "intro": "Sport- und Hochzeitsfotografie aus Hamburg."
+    "headline": "Hallen, Rauch, *Gänsehaut.*",
+    "index": "Kategorien",
+    "allPhotos": "Alle {category}-Bilder",
+    "photos": "Fotos",
+    "photoAlt": "{category}, Foto {number}",
+    "aboutTitle": "Über mich",
+    "aboutFallback": "Fotografie aus Hamburg. Am Spielfeldrand, bei Hochzeiten und im Studio.",
+    "aboutLink": "Mehr über mich",
+    "portraitAlt": "Porträt von Felix Vatterodt",
+    "closingTitle": "Kontakt"
   },
   "categories": {
     "floorball": "Floorball",

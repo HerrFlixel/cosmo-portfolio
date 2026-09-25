@@ -4,8 +4,16 @@
     "description": "Floorball, volleyball, football, weddings and studio – photography by Felix Vatterodt from Hamburg."
   },
   "home": {
-    "headline": "Halls, smoke, goosebumps.",
-    "intro": "Sports and wedding photography from Hamburg."
+    "headline": "Halls, smoke, *goosebumps.*",
+    "index": "Categories",
+    "allPhotos": "All {category} photos",
+    "photos": "photos",
+    "photoAlt": "{category}, photo {number}",
+    "aboutTitle": "About me",
+    "aboutFallback": "Photography from Hamburg. Courtside, at weddings and in the studio.",
+    "aboutLink": "More about me",
+    "portraitAlt": "Portrait of Felix Vatterodt",
+    "closingTitle": "Contact"
   },
   "categories": {
     "floorball": "Floorball",

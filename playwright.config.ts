@@ -5,7 +5,8 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:8787";
 
 export default defineConfig({
   testDir: "./test/e2e",
-  testIgnore: ["**/._*"],
+  // Lasttest und Launch-Check nur auf Zuruf (npm run test:load / test:launch).
+  testIgnore: ["**/._*", ...(process.env.LOAD ? [] : ["**/load-gallery.spec.ts"]), ...(process.env.LAUNCH ? [] : ["**/launch.spec.ts"])],
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
   // Standard ohne Bewegung (stabil); Bewegungs-Tests schalten mit test.use({ reducedMotion: "no-preference" }) zu.

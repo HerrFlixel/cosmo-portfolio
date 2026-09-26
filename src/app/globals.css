@@ -141,6 +141,17 @@ body {
     transform: scale(1.03);
   }
 }
+/* Kapitelbild (Spec §6.1): Die fixierte Szene muss auf einen Bildschirm passen, sonst liegen Titel und Zähler darunter.
+   Passepartout-Höhe = Breite × (Seitenverhältnis + 2 × 6 % Rand). Platz = Bildschirm − Innenabstand;
+   auf dem Handy zusätzlich − Abstand und Titelblock darunter (Titel max(3.5rem, 11vw), Zähler 2.5rem). */
+.chapter-frame {
+  max-width: calc((100svh - 15rem - max(3.5rem, 11vw)) / (var(--ratio) + 0.12));
+}
+@media (width >= 48rem) {
+  .chapter-frame {
+    max-width: calc((100svh - 16rem) / (var(--ratio) + 0.12));
+  }
+}
 /* Ohne JavaScript gibt es kein onLoad: Bilder sofort zeigen. */
 @media (scripting: none) {
   .passepartout-photo {

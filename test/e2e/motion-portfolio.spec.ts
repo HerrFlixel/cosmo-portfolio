@@ -11,7 +11,8 @@ test.use({ reducedMotion: "no-preference" });
 test.beforeAll(async ({ browser }) => {
   const admin = await newContext(browser, { admin: true });
   const page = await admin.newPage();
-  await seedCategory(page, "floorball", [{ role: "chapter" }, { role: "chapter_preview" }, { role: "chapter_preview", portrait: true }, {}, { portrait: true }, {}]);
+  // Hochkant-Kapitelbild: machte die fixierte Szene höher als den Bildschirm, der Titel lag darunter (Felix, 2026-09-26).
+  await seedCategory(page, "floorball", [{ role: "chapter", portrait: true }, { role: "chapter_preview" }, { role: "chapter_preview", portrait: true }, {}, { portrait: true }, {}]);
   await admin.close();
 });
 
@@ -64,6 +65,23 @@ test("Bewegung: der Kapiteltitel bleibt lesbar – hell im Dunkeln, dunkel bei T
   await solid();
   // Zurück in die Szene: wieder hell.
   await middle();
+});
+
+test("Bewegung: die Szene passt auf einen Bildschirm – bei Hochkant-Kapitelbild stehen Titel und Zähler im Vollbild (Desktop, kleines Handy)", async ({ page }) => {
+  for (const viewport of [{ width: 1280, height: 720 }, { width: 375, height: 667 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    const stage = page.locator('[data-chapter="floorball"] [data-chapter-stage]');
+    const title = stage.locator("[data-chapter-title]");
+    expect(await stage.evaluate((element) => element.getBoundingClientRect().height)).toBeLessThanOrEqual(viewport.height + 1);
+    const top = await stage.evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
+    const length = (viewport.width < 768 ? 1.1 : 1.8) * viewport.height;
+    await page.evaluate((y) => window.scrollTo(0, y), top + length * 0.58);
+    await expect.poll(() => title.locator("h2").evaluate((element) => getComputedStyle(element).opacity), { timeout: 5000 }).toBe("1");
+    const box = (await title.boundingBox())!;
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+  }
 });
 
 test("Bewegung: mit „weniger Bewegung“ bleibt das Kapitel ein statisches dunkles Band", async ({ browser }) => {

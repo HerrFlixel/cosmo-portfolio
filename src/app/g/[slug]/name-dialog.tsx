@@ -25,10 +25,10 @@ export function NameDialog({ onSubmit, onCancel }: Props) {
             value={name}
             maxLength={40}
             onChange={(event) => setName(event.target.value)}
-            className="mt-3 block w-full border-b border-ink/30 bg-transparent py-2 font-sans text-base outline-none focus:border-ink"
+            className="mt-3 block w-full border-b border-ink/60 bg-transparent py-2 font-sans text-base outline-none focus:border-ink focus-visible:shadow-[inset_0_-2px_0_0_var(--color-ink)]"
           />
         </label>
-        <p className="text-sm text-stone">{t("nameHint")}</p>
+        <p className="text-sm text-muted">{t("nameHint")}</p>
         <div className="flex justify-end gap-4 text-sm">
           <button type="button" onClick={onCancel} className="underline">
             {t("cancel")}

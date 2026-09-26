@@ -103,3 +103,11 @@ test("Rahmen: Favicon, App-Icon und Vorschaubild sind eingebunden und erreichbar
   // „C“ mit Ringausschnitt (Spec §5.1)
   expect(await (await request.get(svgIcon!)).text()).toContain('viewBox="2 14 53 53"');
 });
+
+test("Rahmen: Formularfelder zeigen beim Fokus einen deutlichen Unterstrich (WCAG 2.4.7)", async ({ page }) => {
+  await page.goto("/kunden");
+  const field = page.getByLabel("Galerie-Code");
+  expect(await field.evaluate((element) => getComputedStyle(element).boxShadow)).toBe("none");
+  await field.focus();
+  expect(await field.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe("none");
+});

@@ -32,7 +32,7 @@ export default async function GalleryPage({ params }: Props) {
       <main className="grid min-h-dvh place-items-center px-6 text-center">
         <div>
           <h1 className="font-display text-4xl">{t("expiredTitle")}</h1>
-          <p className="mt-4 text-stone">{t("expiredText")}</p>
+          <p className="mt-4 text-muted">{t("expiredText")}</p>
           <Link href="/kontakt" className="mt-8 inline-block underline">
             {t("contact")}
           </Link>
@@ -47,7 +47,7 @@ export default async function GalleryPage({ params }: Props) {
     return (
       <main className="grid min-h-dvh place-items-center px-6">
         <div className="flex w-full flex-col items-center text-center">
-          <p className="font-label text-xs text-stone">{t("private")}</p>
+          <p className="font-label text-xs text-muted">{t("private")}</p>
           <h1 className="font-display mt-3 text-5xl">{gallery.title}</h1>
           <PasswordForm slug={slug} />
           <div className="mt-10">

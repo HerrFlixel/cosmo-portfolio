@@ -100,9 +100,9 @@ export function GalleryView({ slug, title, shootDate, expiresAt, coverId, images
       )}
       <header className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p className="font-label text-xs text-stone">Cosmo Photos</p>
+          <p className="font-label text-xs text-muted">Cosmo Photos</p>
           <h1 className="font-display mt-2 text-5xl">{title}</h1>
-          <p className="mt-3 font-label text-xs text-stone">{meta}</p>
+          <p className="mt-3 font-label text-xs text-muted">{meta}</p>
         </div>
         <div className="flex flex-col items-end gap-3 text-sm">
           <LocaleSwitch />
@@ -120,7 +120,7 @@ export function GalleryView({ slug, title, shootDate, expiresAt, coverId, images
       )}
 
       {images.length === 0 ? (
-        <p className="mt-16 text-stone">{t("empty")}</p>
+        <p className="mt-16 text-muted">{t("empty")}</p>
       ) : (
         <ul data-testid="gallery-grid" className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {visible.map((image, index) => {

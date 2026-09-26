@@ -20,7 +20,7 @@ declare global {
 }
 
 const control =
-  "mt-2 block w-full border-b border-ink/60 bg-transparent py-3 text-lg outline-none transition-colors focus:border-ink aria-[invalid=true]:border-alert";
+  "mt-2 block w-full border-b border-ink/60 bg-transparent py-3 text-lg outline-none transition-colors focus:border-ink focus-visible:shadow-[inset_0_-2px_0_0_var(--color-ink)] aria-[invalid=true]:border-alert";
 
 /**
  * Netzwerk- oder Serverfehler (Antwort abgebrochen, Worker neu gestartet): Hinweis mit Mail-Adresse statt Fehlerseite,

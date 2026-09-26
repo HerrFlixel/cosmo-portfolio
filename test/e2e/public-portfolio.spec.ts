@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { expectNoViolations } from "./helpers/a11y";
 import { newContext } from "./helpers/galleries";
 import { seedCategory } from "./helpers/portfolio";
 
@@ -146,4 +147,16 @@ test("Leere Kategorie: Hinweis steht unter dem Titel statt darüber", async ({ p
   const title = await page.getByRole("heading", { level: 1 }).boundingBox();
   const note = await empty.boundingBox();
   expect(note!.y).toBeGreaterThanOrEqual(title!.y + title!.height);
+});
+
+test("Barrierefreiheit (axe): Kategorie, Lightbox und Handy-Menü", async ({ page }) => {
+  await page.goto("/hochzeiten");
+  await expectNoViolations(page, "/hochzeiten");
+  await page.getByRole("button", { name: "Hochzeiten, Foto 1" }).click();
+  await expect(page.getByTestId("lightbox")).toBeVisible();
+  await expectNoViolations(page, "/hochzeiten mit Lightbox");
+  await page.keyboard.press("Escape");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Menü" }).click();
+  await expectNoViolations(page, "Handy-Menü");
 });

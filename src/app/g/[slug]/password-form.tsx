@@ -16,7 +16,7 @@ export function PasswordForm({ slug }: { slug: string }) {
           type="password"
           autoComplete="current-password"
           required
-          className="mt-1 block w-full border-b border-ink/30 bg-transparent py-2 font-label tracking-widest outline-none focus:border-ink"
+          className="mt-1 block w-full border-b border-ink/60 bg-transparent py-2 font-label tracking-widest outline-none focus:border-ink focus-visible:shadow-[inset_0_-2px_0_0_var(--color-ink)]"
         />
       </label>
       {state.error && (

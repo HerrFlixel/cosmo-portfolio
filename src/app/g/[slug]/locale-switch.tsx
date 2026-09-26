@@ -11,7 +11,7 @@ export function LocaleSwitch() {
   return (
     <button
       type="button"
-      className="font-label text-xs text-stone underline"
+      className="font-label text-xs text-muted underline"
       onClick={() => {
         document.cookie = `NEXT_LOCALE=${locale === "de" ? "en" : "de"}; Path=/; Max-Age=31536000; SameSite=Lax`;
         router.refresh();

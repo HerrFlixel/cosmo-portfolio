@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { expectNoViolations } from "./helpers/a11y";
 import { newContext } from "./helpers/galleries";
 import { luminance } from "./helpers/pixels";
 import { seedCategory } from "./helpers/portfolio";
@@ -133,4 +134,12 @@ test("Bewegung: Zurück landet wieder an der vorherigen Stelle der Startseite", 
   await expect(page).toHaveURL(/\/$/);
   await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 }).toBeGreaterThan(before - 80);
   expect(await page.evaluate(() => window.scrollY)).toBeLessThan(before + 80);
+});
+
+test("Bewegung: Barrierefreiheit (axe) auf Startseite und Kategorie", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('[data-chapter="floorball"]')).toBeVisible();
+  await expectNoViolations(page, "/ mit Bewegung");
+  await page.goto("/floorball");
+  await expectNoViolations(page, "/floorball mit Bewegung");
 });

@@ -22,7 +22,7 @@ export function GalleryCodeForm() {
         spellCheck={false}
         aria-invalid={state.error ? true : undefined}
         aria-describedby={state.error ? "gallery-code-hint gallery-code-error" : "gallery-code-hint"}
-        className="mt-2 block w-full border-b border-ink/60 bg-transparent py-3 font-label text-lg outline-none transition-colors focus:border-ink aria-[invalid=true]:border-alert"
+        className="mt-2 block w-full border-b border-ink/60 bg-transparent py-3 font-label text-lg outline-none transition-colors focus:border-ink focus-visible:shadow-[inset_0_-2px_0_0_var(--color-ink)] aria-[invalid=true]:border-alert"
       />
       <p id="gallery-code-hint" className="mt-3 text-sm text-muted">
         {t("hint")}

@@ -2789,3 +2789,55 @@ Erwartet:
 3. Optional: Google Search Console und Sitemap (siehe README).
 
 Bei Problemen: Rückweg laut README und Ursache klären.
+
+---
+
+## Review nach Abschluss (Tasks 1–12, 2026-09-26)
+
+**Status:** Tasks 1–12 ✅ abgeschlossen, auf `main` gepusht und auf https://cosmo-web.felix-vatterodt.workers.dev live. **Task 13 (Umzug) steht aus:** Er läuft erst, wenn `npm run test:launch` grün ist (Inhalte), Resend verifiziert ist und Felix das Go gibt.
+
+**Tests:**
+- lokal: Lint grün, Unit 172, E2E 137 (Chromium + WebKit)
+- Vorschau: 137/137
+- Produktion: 58/58
+- Lasttest (Vorschau): 1 100 Originale, 3 ZIP-Teile (≈ 2,15 GiB), alle mit `unzip -t` geprüft, kein CPU-Abbruch
+- Launch-Check gegen die Produktion: 10/10 rot, erwartet (Inhalte fehlen noch)
+
+**Lighthouse (Vorschau, mobil, Median):**
+
+| Seite | vorher | nachher |
+|---|---|---|
+| Start | 65 · LCP 5,9 s | 91 · LCP 1,1 s |
+| Floorball | 80 · LCP 5,1 s | 99 · LCP 1,5 s |
+| Über mich | 80 · LCP 5,1 s | 84 · LCP 4,6 s (simuliert; gemessen 1,0–1,8 s) |
+| Englisch | – | 93 · LCP 1,1 s |
+
+Barrierefreiheit und Best Practices 100; SEO erst auf der Domain aussagekräftig.
+
+**Abschließendes Review:** 0 kritisch; 2 wichtige Befunde behoben:
+- Galerie-Bremse ließ sich mit parallelen Anfragen umgehen (jetzt Eintragen und Zählen in einem D1-Batch, richtige Versuche werden wieder gelöscht; Index auf `at`)
+- Umzugsanleitung: Zonen-Funktionen aus WordPress-Zeiten zuerst ausschalten; Worker-Routen statt DNS-Löschung
+
+### Entscheidungen während der Umsetzung
+
+| Punkt | Entscheidung | Grund |
+|---|---|---|
+| Edge-Cache und Löschen | Löschen leert den Cache des Standorts, Rand-Kopie lebt 1 Tag (Browser 1 Jahr) | gelöschte Fotos dürfen nicht ein Jahr weiterleben |
+| CSP und Zod | `z.config({ jitless: true })` statt `'unsafe-eval'` | Zods Eval-Probe meldete auf `/kontakt` einen Verstoß |
+| Favicon | Papierkachel mit transparenten Ecken | Turbopacks ICO-Decoder verlangt ein RGBA-PNG |
+| Startseiten-URL | ohne Schrägstrich (`https://cosmo-photos.de`) | Next normalisiert die Canonical-URL so; Sitemap, hreflang und JSON-LD stimmen überein |
+| CSS | im HTML (`inlineCss`) | LCP der Unterseiten 5 s → 1,5 s |
+| Prioritätsbilder | `preload` im Kopf | Bild vor den Skripten |
+| CPU-Limit | `cpu_ms` 300 000 | gemessen ≈ 24 ms CPU pro MiB ZIP, ein 2-GB-Teil bräuchte ≈ 50 s |
+| „Über mich“ 84 | offen | fünf Schriftdateien (≈ 325 KB) teilen sich die simulierte Bandbreite; kleinere Bodoni ändert den Look → Felix entscheidet |
+
+### Für später
+
+- **Task 13 (Umzug):** Checkliste im README, „Umzug auf cosmo-photos.de“.
+- **Kleinere Punkte (aufgeschoben):**
+  - WordPress-Links mit zwei statt einem Sprung.
+  - CSP-Konsolenmeldungen auf der globalen 404.
+  - `npm run dev` ohne Bilder.
+  - Cache-Leerung nur für die Admin-Adresse.
+  - `robots.txt` auf workers.dev verbirgt das `noindex`.
+- **Idee:** ZIP-Stream nativ pipen (IdentityTransformStream), statt jedes Stück in JavaScript weiterzureichen. Senkt die CPU pro MiB deutlich.

@@ -1,6 +1,7 @@
 import { adminApiGuard } from "@/lib/auth/admin";
 import { getDb, getEnv } from "@/lib/env";
 import { jsonError, readJson } from "@/lib/http";
+import { edgeCache, purgeMedia } from "@/lib/media/edge-cache";
 import { isUuid } from "@/lib/media/keys";
 import { PortfolioError, deleteImage, setRole, updateImage, type PortfolioImage } from "@/lib/portfolio/repo";
 import { patchImageSchema } from "@/lib/portfolio/validation";
@@ -39,6 +40,8 @@ export async function DELETE(request: Request, { params }: Params) {
   if (!isUuid(id)) return jsonError("Bild nicht gefunden.", 404);
   try {
     await deleteImage(getDb(), getEnv().MEDIA, id);
+    // Gelöschte Bilder sofort auch aus dem Edge-Cache dieses Standorts (Plan 6).
+    await purgeMedia(edgeCache(), new URL(request.url).origin, "portfolio", id);
     return new Response(null, { status: 204 });
   } catch (error) {
     return portfolioErrorResponse(error);

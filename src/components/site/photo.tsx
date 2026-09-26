@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { preload } from "react-dom";
 
 type Props = {
   src: string;
@@ -16,6 +17,11 @@ type Props = {
 /** Blendet weich ein, sobald das Bild geladen ist; bis dahin zeigt das Fenster den Hauptfarbton (Spec §4.3). */
 export function Photo({ alt, priority = false, className = "", ...image }: Props) {
   const ref = useRef<HTMLImageElement>(null);
+  // Prioritätsbilder (LCP) schon im <head> ankündigen, vor den Skripten: Sonst stehen sie auf langsamen Netzen hinter
+  // dem JavaScript an (Plan 6, Lighthouse). React hebt den Hinweis beim Server-Rendern in den Kopf.
+  if (priority) {
+    preload(image.src, { as: "image", fetchPriority: "high", ...(image.srcSet ? { imageSrcSet: image.srcSet, imageSizes: image.sizes } : {}) });
+  }
 
   // Aus dem Cache geladene Bilder feuern vor der Hydration kein onLoad mehr.
   useEffect(() => {

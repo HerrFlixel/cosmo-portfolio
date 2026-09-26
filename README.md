@@ -71,3 +71,12 @@ Admin-Benutzername: `ADMIN_USERNAME` in `wrangler.jsonc` (`felix`).
 - Aktiv nur ohne „Bewegung reduzieren“ (Systemeinstellung). Ein Inline-Skript (`src/lib/motion/boot.ts`) setzt dann `html.has-motion`; alle Bewegungs-Stile hängen daran.
 - Das Intro „Orbit“ läuft beim ersten Aufruf der Startseite pro Browser-Sitzung (`sessionStorage["cosmo-intro"]`). Zum erneuten Ansehen: neues privates Fenster, oder in den Entwicklertools `sessionStorage.removeItem("cosmo-intro")`.
 - E2E-Tests laufen standardmäßig mit reduzierter Bewegung; Bewegungs-Tests stehen in `motion.spec.ts` und `motion-portfolio.spec.ts`.
+
+### Performance
+
+- Messen: `npm run lighthouse -- <URL> …` (mobil, simuliertes 4G, Median aus 3 Läufen nach einem Aufwärm-Aufruf; Berichte in `.lighthouse/`).
+- Ziel (Spec §10/§11): Performance, Barrierefreiheit, Best Practices und SEO ≥ 90, LCP < 2,5 s. SEO erst auf `cosmo-photos.de` aussagekräftig (Vorschau und workers.dev sind `noindex`).
+- Das Intro läuft als „Seite zuerst“: Die Startseite ist gezeichnet, bevor das Intro endet. Zeilen-Reveals gibt es nur unterhalb des ersten Bildschirms.
+- CSS steht im HTML (`experimental.inlineCss`), Prioritätsbilder werden per `preload` im Kopf angekündigt.
+- Worker-Kaltstarts (großes OpenNext-Bundle) kosten beim ersten Aufruf nach einer Pause bis zu ≈ 1,5 s Serverzeit.
+- Stand Plan 6 (Vorschau, Median): Start 91, Floorball 99, Englisch 93, Über mich 84. Auf „Über mich“ teilen sich im simulierten 4G fünf vorab geladene Schriftdateien (≈ 325 KB) die Bandbreite mit dem Porträt; gemessen ist das Porträt nach 1–1,8 s da.

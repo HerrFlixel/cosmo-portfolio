@@ -6,8 +6,9 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   // Keine Next-Bildoptimierung: Bildgrößen entstehen beim Upload (Spec §3.3).
   images: { unoptimized: true },
-  // 404 für Anfragen außerhalb von [locale] (z. B. /admin vor Plan 2)
-  experimental: { globalNotFound: true },
+  // globalNotFound: 404 für Anfragen außerhalb von [locale] (z. B. /admin vor Plan 2).
+  // inlineCss (Plan 6): CSS (≈ 12 KB gzip) steht im HTML statt als render-blockierende Datei (Lighthouse: LCP 5 → 1,5 s).
+  experimental: { globalNotFound: true, inlineCss: true },
   // Alte WordPress-Adressen (Stand 2026-09) auf die neuen Seiten: Links von außen und Suchmaschinen landen richtig.
   // Next entfernt vorher den Schrägstrich am Ende (/biography/ → /biography → /ueber-mich).
   async redirects() {

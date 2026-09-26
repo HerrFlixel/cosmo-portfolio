@@ -45,4 +45,6 @@ test("Porträt hochladen, speichern und behalten", async ({ page }) => {
   const portraitImage = page.locator("main .passepartout img");
   await expect(portraitImage).toHaveAttribute("loading", "eager");
   await expect(portraitImage).toHaveAttribute("fetchpriority", "high");
+  // Vor den Skripten im <head> angekündigt, damit es nicht hinter dem JavaScript ansteht (Lighthouse, 4G).
+  await expect(page.locator('head link[rel="preload"][as="image"][fetchpriority="high"]')).toHaveAttribute("href", /\/media\/site\/[0-9a-f-]{36}\/1600$/);
 });

@@ -80,3 +80,32 @@ Admin-Benutzername: `ADMIN_USERNAME` in `wrangler.jsonc` (`felix`).
 - CSS steht im HTML (`experimental.inlineCss`), Prioritätsbilder werden per `preload` im Kopf angekündigt.
 - Worker-Kaltstarts (großes OpenNext-Bundle) kosten beim ersten Aufruf nach einer Pause bis zu ≈ 1,5 s Serverzeit.
 - Stand Plan 6 (Vorschau, Median): Start 91, Floorball 99, Englisch 93, Über mich 84. Auf „Über mich“ teilen sich im simulierten 4G fünf vorab geladene Schriftdateien (≈ 325 KB) die Bandbreite mit dem Porträt; gemessen ist das Porträt nach 1–1,8 s da.
+
+### Umzug auf cosmo-photos.de
+
+**Vorher (👤 Felix):**
+1. Fotos je Kategorie, Porträt, Texte, Impressum und Datenschutz im Admin; Instagram- und Shop-Link unter „Texte & Links“.
+2. Kontakt-Secrets setzen: `bash scripts/set-contact-secrets.sh`.
+3. Turnstile: im Widget den Hostnamen `cosmo-photos.de` ergänzen.
+4. Resend: Domain `cosmo-photos.de` hinzufügen. Die angezeigten DNS-Einträge im Cloudflare-DNS anlegen („Auto configure“ bei Resend oder von Hand): MX und TXT auf `send`, DKIM `resend._domainkey`. Warten, bis Resend „Verified“ zeigt, und die Absenderadresse festlegen (z. B. `kontakt@cosmo-photos.de`).
+5. `npm run test:launch` ist grün.
+
+**Umzug (Plan 6, Task 13):**
+1. 👤 Cloudflare → `cosmo-photos.de` → DNS: die Einträge für `cosmo-photos.de` (A/AAAA) und, falls vorhanden, `www` fotografieren, dann löschen.
+   **Nicht anfassen:** MX, TXT (SPF, DMARC), den Platzhalter `*` und alle übrigen Einträge. Die Mail bei All-Inkl läuft unverändert weiter.
+2. `routes` (Custom Domains `cosmo-photos.de` und `www.cosmo-photos.de`) und `CONTACT_FROM` in `wrangler.jsonc`, Push auf `main`. Workers Builds verbindet die Domains (≈ 2–3 Minuten).
+3. Prüfen:
+   - Neue Seite unter `https://cosmo-photos.de`; `www` leitet um.
+   - Alte WordPress-Adressen leiten um.
+   - MX und SPF unverändert.
+   - `npm run test:e2e:prod` und `npm run test:launch` grün.
+   - Lighthouse auf der Domain.
+
+**Rückweg:**
+1. Workers & Pages → `cosmo-web` → Einstellungen → Domains & Routes: `cosmo-photos.de` und `www.cosmo-photos.de` entfernen.
+2. Die fotografierten A/AAAA-Einträge wieder anlegen (Proxy an). Die WordPress-Seite ist sofort zurück.
+3. Danach `routes` aus `wrangler.jsonc` entfernen, sonst verbindet der nächste Push die Domains erneut.
+
+**Nachher (👤, optional):**
+- Google Search Console: Domain-Property per DNS-TXT, Sitemap `https://cosmo-photos.de/sitemap.xml` einreichen.
+- Den WordPress-Webspace erst kündigen, wenn alles läuft. Die Mail liegt im selben All-Inkl-Paket.

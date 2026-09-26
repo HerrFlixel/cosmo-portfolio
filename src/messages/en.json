@@ -1,7 +1,19 @@
 {
   "meta": {
     "title": "Cosmo Photos · Sports photography from Hamburg",
-    "description": "Floorball, volleyball, football, weddings and studio – photography by Felix Vatterodt from Hamburg."
+    "description": "Floorball, volleyball, football, weddings and studio – photography by Felix Vatterodt from Hamburg.",
+    "descriptions": {
+      "floorball": "Floorball photography from Hamburg by Felix Vatterodt.",
+      "volleyball": "Volleyball photography from Hamburg by Felix Vatterodt.",
+      "fussball": "Football photography from Hamburg by Felix Vatterodt.",
+      "hochzeiten": "Wedding photography from Hamburg by Felix Vatterodt.",
+      "studio": "Studio photography from Hamburg by Felix Vatterodt.",
+      "about": "Felix Vatterodt photographs sports, weddings and studio work in Hamburg as Cosmo Photos.",
+      "contact": "Photos in Hamburg: send Cosmo Photos a message.",
+      "clients": "Cosmo Photos client area: enter your gallery code to view and download your photos.",
+      "imprint": "Imprint of Cosmo Photos, Felix Vatterodt, Hamburg.",
+      "privacy": "Privacy policy of Cosmo Photos."
+    }
   },
   "home": {
     "headline": "Halls, smoke, *goosebumps.*",

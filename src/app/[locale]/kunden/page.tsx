@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import type { Locale } from "@/i18n/pathnames";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { GalleryCodeForm } from "./gallery-code-form";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return { title: (await getTranslations({ locale, namespace: "pages" }))("clients") };
+  const t = await getTranslations({ locale });
+  return pageMetadata({ path: "/kunden", locale: locale as Locale, title: t("pages.clients"), description: t("meta.descriptions.clients") });
 }
 
 /** Einstieg Kundenbereich (Spec §6.3): Galerie-Code → Passwortseite der Galerie. */

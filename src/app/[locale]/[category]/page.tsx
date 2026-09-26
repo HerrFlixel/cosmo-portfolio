@@ -8,6 +8,7 @@ import { CATEGORIES, isCategory } from "@/lib/categories";
 import { mediaUrl } from "@/lib/media/keys";
 import { loadCategory } from "@/lib/public/data";
 import { altText } from "@/lib/public/images";
+import { pageMetadata, portfolioOgImage } from "@/lib/seo/metadata";
 
 type Props = { params: Promise<{ locale: string; category: string }> };
 
@@ -21,8 +22,16 @@ export const dynamicParams = false;
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, category } = await params;
   if (!isCategory(category)) return {};
-  const t = await getTranslations({ locale, namespace: "categories" });
-  return { title: t(category) };
+  const [t, content] = await Promise.all([getTranslations({ locale }), loadCategory(category)]);
+  const name = t(`categories.${category}`);
+  const cover = content.nav.find((item) => item.category === category)?.cover;
+  return pageMetadata({
+    path: `/${category}`,
+    locale: locale as Locale,
+    title: name,
+    description: t(`meta.descriptions.${category}`),
+    image: cover ? portfolioOgImage(cover, name) : null,
+  });
 }
 
 /** Kategorieseite (Spec §6.2): riesiger Titel bleibt stehen, die Bilder ziehen darüber in drei Spalten vorbei. */

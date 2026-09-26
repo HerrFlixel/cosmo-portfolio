@@ -10,6 +10,7 @@ import { MotionRoot } from "@/components/motion/motion-root";
 import { PageTransition } from "@/components/motion/page-transition";
 import { routing } from "@/i18n/routing";
 import { bootMotion } from "@/lib/motion/boot";
+import { SITE_URL } from "@/lib/site";
 import { loadSettings } from "@/lib/public/data";
 import "../globals.css";
 
@@ -26,7 +27,7 @@ export const dynamicParams = false;
 export async function generateMetadata({ params }: Omit<Props, "children">): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
-  return { title: { default: t("title"), template: "%s · Cosmo Photos" }, description: t("description") };
+  return { metadataBase: new URL(SITE_URL), title: { default: t("title"), template: "%s · Cosmo Photos" }, description: t("description") };
 }
 
 // Vor dem ersten Zeichnen: Bewegung an/aus und Intro vormerken (Funktion ohne Importe, als Inline-Skript).

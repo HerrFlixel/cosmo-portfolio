@@ -4,14 +4,26 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PortraitFrame } from "@/components/site/passepartout";
 import { TextBlocks } from "@/components/site/text-blocks";
 import { Link } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/pathnames";
+import { mediaUrl } from "@/lib/media/keys";
 import { loadSettings } from "@/lib/public/data";
 import { emphasis } from "@/lib/public/text";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { SITE_URL } from "@/lib/site";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return { title: (await getTranslations({ locale, namespace: "pages" }))("about") };
+  const [t, settings] = await Promise.all([getTranslations({ locale }), loadSettings()]);
+  const portrait = settings.about_portrait_id;
+  return pageMetadata({
+    path: "/ueber-mich",
+    locale: locale as Locale,
+    title: t("pages.about"),
+    description: t("meta.descriptions.about"),
+    image: portrait ? { url: `${SITE_URL}${mediaUrl("site", portrait, 1600)}`, alt: t("home.portraitAlt") } : null,
+  });
 }
 
 /** Über mich (Spec §6.3): Porträt im Passepartout, Bodoni-Statement, Text, Referenzen als Liste. */

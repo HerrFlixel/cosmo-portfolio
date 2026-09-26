@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import type { Locale } from "@/i18n/pathnames";
 import { contactConfig } from "@/lib/contact/submit";
 import { loadSettings } from "@/lib/public/data";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { ContactForm } from "./contact-form";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return { title: (await getTranslations({ locale, namespace: "pages" }))("contact") };
+  const t = await getTranslations({ locale });
+  return pageMetadata({ path: "/kontakt", locale: locale as Locale, title: t("pages.contact"), description: t("meta.descriptions.contact") });
 }
 
 /** Kontakt (Spec §6.3): Bodoni-Headline, schlichtes Formular; ohne Konfiguration die Mail-Adresse. */

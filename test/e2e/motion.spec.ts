@@ -288,6 +288,14 @@ test.describe("Seitenwechsel", () => {
     await link.scrollIntoViewIfNeeded();
     await link.hover();
     await page.waitForTimeout(1500);
+    // Unter Last kann das weiche Scrollen noch laufen: erst messen, wenn die Position eine Weile steht.
+    await expect
+      .poll(async () => {
+        const first = await page.evaluate(() => window.scrollY);
+        await page.waitForTimeout(300);
+        return (await page.evaluate(() => window.scrollY)) - first;
+      })
+      .toBe(0);
     // Oberes Band des Bildschirms: Dort zeigt der Vorhang anfangs noch die alte Seite, genau wie vor dem Klick.
     const band = { x: 0, y: 90, width: 900, height: 300 };
     const before = await page.screenshot({ clip: band });

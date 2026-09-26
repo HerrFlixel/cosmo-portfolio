@@ -207,7 +207,7 @@ test.describe("Handy-Menü", () => {
 test.describe("Mikro-Interaktionen", () => {
   test.use({ reducedMotion: "no-preference" });
 
-  test("Bewegung: Cursor-Punkt folgt der Maus, wird über Links größer und ersetzt den System-Cursor", async ({ page }) => {
+  test("Bewegung: Cursor-Blende folgt der Maus, blendet über Links ab (ohne zu wachsen) und ersetzt den System-Cursor", async ({ page }) => {
     await page.addInitScript(skipIntro);
     await page.goto("/ueber-mich");
     const cursor = page.locator("[data-cursor]");
@@ -226,8 +226,12 @@ test.describe("Mikro-Interaktionen", () => {
       )
       .toEqual([400, 300]);
     await expect(page.locator("html")).toHaveClass(/has-cursor/);
+    const edge = () => cursor.locator("line").first().evaluate((line) => Math.hypot(Number(line.getAttribute("x2")), Number(line.getAttribute("y2"))));
     await page.getByRole("banner").getByRole("link", { name: "Kontakt" }).hover();
     await expect(cursor).toHaveAttribute("data-state", "link");
+    // Abblenden: die Lamellen-Ecken rücken zur Mitte (offen ≈ 6,4, abgeblendet ≈ 3,5); der Cursor selbst bleibt gleich groß.
+    await expect.poll(edge).toBeLessThan(4.5);
+    expect(await cursor.evaluate((element) => [element.offsetWidth, element.offsetHeight])).toEqual([22, 22]);
   });
 
   test("Bewegung: Scroll-Fortschritt schließt sich bis zum Seitenende", async ({ page }) => {

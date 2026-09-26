@@ -62,7 +62,7 @@ Admin-Benutzername: `ADMIN_USERNAME` in `wrangler.jsonc` (`felix`).
 
 - Es ist nur aktiv, wenn alle vier Kontakt-Secrets gesetzt sind; sonst zeigt `/kontakt` die Mail-Adresse aus „Texte & Links“.
 - **Resend:** Bis `cosmo-photos.de` bei Resend geprüft ist (Plan 6, DNS), sendet Resend von `onboarding@resend.dev` und nur an die Adresse des Resend-Kontos. `CONTACT_EMAIL` muss bis dahin genau diese Adresse sein. Danach optional `CONTACT_FROM` (z. B. `Cosmo Photos <kontakt@cosmo-photos.de>`) setzen.
-- **Turnstile:** Widget im Cloudflare-Dashboard (Turnstile → Widget hinzufügen). Hostnamen: `cosmo-web.felix-vatterodt.workers.dev`, `cosmo-photos.de`. Modus „Managed“.
+- **Turnstile:** Widget „Cosmo Photos Kontakt“ im Cloudflare-Dashboard (Turnstile), Modus „Managed“, Hostnamen `cosmo-web.felix-vatterodt.workers.dev` und `cosmo-photos.de` (Subdomains inklusive). Site- und Secret-Key stehen als Secrets im Worker.
 - Lokal, in E2E-Tests und in der Vorschau: `RESEND_API_KEY=log` (verschickt nichts) und die öffentlichen Turnstile-Testschlüssel.
 - Logo-Pfade: `npm run logo:generate` nach Änderungen an `brand/logo-*.svg` (der Lint prüft es).
 
@@ -85,15 +85,13 @@ Admin-Benutzername: `ADMIN_USERNAME` in `wrangler.jsonc` (`felix`).
 
 **Vorher (👤 Felix):**
 1. Fotos je Kategorie, Porträt, Texte, Impressum und Datenschutz im Admin; Instagram- und Shop-Link unter „Texte & Links“.
-2. Kontakt-Secrets setzen: `bash scripts/set-contact-secrets.sh`.
-3. Turnstile: im Widget den Hostnamen `cosmo-photos.de` ergänzen.
-4. Resend: Domain `cosmo-photos.de` hinzufügen. Die angezeigten DNS-Einträge im Cloudflare-DNS anlegen („Auto configure“ bei Resend oder von Hand): MX und TXT auf `send`, DKIM `resend._domainkey`. Warten, bis Resend „Verified“ zeigt, und die Absenderadresse festlegen (z. B. `kontakt@cosmo-photos.de`).
-5. Cloudflare → `cosmo-photos.de`: Zonen-Funktionen aus WordPress-Zeiten ausschalten, die HTML umschreiben oder Skripte einfügen. Sie würden die neue Seite stören, denn ihre Skripte hätten keine Nonce und die CSP blockiert sie:
+2. Resend: Domain `cosmo-photos.de` hinzufügen. Die angezeigten DNS-Einträge im Cloudflare-DNS anlegen („Auto configure“ bei Resend oder von Hand): MX und TXT auf `send`, DKIM `resend._domainkey`. Warten, bis Resend „Verified“ zeigt, und die Absenderadresse festlegen (z. B. `kontakt@cosmo-photos.de`).
+3. Cloudflare → `cosmo-photos.de`: Zonen-Funktionen aus WordPress-Zeiten ausschalten, die HTML umschreiben oder Skripte einfügen. Sie würden die neue Seite stören, denn ihre Skripte hätten keine Nonce und die CSP blockiert sie:
    - Scrape Shield → **Email Address Obfuscation** aus (sonst steht im Impressum `[email protected]`).
    - Speed → **Rocket Loader** aus, **Automatic Platform Optimization** (APO) aus.
    - Web Analytics: automatische Einbindung aus.
    - Page Rules, Redirect Rules, Configuration Rules durchsehen: WordPress-spezifische Regeln entfernen. Die Weiterleitung `www` → `cosmo-photos.de` darf bleiben.
-6. `npm run test:launch` ist grün.
+4. `npm run test:launch` ist grün.
 
 **Umzug (Plan 6, Task 13):**
 1. Keine DNS-Änderung. Die bestehenden, per Proxy (orange Wolke) laufenden Einträge für `cosmo-photos.de` und `www` bleiben. Worker-Routen leiten ihre Anfragen an den Worker statt an WordPress.

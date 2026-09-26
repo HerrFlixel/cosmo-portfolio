@@ -32,7 +32,7 @@ Neue Website für **Cosmo Photos**: Felix Vatterodt, Sportfotograf aus Hamburg m
 | Sprachen | Deutsch (Standard) und Englisch |
 | Seiten | Start, 5 Kategorieseiten, Über mich, Kontakt (Formular), Kundenbereich, Impressum, Datenschutz, Link zum pictrs-Shop |
 | Designrichtung | **C „Licht aus“**: hell und clean im Passepartout, pro Kategorie ein dunkler „Einlauf“-Moment |
-| Kamera-UI | **Keine**: kein Sucher-Cursor, kein Bildzähler, keine Belichtungsdaten |
+| Kamera-UI | **Keine**: kein Sucher-Cursor, kein Bildzähler, keine Belichtungsdaten. Ausnahme (Felix, 2026-09-26): der Cursor ist eine kleine Blende |
 | Logo-Intro | **1 „Orbit“** |
 | Kundengalerie | Link und Passwort, Ablaufdatum, Favoriten (pro Besuchername), Download-Statistik, ZIP-Download |
 
@@ -195,7 +195,7 @@ Referenz-Implementierung: `logo-intro.html`, Funktion `MAKERS.orbit`.
 
 ### 6.4 Mikro-Interaktionen
 
-- **Cursor** (nur Desktop): ein kleiner Punkt, der über Bildern zu einem **Orbit-Ring** wird.
+- **Cursor** (nur Desktop): eine kleine **Blende** mit fester Größe. Über Links und Bildern blendet sie ab, beim Klick löst sie kurz aus (Felix, 2026-09-26; vorher Punkt/Orbit-Ring).
 - **Scroll-Fortschritt:** ein winziger Ring unten rechts, der sich schließt.
 - **Menüpunkte:** Beim Hover rollt das Wort in die kursive Bodoni. Unterstreichungen zeichnen sich von links.
 - **Headlines:** Reveal Zeile für Zeile hinter einer Maske.

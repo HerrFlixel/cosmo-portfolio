@@ -82,3 +82,24 @@ test("Rahmen: Meta-Texte und Feldlinien erfüllen WCAG AA", async ({ page }) => 
   expect(await ratio("#gallery-code-hint", "color")).toBeGreaterThanOrEqual(4.5);
   expect(await ratio("#gallery-code", "borderBottomColor")).toBeGreaterThanOrEqual(3);
 });
+
+test("Rahmen: Favicon, App-Icon und Vorschaubild sind eingebunden und erreichbar", async ({ page, request }) => {
+  await page.goto("/");
+  const svgIcon = await page.locator('head link[rel="icon"][type="image/svg+xml"]').getAttribute("href");
+  const appleIcon = await page.locator('head link[rel="apple-touch-icon"]').getAttribute("href");
+  expect(svgIcon).toMatch(/^\/icon\.svg/);
+  expect(appleIcon).toMatch(/^\/apple-icon\.png/);
+  const files: [string, RegExp][] = [
+    [svgIcon!, /^image\/svg\+xml/],
+    [appleIcon!, /^image\/png/],
+    ["/favicon.ico", /^image\/(x-icon|vnd\.microsoft\.icon)/],
+    ["/og-default.png", /^image\/png/],
+  ];
+  for (const [path, type] of files) {
+    const response = await request.get(path);
+    expect(response.status(), path).toBe(200);
+    expect(response.headers()["content-type"], path).toMatch(type);
+  }
+  // „C“ mit Ringausschnitt (Spec §5.1)
+  expect(await (await request.get(svgIcon!)).text()).toContain('viewBox="2 14 53 53"');
+});

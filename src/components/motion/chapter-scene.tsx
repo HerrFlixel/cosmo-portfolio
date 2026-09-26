@@ -18,6 +18,16 @@ function boxWithin(element: HTMLElement, container: HTMLElement): Box {
   return { left, top, width: element.offsetWidth, height: element.offsetHeight };
 }
 
+/** Höhe bei eingeklappter Browserleiste (iOS/Android): So füllt das Vollbild auch nach dem Einklappen beim Scrollen. */
+function largeViewportHeight() {
+  const probe = document.createElement("div");
+  probe.style.cssText = "position:fixed;top:0;height:100lvh;visibility:hidden;pointer-events:none";
+  document.body.appendChild(probe);
+  const height = probe.offsetHeight;
+  probe.remove();
+  return Math.max(height, window.innerHeight);
+}
+
 /**
  * Kapitel „Einlauf“ (Spec §6.1). Mit Bewegung wird die Bühne fixiert:
  * 0–40 % Licht aus, das Kapitelbild wächst aus dem Passepartout bildfüllend;
@@ -44,7 +54,7 @@ export function ChapterScene({ children }: { children: ReactNode }) {
       const mobile = window.matchMedia("(max-width: 767px)").matches;
 
       // Das Bildfenster (nicht der Rand) soll den Bildschirm füllen: Ursprung = Mitte des Fensters im Rahmen.
-      const cover = () => coverTransform(boxWithin(photoWindow, root), { width: root.clientWidth, height: window.innerHeight });
+      const cover = () => coverTransform(boxWithin(photoWindow, root), { width: root.clientWidth, height: largeViewportHeight() });
       const origin = () => {
         const inner = boxWithin(photoWindow, root);
         const outer = boxWithin(frame, root);
@@ -83,9 +93,9 @@ export function ChapterScene({ children }: { children: ReactNode }) {
     { dependencies: [enabled], scope: stage, revertOnUpdate: true },
   );
 
-  // Papiergrund: Die fixierte Bühne deckt die Seite darunter vollständig ab.
+  // Papiergrund: Die fixierte Bühne deckt die Seite darunter vollständig ab, auch bei eingeklappter Browserleiste (lvh statt svh).
   return (
-    <div ref={stage} data-chapter-stage className="relative flex min-h-[100svh] items-center overflow-hidden bg-paper text-hall-ink">
+    <div ref={stage} data-chapter-stage className="relative flex min-h-[100lvh] items-center overflow-hidden bg-paper text-hall-ink">
       {children}
     </div>
   );

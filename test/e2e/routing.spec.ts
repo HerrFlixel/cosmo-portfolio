@@ -132,3 +132,32 @@ test.describe("Robust gegen seltsame URLs", () => {
     expect(pathOf(page.url())).toBe("/en/football");
   });
 });
+
+test("Alte WordPress-Adressen leiten auf die neuen Seiten um", async ({ request }) => {
+  const cases: [string, string][] = [
+    ["/biography/", "/ueber-mich"],
+    ["/contact-3/", "/kontakt"],
+    ["/privacy-policy/", "/datenschutz"],
+    ["/cokkie-einstellungen/", "/datenschutz"],
+    ["/etv-spieltagsheft/", "/floorball"],
+    ["/flv_portfolio/42/", "/"],
+    ["/category/sport/", "/"],
+    ["/2016/05/19/post-title-3/", "/"],
+    ["/g", "/kunden"],
+  ];
+  for (const [from, to] of cases) {
+    const response = await request.get(from);
+    expect(pathOf(response.url()), from).toBe(to);
+    expect(response.status(), from).toBe(200);
+  }
+});
+
+test("Zweitadressen (hier localhost) sind noindex; Grund-Header gesetzt, strengere bleiben", async ({ request }) => {
+  const response = await request.get("/");
+  expect(response.headers()["x-robots-tag"]).toBe("noindex, nofollow");
+  expect(response.headers()["x-content-type-options"]).toBe("nosniff");
+  expect(response.headers()["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+  expect(response.headers()["permissions-policy"]).toContain("camera=()");
+  const admin = await request.get("/admin/login");
+  expect(admin.headers()["referrer-policy"]).toBe("same-origin");
+});

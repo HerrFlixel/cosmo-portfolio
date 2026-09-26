@@ -8,6 +8,25 @@ const nextConfig: NextConfig = {
   images: { unoptimized: true },
   // 404 für Anfragen außerhalb von [locale] (z. B. /admin vor Plan 2)
   experimental: { globalNotFound: true },
+  // Alte WordPress-Adressen (Stand 2026-09) auf die neuen Seiten: Links von außen und Suchmaschinen landen richtig.
+  // Next entfernt vorher den Schrägstrich am Ende (/biography/ → /biography → /ueber-mich).
+  async redirects() {
+    return [
+      { source: "/biography", destination: "/ueber-mich", permanent: true },
+      { source: "/contact-3", destination: "/kontakt", permanent: true },
+      { source: "/privacy-policy", destination: "/datenschutz", permanent: true },
+      { source: "/cokkie-einstellungen", destination: "/datenschutz", permanent: true },
+      { source: "/etv-spieltagsheft", destination: "/floorball", permanent: true },
+      { source: "/flv_portfolio/:slug*", destination: "/", permanent: true },
+      { source: "/category/:slug*", destination: "/", permanent: true },
+      { source: "/blog-minimal", destination: "/", permanent: true },
+      { source: "/sample-page", destination: "/", permanent: true },
+      { source: "/:year(\\d{4})/:rest*", destination: "/", permanent: true },
+      { source: "/:file(wp-sitemap.*)", destination: "/sitemap.xml", permanent: true },
+      // Kundenbereich ohne Galerie-Code: zur Eingabeseite (nicht dauerhaft, falls /g später eine eigene Seite bekommt).
+      { source: "/g", destination: "/kunden", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {

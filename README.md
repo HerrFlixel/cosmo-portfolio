@@ -79,7 +79,7 @@ Admin-Benutzername: `ADMIN_USERNAME` in `wrangler.jsonc` (`felix`).
 - Das Intro läuft als „Seite zuerst“: Die Startseite ist gezeichnet, bevor das Intro endet. Zeilen-Reveals gibt es nur unterhalb des ersten Bildschirms.
 - CSS steht im HTML (`experimental.inlineCss`), Prioritätsbilder werden per `preload` im Kopf angekündigt.
 - Worker-Kaltstarts (großes OpenNext-Bundle) kosten beim ersten Aufruf nach einer Pause bis zu ≈ 1,5 s Serverzeit.
-- Stand Plan 6 (Vorschau, Median): Start 91, Floorball 99, Englisch 93, Über mich 84. Auf „Über mich“ teilen sich im simulierten 4G fünf vorab geladene Schriftdateien (≈ 325 KB) die Bandbreite mit dem Porträt; gemessen ist das Porträt nach 1–1,8 s da.
+- Stand Plan 6 (Vorschau, Median): Start 91, Floorball 99, Englisch 93, Über mich 84. Auf „Über mich“ teilen sich im simulierten 4G fünf vorab geladene Schriftdateien (≈ 325 KB) die Bandbreite mit dem Porträt; gemessen ist das Porträt nach 1–1,8 s da. Felix hat entschieden, die Schriften so zu lassen (2026-09-26); 84 ist damit akzeptiert.
 
 ### Umzug auf cosmo-photos.de
 

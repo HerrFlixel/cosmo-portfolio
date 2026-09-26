@@ -42,12 +42,12 @@ export function Wordmark({ id, className, decorative = false, withPhotos = false
   );
 }
 
-/** Voller Lockup mit PHOTOS (Fußzeile). `spinRing`: der Ring pendelt beim Scrollen (Spec §6.1). */
-export function Lockup({ className, decorative = false, spinRing = false }: Props & { spinRing?: boolean }) {
+/** Voller Lockup mit PHOTOS (Fußzeile). Der Ring bleibt ruhig: Pendelnd liefe er durch die Buchstaben (Felix, 2026-09-26). */
+export function Lockup({ className, decorative = false }: Props) {
   return (
     <svg viewBox={LOCKUP.viewBox} className={className} fill="currentColor" {...label(decorative)}>
       {LOCKUP.paths.map((d, index) => (
-        <path key={index} d={d} {...(spinRing && index === LOGO_RING_INDEX ? { "data-logo-ring-spin": "" } : {})} />
+        <path key={index} d={d} />
       ))}
     </svg>
   );

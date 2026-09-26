@@ -43,9 +43,15 @@ test("Bewegung: der Kapiteltitel bleibt lesbar – hell im Dunkeln, dunkel bei T
   const height = await page.evaluate(() => window.innerHeight);
   const box = async () => (await heading.boundingBox())!;
   // Mitte der Szene: dunkel, Titel hell.
+  // Der Titel liegt als feste Schrift auf dem Bild: keine Mischung, volle Deckkraft (Felix, 2026-09-26).
+  const solid = async () => {
+    expect(await heading.evaluate((element) => getComputedStyle(element).mixBlendMode)).toBe("normal");
+    await expect.poll(() => heading.evaluate((element) => getComputedStyle(element).opacity)).toBe("1");
+  };
   const middle = async () => {
     await page.evaluate((y) => window.scrollTo(0, y), top + height * 1.8 * 0.55);
     await expect.poll(async () => (await luminance(page, await box())).max, { timeout: 5000 }).toBeGreaterThan(150);
+    await solid();
   };
   await middle();
   // Nach der Szene: Tageslicht, der Teil des Titels über dem Papier (rechte Hälfte) ist dunkel.
@@ -55,6 +61,7 @@ test("Bewegung: der Kapiteltitel bleibt lesbar – hell im Dunkeln, dunkel bei T
     return luminance(page, { x: x + width * 0.55, y: y + h * 0.25, width: width * 0.4, height: h * 0.5 });
   };
   await expect.poll(async () => (await paperPart()).min, { timeout: 5000 }).toBeLessThan(80);
+  await solid();
   // Zurück in die Szene: wieder hell.
   await middle();
 });

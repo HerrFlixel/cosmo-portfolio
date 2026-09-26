@@ -103,14 +103,14 @@ test.describe("Überschriften und Fußzeile", () => {
       .toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
   });
 
-  test("Bewegung: der Ring im Fußzeilen-Logo pendelt beim Scrollen", async ({ page }) => {
+  test("Bewegung: der Ring im Fußzeilen-Logo bleibt beim Scrollen ruhig (sonst liefe er durch die Buchstaben)", async ({ page }) => {
     await page.addInitScript(skipIntro);
     await page.goto("/ueber-mich");
-    const ring = page.locator("footer [data-logo-ring-spin]");
-    const angle = () => ring.evaluate((element) => element.getAttribute("transform") ?? getComputedStyle(element).transform);
-    const before = await angle();
+    const ring = page.locator("footer svg path").nth(14); // Ring = 15. Pfad des Lockups
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    await expect.poll(angle).not.toBe(before);
+    await page.waitForTimeout(1200);
+    expect(await ring.evaluate((element) => getComputedStyle(element).transform)).toBe("none");
+    expect(await ring.getAttribute("transform")).toBeNull();
   });
 });
 

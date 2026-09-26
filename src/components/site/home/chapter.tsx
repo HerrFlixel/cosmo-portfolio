@@ -36,9 +36,9 @@ export async function ChapterSection({ chapter, index, locale }: { chapter: Chap
             </ViewTransition>
             <span data-chapter-dim aria-hidden="true" className="pointer-events-none absolute inset-0 bg-hall opacity-0" />
           </div>
-          {/* Lange Titel ragen über das Kapitelbild statt aus der Seite; die Differenz-Mischung hält sie auf Schwarz und Weiß lesbar. */}
+          {/* Lange Titel ragen über das Kapitelbild statt aus der Seite; die Schrift liegt fest darauf, ohne Mischung (Felix, 2026-09-26). */}
           <div data-chapter-title className={flip ? "md:col-span-5 md:col-start-1 md:row-start-1" : "md:col-span-5 md:flex md:flex-col md:items-end"}>
-            <h2 id={`chapter-${chapter.category}`} className="relative z-10 whitespace-nowrap font-sport text-[clamp(3.5rem,11vw,10.5rem)] mix-blend-difference">
+            <h2 id={`chapter-${chapter.category}`} className="relative z-10 whitespace-nowrap font-sport text-[clamp(3.5rem,11vw,10.5rem)]">
               {name}
             </h2>
             <p className="mt-5 flex items-center gap-3 font-label text-sm">

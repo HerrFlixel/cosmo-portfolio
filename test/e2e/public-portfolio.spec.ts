@@ -34,6 +34,8 @@ test("Startseite: Index mit Anzahl, Kapitel mit Bild, Vorschau und Link", async 
   await expect(chapter.getByRole("heading", { level: 2 })).toHaveText("Hochzeiten");
   await expect(chapter).toContainText("(6 Fotos)");
   expect(await chapter.locator("[data-chapter-bg]").evaluate((element) => getComputedStyle(element).backgroundColor)).toBe("rgb(11, 11, 12)");
+  // Der Titel liegt als feste Schrift auf dem Bild, ohne Mischung (Felix, 2026-09-26).
+  expect(await chapter.getByRole("heading", { level: 2 }).evaluate((element) => getComputedStyle(element).mixBlendMode)).toBe("normal");
   await expect(chapter.getByRole("listitem")).toHaveCount(3);
   await expect(chapter.getByRole("img", { name: /^Hochzeiten, Foto/ })).toHaveCount(4);
 

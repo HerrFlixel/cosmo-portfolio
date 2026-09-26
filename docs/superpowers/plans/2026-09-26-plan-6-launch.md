@@ -2780,7 +2780,7 @@ Erwartet:
 - **Alte Adressen:** `/biography/` endet mit `200` auf `/ueber-mich`.
 - **Tests:** beide Suiten grün, gegen die Domain.
 - **Edge-Cache:** `cf-cache-status: HIT` beim zweiten Abruf eines Bildes.
-- **Lighthouse:** Performance, Barrierefreiheit, Best Practices und SEO ≥ 90, LCP < 2,5 s. Ausnahme: `/ueber-mich` (Task 10: 84, Schriften), solange Felix die Schrift-Frage nicht entschieden hat. Die Werte kommen in den Abschnitt „Review nach Abschluss“.
+- **Lighthouse:** Performance, Barrierefreiheit, Best Practices und SEO ≥ 90, LCP < 2,5 s. Ausnahme: `/ueber-mich` (Task 10: 84, Schriften); Felix hat entschieden, die Schriften so zu lassen (2026-09-26). Die Werte kommen in den Abschnitt „Review nach Abschluss“.
 
 - [ ] **Schritt 4: 👤 Felix prüft von Hand**
 
@@ -2829,7 +2829,7 @@ Barrierefreiheit und Best Practices 100; SEO erst auf der Domain aussagekräftig
 | CSS | im HTML (`inlineCss`) | LCP der Unterseiten 5 s → 1,5 s |
 | Prioritätsbilder | `preload` im Kopf | Bild vor den Skripten |
 | CPU-Limit | `cpu_ms` 300 000 | gemessen ≈ 24 ms CPU pro MiB ZIP, ein 2-GB-Teil bräuchte ≈ 50 s |
-| „Über mich“ 84 | offen | fünf Schriftdateien (≈ 325 KB) teilen sich die simulierte Bandbreite; kleinere Bodoni ändert den Look → Felix entscheidet |
+| „Über mich“ 84 | akzeptiert | fünf Schriftdateien (≈ 325 KB) teilen sich die simulierte Bandbreite; kleinere Bodoni ändert den Look → Felix: „so lassen“ (2026-09-26) |
 
 ### Für später
 

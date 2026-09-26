@@ -21,7 +21,7 @@ function boxWithin(element: HTMLElement, container: HTMLElement): Box {
 /**
  * Kapitel „Einlauf“ (Spec §6.1). Mit Bewegung wird die Bühne fixiert:
  * 0–40 % Licht aus, das Kapitelbild wächst aus dem Passepartout bildfüllend;
- * 40–70 % Titel und Zähler erscheinen, der Signal-Punkt glimmt;
+ * 40–70 % Titel und Zähler stehen voll auf dem Bild (bis 52 % eingeblendet), der Signal-Punkt glimmt;
  * 70–100 % Licht wieder an, das Bild kehrt in sein Passepartout zurück.
  * Ohne Bewegung bleibt das statische dunkle Band aus dem Server-Markup.
  */
@@ -40,7 +40,6 @@ export function ChapterScene({ children }: { children: ReactNode }) {
       const mat = find(".passepartout-mat");
       const dim = find("[data-chapter-dim]");
       const title = find("[data-chapter-title]");
-      const count = find("[data-chapter-title] p");
       const dot = find("[data-chapter-dot]");
       const mobile = window.matchMedia("(max-width: 767px)").matches;
 
@@ -70,13 +69,13 @@ export function ChapterScene({ children }: { children: ReactNode }) {
         .fromTo(mat, { backgroundColor: "rgba(255, 255, 255, 1)" }, { backgroundColor: "rgba(255, 255, 255, 0)", duration: 0.2 }, 0.2)
         .set(mat, { boxShadow: "none" }, 0.3)
         .fromTo(dim, { opacity: 0 }, { opacity: 0.45, duration: 0.15 }, 0.4)
-        // Titel und Zähler einzeln: Transform oder Deckkraft am Titelblock würden die Differenz-Mischung des Titels isolieren.
-        .fromTo(title.children, { opacity: 0, yPercent: 30 }, { opacity: 1, yPercent: 0, duration: 0.2, ease: "expo.out" }, 0.42)
+        // Titel und Zähler erscheinen einzeln; im Vollbild hell auf dem abgedunkelten Bild, danach dunkel auf Papier.
+        .fromTo(title.children, { opacity: 0, yPercent: 30 }, { opacity: 1, yPercent: 0, duration: 0.12, ease: "expo.out" }, 0.4)
         .fromTo(dot, { boxShadow: "0 0 0 0 rgba(255, 61, 46, 0)" }, { boxShadow: "0 0 16px 5px rgba(255, 61, 46, 0.75)", duration: 0.12 }, 0.5)
         .to(dim, { opacity: 0, duration: 0.15 }, 0.7)
         .to(bg, { opacity: 0, duration: 0.3 }, 0.7)
         .to(frame, { x: 0, y: 0, scale: 1, duration: 0.3, ease: "power2.inOut" }, 0.7)
-        .to(count, { color: "#141414", duration: 0.3 }, 0.7)
+        .to(title, { color: "#141414", duration: 0.3 }, 0.7)
         .to(dot, { boxShadow: "0 0 0 0 rgba(255, 61, 46, 0)", duration: 0.15 }, 0.85)
         .to(mat, { backgroundColor: "rgba(255, 255, 255, 1)", duration: 0.2 }, 0.8)
         .set(mat, { clearProps: "boxShadow" }, 0.95);
@@ -84,7 +83,7 @@ export function ChapterScene({ children }: { children: ReactNode }) {
     { dependencies: [enabled], scope: stage, revertOnUpdate: true },
   );
 
-  // Papiergrund: Die fixierte Bühne ist eine eigene Mischgruppe; ohne deckenden Grund mischte der Titel (Differenz) gegen „transparent“.
+  // Papiergrund: Die fixierte Bühne deckt die Seite darunter vollständig ab.
   return (
     <div ref={stage} data-chapter-stage className="relative flex min-h-[100svh] items-center overflow-hidden bg-paper text-hall-ink">
       {children}

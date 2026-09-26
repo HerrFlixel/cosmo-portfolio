@@ -9,7 +9,6 @@ import { gsap, SplitText, useGSAP } from "./gsap";
  * - [data-reveal="lines"]: Zeilen erscheinen hinter einer Maske, wenn sie sichtbar werden (Spec §6.4).
  *   Nur unterhalb des ersten Bildschirms.
  * - [data-speed]: Parallaxe, Weg = Tempo × Bildschirmhöhe, auf dem Handy halbiert (Spec §6.1/6.2/6.5).
- * - [data-logo-ring-spin]: Ring im Fußzeilen-Logo pendelt beim Scrollen um ±10° (Spec §6.1).
  */
 export function MotionEffects() {
   const pathname = usePathname();
@@ -48,14 +47,6 @@ export function MotionEffects() {
           element,
           { y: () => distance() / 2 },
           { y: () => -distance() / 2, ease: "none", scrollTrigger: { trigger: element, start: "top bottom", end: "bottom top", scrub: true, invalidateOnRefresh: true } },
-        );
-      }
-
-      for (const ring of gsap.utils.toArray<SVGPathElement>("[data-logo-ring-spin]")) {
-        gsap.fromTo(
-          ring,
-          { rotation: -10, transformOrigin: "50% 50%" },
-          { rotation: 10, ease: "none", scrollTrigger: { trigger: ring.closest("footer") ?? ring, start: "top bottom", end: "bottom bottom", scrub: 1 } },
         );
       }
     },

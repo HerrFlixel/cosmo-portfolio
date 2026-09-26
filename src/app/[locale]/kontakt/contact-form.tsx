@@ -22,10 +22,23 @@ declare global {
 const control =
   "mt-2 block w-full border-b border-ink/60 bg-transparent py-3 text-lg outline-none transition-colors focus:border-ink aria-[invalid=true]:border-alert";
 
+/**
+ * Netzwerk- oder Serverfehler (Antwort abgebrochen, Worker neu gestartet): Hinweis mit Mail-Adresse statt Fehlerseite,
+ * die Eingaben bleiben. Die Aktion leitet nie um, deshalb verschluckt der Wrapper keine Weiterleitung.
+ */
+async function submitContact(previous: ContactState, formData: FormData): Promise<ContactState> {
+  try {
+    return await sendContactAction(previous, formData);
+  } catch {
+    const text = (name: string) => String(formData.get(name) ?? "");
+    return { status: "failed", values: { name: text("name"), email: text("email"), topic: text("topic"), message: text("message") } };
+  }
+}
+
 export function ContactForm({ siteKey, fallbackEmail, nonce }: { siteKey: string; fallbackEmail: string; nonce?: string }) {
   const t = useTranslations("contact");
   const locale = useLocale();
-  const [state, action, pending] = useActionState<ContactState, FormData>(sendContactAction, { status: "idle" });
+  const [state, action, pending] = useActionState<ContactState, FormData>(submitContact, { status: "idle" });
   const widget = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
   const token = useRef<HTMLInputElement>(null);

@@ -25,3 +25,20 @@ test("Kontakt: Fehler am Feld, Eingaben bleiben, dann Versand mit SicherheitsprÃ
   await page.getByRole("button", { name: "Nachricht senden" }).click();
   await expect(page.getByRole("status")).toHaveText("Danke! Ich melde mich bald.");
 });
+
+test("Kontakt: Verbindungsabbruch beim Senden zeigt einen Hinweis statt der Fehlerseite, Eingaben bleiben", async ({ page }) => {
+  await page.goto("/kontakt");
+  const token = page.locator('input[name="turnstile"]');
+  await page.getByLabel("Name", { exact: true }).fill("Anna Keller");
+  await page.getByLabel("E-Mail", { exact: true }).fill("anna@example.org");
+  await page.getByText("Hochzeit", { exact: true }).click();
+  await page.getByLabel("Nachricht", { exact: true }).fill("Wir heiraten im Juni in Hamburg und suchen noch einen Fotografen.");
+  await expect(token).not.toHaveValue("", { timeout: 20_000 });
+  // Die Server-Aktion geht als POST an /kontakt; hier reiÃŸt die Verbindung ab (z. B. Funkloch).
+  await page.route("**/kontakt", (route) => (route.request().method() === "POST" ? route.abort("connectionreset") : route.continue()));
+  await page.getByRole("button", { name: "Nachricht senden" }).click();
+  await expect(page.getByText("Das hat leider nicht geklappt", { exact: false })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Da ist etwas schiefgelaufen." })).toHaveCount(0);
+  await expect(page.getByLabel("Nachricht", { exact: true })).toHaveValue(/Wir heiraten im Juni/);
+  await expect(page.getByRole("radio", { name: "Hochzeit" })).toBeChecked();
+});

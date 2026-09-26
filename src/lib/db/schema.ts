@@ -100,3 +100,13 @@ export const settings = sqliteTable("settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
 });
+
+/** Fehlversuche beim Öffnen einer Galerie bzw. beim Galerie-Code (Bremse nur für Fehlversuche, Plan 6). */
+export const unlockFailures = sqliteTable(
+  "unlock_failures",
+  {
+    key: text("key").notNull(),
+    at: integer("at").notNull(),
+  },
+  (t) => [index("unlock_failures_key_at_idx").on(t.key, t.at)],
+);

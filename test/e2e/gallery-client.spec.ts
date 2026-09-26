@@ -91,3 +91,40 @@ test("Entwurf ist unsichtbar (404), abgelaufene Galerie zeigt einen freundlichen
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Diese Galerie ist abgelaufen.");
   await expect(page.getByRole("link", { name: "Kontakt" })).toHaveAttribute("href", "/kontakt");
 });
+
+test("Galerie: ein ganzes Team im selben WLAN öffnet sie nacheinander; Raten ist nach 5 Fehlversuchen gebremst", async ({ browser }) => {
+  const admin = await newContext(browser, { admin: true });
+  const adminPage = await admin.newPage();
+  const { slug } = await createGalleryViaUi(adminPage, `Team ${RUN}`);
+  await uploadJpegs(adminPage, ["team-1.jpg"]);
+  await publishGallery(adminPage);
+  const password = await galleryPassword(adminPage);
+  await admin.close();
+
+  // Sechs richtige Anmeldungen innerhalb einer Minute, alle von derselben Adresse (bisher war nach fünf Schluss).
+  for (let person = 0; person < 6; person++) {
+    const guest = await newContext(browser);
+    await unlockGallery(await guest.newPage(), slug, password);
+    await guest.close();
+  }
+
+  const guest = await newContext(browser);
+  const page = await guest.newPage();
+  await page.goto(`/g/${slug}`);
+  const alert = page.locator("form").getByRole("alert");
+  // Jeden Versuch bis zur Antwort abwarten: Während des Sendens ist der Knopf gesperrt, und der Text ändert sich nicht.
+  const submit = () =>
+    Promise.all([
+      page.waitForResponse((response) => response.request().method() === "POST"),
+      page.getByRole("button", { name: "Öffnen" }).click(),
+    ]);
+  for (let attempt = 0; attempt < 5; attempt++) {
+    await page.getByLabel("Passwort").fill(`falsch-${attempt}`);
+    await submit();
+    await expect(alert).toHaveText("Falsches Passwort.");
+  }
+  await page.getByLabel("Passwort").fill(password);
+  await submit();
+  await expect(alert).toHaveText("Zu viele Versuche. Bitte eine Minute warten.");
+  await guest.close();
+});

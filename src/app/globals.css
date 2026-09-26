@@ -162,21 +162,24 @@ body {
   }
 }
 
-/* Intro „Orbit“ (Spec §5.2): Bis das Intro startet, sind Logo und Startseite unsichtbar (bootMotion, Sicherheitsnetz 4 s). */
+/* Intro „Orbit“, „Seite zuerst“ (Plan 6): Die Startseite ist gezeichnet und liegt unter einem Papier-Vorhang (Schicht
+   19); Logo und Navigation im Kopf (Schicht 20) liegen darüber und warten unsichtbar auf das Intro. bootMotion merkt das
+   Intro vor und nimmt es nach 4 s zurück, falls kein JavaScript kommt. */
+.intro-curtain {
+  display: none;
+}
+html[data-intro="pending"] .intro-curtain,
+html[data-intro="running"] .intro-curtain {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 19;
+  background: var(--color-paper);
+}
 html[data-intro="pending"] [data-intro-hide] {
   visibility: hidden;
 }
 
-/* Zeilen-Reveal (Spec §6.4): bis zum Zerlegen unsichtbar; das Sicherheitsnetz zeigt nach 3 s alles (z. B. Skriptfehler). */
-.has-motion [data-reveal] {
-  visibility: hidden;
-  animation: reveal-fallback 0s 3s forwards;
-}
-@keyframes reveal-fallback {
-  to {
-    visibility: visible;
-  }
-}
 /* Die Zeilenmasken bleiben nach dem Reveal. Bodoni ragt bei engem Zeilenabstand über die Zeilenbox (Unterlängen,
    Umlaut-Punkte): clip-path mit Luft statt overflow (von SplitText inline gesetzt) – verschiebt kein Layout. */
 .reveal-line-mask {

@@ -42,7 +42,7 @@ export default async function AboutPage({ params }: Props) {
         {portrait && (
           <div className="md:col-span-5 lg:col-span-4">
             <div className="md:sticky md:top-10">
-              <PortraitFrame id={portrait} alt={t("home.portraitAlt")} />
+              <PortraitFrame id={portrait} alt={t("home.portraitAlt")} priority />
             </div>
           </div>
         )}

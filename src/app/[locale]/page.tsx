@@ -36,18 +36,17 @@ export default async function HomePage({ params }: Props) {
   return (
     <main>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(personJsonLd(settings, lang)) }} />
+      {/* Intro-Vorhang („Seite zuerst“, Plan 6): nur sichtbar, solange html[data-intro] gesetzt ist. */}
+      <div data-intro-curtain aria-hidden="true" className="intro-curtain" />
       <HomeIntro />
       <HomeHero headline={headline} heroes={home.heroes} counts={home.counts} locale={lang} />
-      {/* Alles unter dem Hero erscheint im Intro zuletzt. */}
-      <div data-intro="rest" data-intro-hide>
-        {home.chapters
-          .filter((chapter) => chapter.image)
-          .map((chapter, index) => (
-            <ChapterSection key={chapter.category} chapter={chapter} index={index} locale={lang} />
-          ))}
-        <AboutTeaser settings={settings} locale={lang} />
-        <Closing settings={settings} />
-      </div>
+      {home.chapters
+        .filter((chapter) => chapter.image)
+        .map((chapter, index) => (
+          <ChapterSection key={chapter.category} chapter={chapter} index={index} locale={lang} />
+        ))}
+      <AboutTeaser settings={settings} locale={lang} />
+      <Closing settings={settings} />
     </main>
   );
 }

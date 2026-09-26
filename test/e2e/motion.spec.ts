@@ -30,14 +30,32 @@ test.describe("Intro", () => {
   test("Bewegung: Intro „Orbit“ läuft beim ersten Besuch und nur einmal pro Sitzung", async ({ page }) => {
     await page.goto("/");
     const html = page.locator("html");
+    const curtain = page.locator("[data-intro-curtain]");
     await expect(html).toHaveAttribute("data-intro", "running");
+    // „Seite zuerst“: Die Startseite ist schon gezeichnet und liegt unter dem Vorhang (das LCP wartet nicht aufs Intro).
+    await expect(curtain).toBeVisible();
+    const heading = page.getByRole("heading", { level: 1 });
+    await expect(heading).toBeVisible();
+    await expect(heading.locator(".reveal-line")).toHaveCount(0);
     await expect(page.locator("[data-site-logo] [data-logo-photos]")).toBeAttached();
     await expect(html).toHaveAttribute("data-intro", "done", { timeout: 6000 });
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect.poll(() => page.locator("[data-site-logo]").evaluate((element) => getComputedStyle(element).transform)).toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
+    await expect(curtain).toBeHidden();
+    await expect
+      .poll(() => page.locator("[data-site-logo]").evaluate((element) => getComputedStyle(element).transform))
+      .toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
     await page.reload();
     await expect(html).not.toHaveAttribute("data-intro", /pending|running/);
+    await expect(heading).toBeVisible();
+  });
+
+  test("Bewegung: ohne JavaScript deckt der Vorhang höchstens 4 s, dann ist die Seite da", async ({ page }) => {
+    await page.route("**/_next/static/**/*.js", (route) => route.abort());
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("data-intro", "pending");
+    await expect(page.locator("[data-intro-curtain]")).toBeVisible();
+    await expect(page.locator("[data-intro-curtain]")).toBeHidden({ timeout: 5000 });
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator("[data-site-logo]")).toBeVisible();
   });
 
   test("Bewegung: eine Taste überspringt das Intro (auch auf Englisch)", async ({ page }) => {
@@ -59,15 +77,30 @@ test("Bewegung: mit „weniger Bewegung“ kein Intro, Logo und Headline sofort 
 test.describe("Überschriften und Fußzeile", () => {
   test.use({ reducedMotion: "no-preference" });
 
-  test("Bewegung: Überschriften erscheinen Zeile für Zeile hinter einer Maske", async ({ page }) => {
+  test("Bewegung: Überschriften im ersten Bildschirm sind sofort da, schon vor der Hydration, ohne Zerlegen", async ({ page }) => {
     await page.addInitScript(skipIntro);
+    // Ohne Next-Skripte (keine Hydration): Nur CSS und das Inline-Boot-Skript wirken.
+    await page.route("**/_next/static/**/*.js", (route) => route.abort());
     await page.goto("/ueber-mich");
-    const lines = page.locator("[data-reveal] .reveal-line");
+    await expect(page.locator("html")).toHaveClass(/has-motion/);
+    expect(await page.locator("main p[data-reveal]").evaluate((element) => getComputedStyle(element).visibility)).toBe("visible");
+    await page.unroute("**/_next/static/**/*.js");
+    await page.reload();
+    await expect(page.locator("html")).toHaveClass(/lenis/);
+    await expect(page.locator("main p[data-reveal] .reveal-line")).toHaveCount(0);
+  });
+
+  test("Bewegung: weiter unten erscheinen Überschriften Zeile für Zeile hinter einer Maske", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 480 });
+    await page.addInitScript(skipIntro);
+    await page.goto("/");
+    const statement = page.locator("main p[data-reveal]"); // Über-mich-Teaser
+    const lines = statement.locator(".reveal-line");
     await expect(lines.first()).toBeAttached();
+    await statement.scrollIntoViewIfNeeded();
     await expect
       .poll(() => lines.first().evaluate((element) => getComputedStyle(element).transform))
       .toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 
   test("Bewegung: der Ring im Fußzeilen-Logo pendelt beim Scrollen", async ({ page }) => {
@@ -82,25 +115,37 @@ test.describe("Überschriften und Fußzeile", () => {
 });
 
 test("Bewegung: Unterlängen bleiben nach dem Zeilen-Reveal vollständig (wie ohne Bewegung)", async ({ browser }) => {
-  const lowest = async (motion: "reduce" | "no-preference") => {
-    const context = await browser.newContext({ baseURL: test.info().project.use.baseURL, locale: "de-DE", reducedMotion: motion });
+  const measure = async (motion: "reduce" | "no-preference") => {
+    const context = await browser.newContext({
+      baseURL: test.info().project.use.baseURL,
+      locale: "de-DE",
+      reducedMotion: motion,
+      viewport: { width: 1280, height: 480 },
+    });
     await context.addInitScript(skipIntro);
     const page: Page = await context.newPage();
-    await page.goto("/impressum");
-    const heading = page.locator("main h1");
+    await page.goto("/");
     await page.evaluate(() => document.fonts.ready);
+    const statement = page.locator("main p[data-reveal]"); // Über-mich-Teaser, unterhalb des ersten Bildschirms
+    await statement.scrollIntoViewIfNeeded();
     if (motion === "no-preference") {
-      const line = heading.locator(".reveal-line").first();
+      const line = statement.locator(".reveal-line").first();
       await expect(line).toBeAttached();
       await expect.poll(() => line.evaluate((element) => getComputedStyle(element).transform)).toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
     }
-    const box = (await heading.boundingBox())!;
+    const box = (await statement.boundingBox())!;
+    const text = (await statement.innerText()).replace(/\s+/g, " ").trim();
     const row = await lowestInk(page, { x: box.x, y: box.y, width: box.width, height: box.height + 40 });
     await context.close();
-    return row;
+    return { text, row };
   };
-  // „Impressum“: Das p reicht unter die Zeilenbox; die Zeilenmaske darf es nicht abschneiden.
-  expect(Math.abs((await lowest("no-preference")) - (await lowest("reduce")))).toBeLessThanOrEqual(1);
+  // Der Teaser-Text kommt aus den Einstellungen; parallel laufende Admin-Tests können ihn ändern → gleiches Paar abwarten.
+  await expect(async () => {
+    const moving = await measure("no-preference");
+    const still = await measure("reduce");
+    expect(moving.text).toBe(still.text);
+    expect(Math.abs(moving.row - still.row)).toBeLessThanOrEqual(1);
+  }).toPass({ timeout: 30_000 });
 });
 
 test("Bewegung: mit „weniger Bewegung“ werden Überschriften nicht zerlegt", async ({ page }) => {
@@ -271,13 +316,13 @@ test.describe("Barrierefreiheit und Sprache mit Bewegung", () => {
   test.use({ reducedMotion: "no-preference" });
 
   test("Bewegung: zerlegte Absätze bleiben für Screenreader lesbar", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 480 });
     await page.addInitScript(skipIntro);
-    await page.goto("/ueber-mich");
-    const statement = page.locator("main p[data-reveal]");
+    await page.goto("/");
+    const statement = page.locator("main p[data-reveal]"); // Über-mich-Teaser, zerlegt
     await expect(statement.locator(".reveal-line").first()).toBeAttached();
-    // Der Absatz muss als Text im Barrierefreiheitsbaum stehen (ein aria-label auf <p> lesen Screenreader nicht vor).
-    const text = (await statement.evaluate((element) => element.getAttribute("aria-label") ?? element.textContent ?? "")).trim();
-    expect(await page.locator("main").ariaSnapshot()).toContain(`paragraph: ${text.split(/\s+/)[0]}`);
+    const firstWord = (await statement.textContent())!.trim().split(/\s+/)[0];
+    expect(await page.locator("main").ariaSnapshot()).toContain(`paragraph: ${firstWord}`);
   });
 
   test("Bewegung: nach dem Sprachwechsel bleibt die Bewegung an", async ({ page }) => {

@@ -4,16 +4,17 @@ import { useRef } from "react";
 import { INTRO_SEEN_KEY } from "@/lib/motion/boot";
 import { introStart } from "@/lib/motion/geometry";
 import { LOGO_LETTER_DELAYS } from "@/lib/motion/logo-pieces";
-import { gsap, SplitText, useGSAP } from "./gsap";
+import { gsap, useGSAP } from "./gsap";
 import { useMotion } from "./motion-root";
 
-// Übergabe (Spec §5.2): PHOTOS geht, das Logo fliegt in den Kopf, die Startseite baut sich auf; ≈ 3,2 s steht sie.
+// Übergabe (Spec §5.2): PHOTOS geht, das Logo fliegt in den Kopf, der Vorhang hebt sich; ≈ 3,2 s steht die Seite frei.
 const HANDOVER = 2.15;
 
 /**
- * Intro „Orbit“ beim ersten Besuch der Startseite pro Sitzung: Der Ring zieht seine Bahn, C-O-S-M-O wachsen aus ihm,
- * PHOTOS setzt sich, dann fliegt das Kopf-Logo – dasselbe Element, per FLIP – an seinen Platz. Klick, Tipp oder Taste
- * springen ans Ende. Ohne Vormerkung (bootMotion) passiert nichts.
+ * Intro „Orbit“ beim ersten Besuch der Startseite pro Sitzung, als „Seite zuerst“ (Plan 6): Die Startseite ist schon
+ * gezeichnet (schnelles LCP) und liegt unter einem Papier-Vorhang. Darüber zieht der Ring seine Bahn, C-O-S-M-O wachsen
+ * aus ihm, PHOTOS setzt sich; dann fliegt das Kopf-Logo – dasselbe Element, per FLIP – an seinen Platz, der Vorhang
+ * hebt sich und die Seite rückt nach (nur transform). Klick, Tipp oder Taste springen ans Ende.
  */
 export function HomeIntro() {
   const { lenis } = useMotion();
@@ -24,7 +25,8 @@ export function HomeIntro() {
     const logo = document.querySelector<HTMLElement>("[data-site-logo]");
     const svg = logo?.querySelector("svg");
     const mask = svg?.querySelector<SVGPathElement>("[data-ring-mask]");
-    if (root.dataset.intro !== "pending" || !logo || !svg || !mask) return;
+    const curtain = document.querySelector<HTMLElement>("[data-intro-curtain]");
+    if (root.dataset.intro !== "pending" || !logo || !svg || !mask || !curtain) return;
 
     try {
       sessionStorage.setItem(INTRO_SEEN_KEY, "seen");
@@ -36,15 +38,12 @@ export function HomeIntro() {
     lenis.current?.stop();
 
     const photos = svg.querySelector<SVGGElement>("[data-logo-photos]");
-    const headline = document.querySelector<HTMLElement>("[data-intro='headline']");
-    const split = headline ? SplitText.create(headline, { type: "lines", mask: "lines" }) : null;
-    const collage = gsap.utils.toArray<HTMLElement>("[data-intro='collage'] > *");
+    const page = gsap.utils.toArray<HTMLElement>("[data-intro='headline'], [data-intro='collage']");
     const nav = gsap.utils.toArray<HTMLElement>("nav[data-intro='nav'] > *, button[data-intro='nav']");
-    const late = gsap.utils.toArray<HTMLElement>("[data-intro='index'], [data-intro='rest']");
     const from = introStart(logo.getBoundingClientRect(), { width: window.innerWidth, height: window.innerHeight });
     const length = mask.getTotalLength();
 
-    // Startzustände sofort (vor dem nächsten Zeichnen), erst dann sichtbar schalten.
+    // Startzustände sofort (vor dem nächsten Zeichnen), erst dann „running“ (zeigt das Logo).
     gsap.set(logo, { x: from.x, y: from.y, scale: from.scale, transformOrigin: "0 0" });
     gsap.set(mask, { strokeDasharray: `${length} ${length}`, strokeDashoffset: length });
     gsap.set(svg.querySelectorAll("[data-piece='u']"), { y: 44 });
@@ -53,13 +52,12 @@ export function HomeIntro() {
       gsap.set(photos, { opacity: 1 });
       gsap.set(photos.children, { opacity: 0, y: 4 });
     }
-    gsap.set(split?.lines ?? [], { yPercent: 115 });
-    gsap.set(collage, { opacity: 0, yPercent: 10 });
+    // Nur transform: Die Seite ist bereits gezeichnet (LCP), sie rückt beim Heben des Vorhangs lediglich nach.
+    gsap.set(page, { y: 48 });
     gsap.set(nav, { opacity: 0, y: -8 });
-    gsap.set(late, { opacity: 0 });
     root.dataset.intro = "running";
 
-    // Ab hier steht die Startseite: Scrollen frei, Zustand „done“ (auch beim Überspringen).
+    // Ab hier steht die Startseite: Scrollen frei, Zustand „done“ (blendet den Vorhang per CSS aus, auch beim Überspringen).
     const release = () => {
       if (released.current) return;
       released.current = true;
@@ -71,8 +69,8 @@ export function HomeIntro() {
     };
     const finish = () => {
       release();
-      split?.revert();
-      gsap.set(logo, { clearProps: "transform" });
+      gsap.set([logo, curtain, ...page], { clearProps: "transform" });
+      gsap.set(nav, { clearProps: "opacity,transform" });
       if (photos) gsap.set(photos, { opacity: 0 });
     };
 
@@ -86,10 +84,9 @@ export function HomeIntro() {
       tl.to(photos.children, { opacity: 0, duration: 0.25, stagger: 0.02 }, HANDOVER);
     }
     tl.to(logo, { x: 0, y: 0, scale: 1, duration: 1.05, ease: "expo.inOut" }, HANDOVER)
-      .to(split?.lines ?? [], { yPercent: 0, duration: 1.1, ease: "expo.out", stagger: 0.09 }, HANDOVER + 0.5)
-      .to(collage, { opacity: 1, yPercent: 0, duration: 1.2, ease: "expo.out", stagger: 0.12 }, HANDOVER + 0.55)
+      .to(curtain, { yPercent: -100, duration: 0.95, ease: "expo.inOut" }, HANDOVER + 0.15)
+      .to(page, { y: 0, duration: 1.1, ease: "expo.out", stagger: 0.08 }, HANDOVER + 0.35)
       .to(nav, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out", stagger: 0.04 }, HANDOVER + 0.7)
-      .to(late, { opacity: 1, duration: 0.6 }, HANDOVER + 0.9)
       .call(release, undefined, HANDOVER + 1.05);
 
     const skip = () => tl.progress(1);

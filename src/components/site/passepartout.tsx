@@ -22,13 +22,16 @@ export function Passepartout({ image, alt, sizes, priority = false, className = 
   );
 }
 
-/** Porträt aus den Einstellungen: dort steht nur die ID, deshalb festes Format 4:5 und die 1600er-Größe. */
-export function PortraitFrame({ id, alt, className = "" }: { id: string; alt: string; className?: string }) {
+/**
+ * Porträt aus den Einstellungen: dort steht nur die ID, deshalb festes Format 4:5 und die 1600er-Größe.
+ * `priority`: auf „Über mich“ das größte Element (LCP), dort sofort laden.
+ */
+export function PortraitFrame({ id, alt, className = "", priority = false }: { id: string; alt: string; className?: string; priority?: boolean }) {
   return (
     <span className={`passepartout ${className}`}>
       <span className="passepartout-mat">
         <span className="passepartout-window aspect-[4/5] bg-stone/20">
-          <Photo src={mediaUrl("site", id, 1600)} alt={alt} />
+          <Photo src={mediaUrl("site", id, 1600)} alt={alt} priority={priority} />
         </span>
       </span>
     </span>

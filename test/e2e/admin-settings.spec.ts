@@ -40,4 +40,9 @@ test("Porträt hochladen, speichern und behalten", async ({ page }) => {
   await page.reload();
   const preview = page.getByRole("img", { name: "Porträt-Vorschau" });
   await expect(preview).toHaveAttribute("src", /^\/media\/site\/[0-9a-f-]{36}\/800$/);
+  // Über mich (Plan 6): Das Porträt ist dort oft das größte Element (LCP) und lädt deshalb sofort.
+  await page.goto("/ueber-mich");
+  const portraitImage = page.locator("main .passepartout img");
+  await expect(portraitImage).toHaveAttribute("loading", "eager");
+  await expect(portraitImage).toHaveAttribute("fetchpriority", "high");
 });

@@ -7,6 +7,7 @@ import { gsap, SplitText, useGSAP } from "./gsap";
 /**
  * Bewegung an Ankern im Server-Markup, pro Seite neu aufgebaut (revertOnUpdate: beim Pfadwechsel wird alles Alte entfernt):
  * - [data-reveal="lines"]: Zeilen erscheinen hinter einer Maske, wenn sie sichtbar werden (Spec §6.4).
+ *   Nur unterhalb des ersten Bildschirms.
  * - [data-speed]: Parallaxe, Weg = Tempo × Bildschirmhöhe, auf dem Handy halbiert (Spec §6.1/6.2/6.5).
  * - [data-logo-ring-spin]: Ring im Fußzeilen-Logo pendelt beim Scrollen um ±10° (Spec §6.1).
  */
@@ -16,15 +17,11 @@ export function MotionEffects() {
   useGSAP(
     () => {
       const mobile = window.matchMedia("(max-width: 767px)").matches;
-      const intro = document.documentElement.dataset.intro;
 
       for (const element of gsap.utils.toArray<HTMLElement>("[data-reveal='lines']")) {
-        element.style.animation = "none";
-        // Die Startseiten-Headline gehört während des Intros dem Intro.
-        if ((intro === "pending" || intro === "running") && element.closest("[data-intro-hide]")) {
-          gsap.set(element, { visibility: "visible" });
-          continue;
-        }
+        // „Seite zuerst“ (Plan 6): Was im ersten Bildschirm der Seite steht, ist sofort da (LCP). Zeilen-Reveals nur für
+        // Inhalte, die beim Scrollen hereinkommen; gemessen ab Seitenanfang, unabhängig von der aktuellen Scrollposition.
+        if (element.getBoundingClientRect().top + window.scrollY < window.innerHeight) continue;
         SplitText.create(element, {
           type: "lines",
           mask: "lines",
@@ -33,7 +30,6 @@ export function MotionEffects() {
           aria: element.matches("h1, h2, h3, h4, h5, h6") ? "auto" : "none",
           autoSplit: true,
           onSplit(self) {
-            gsap.set(element, { visibility: "visible" });
             return gsap.from(self.lines, {
               // Weit genug unter die (gepolsterte) Maske, dass auch Umlaut-Punkte anfangs verborgen sind.
               yPercent: 130,

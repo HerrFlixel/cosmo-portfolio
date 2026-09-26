@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { headers } from "next/headers";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { fontVariables } from "@/app/fonts";
 import { SiteFooter } from "@/components/site/footer";
@@ -37,12 +38,13 @@ export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const [t, settings] = await Promise.all([getTranslations("nav"), loadSettings()]);
 
   return (
     <html lang={locale} className={fontVariables} suppressHydrationWarning>
       <body>
-        <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
         <NextIntlClientProvider>
           <MotionRoot>
             <a href="#inhalt" className="skip-link">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Locale } from "@/i18n/pathnames";
@@ -46,7 +47,7 @@ export default async function ContactPage({ params }: Props) {
       </div>
       <div className="md:col-span-6 md:col-start-7">
         {ready ? (
-          <ContactForm siteKey={siteKey} fallbackEmail={email} />
+          <ContactForm siteKey={siteKey} fallbackEmail={email} nonce={(await headers()).get("x-nonce") ?? undefined} />
         ) : (
           <p className="text-lg">
             {email ? (

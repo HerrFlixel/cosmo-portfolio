@@ -22,7 +22,7 @@ declare global {
 const control =
   "mt-2 block w-full border-b border-ink/60 bg-transparent py-3 text-lg outline-none transition-colors focus:border-ink aria-[invalid=true]:border-alert";
 
-export function ContactForm({ siteKey, fallbackEmail }: { siteKey: string; fallbackEmail: string }) {
+export function ContactForm({ siteKey, fallbackEmail, nonce }: { siteKey: string; fallbackEmail: string; nonce?: string }) {
   const t = useTranslations("contact");
   const locale = useLocale();
   const [state, action, pending] = useActionState<ContactState, FormData>(sendContactAction, { status: "idle" });
@@ -90,7 +90,7 @@ export function ContactForm({ siteKey, fallbackEmail }: { siteKey: string; fallb
 
   return (
     <>
-      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" strategy="afterInteractive" onReady={renderWidget} />
+      <Script nonce={nonce} src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" strategy="afterInteractive" onReady={renderWidget} />
       <form ref={form} action={action} className="grid gap-8">
         <div>
           <label htmlFor="contact-name" className="text-sm">

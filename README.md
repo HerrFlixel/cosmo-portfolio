@@ -88,23 +88,28 @@ Admin-Benutzername: `ADMIN_USERNAME` in `wrangler.jsonc` (`felix`).
 2. Kontakt-Secrets setzen: `bash scripts/set-contact-secrets.sh`.
 3. Turnstile: im Widget den Hostnamen `cosmo-photos.de` ergänzen.
 4. Resend: Domain `cosmo-photos.de` hinzufügen. Die angezeigten DNS-Einträge im Cloudflare-DNS anlegen („Auto configure“ bei Resend oder von Hand): MX und TXT auf `send`, DKIM `resend._domainkey`. Warten, bis Resend „Verified“ zeigt, und die Absenderadresse festlegen (z. B. `kontakt@cosmo-photos.de`).
-5. `npm run test:launch` ist grün.
+5. Cloudflare → `cosmo-photos.de`: Zonen-Funktionen aus WordPress-Zeiten ausschalten, die HTML umschreiben oder Skripte einfügen. Sie würden die neue Seite stören, denn ihre Skripte hätten keine Nonce und die CSP blockiert sie:
+   - Scrape Shield → **Email Address Obfuscation** aus (sonst steht im Impressum `[email protected]`).
+   - Speed → **Rocket Loader** aus, **Automatic Platform Optimization** (APO) aus.
+   - Web Analytics: automatische Einbindung aus.
+   - Page Rules, Redirect Rules, Configuration Rules durchsehen: WordPress-spezifische Regeln entfernen. Die Weiterleitung `www` → `cosmo-photos.de` darf bleiben.
+6. `npm run test:launch` ist grün.
 
 **Umzug (Plan 6, Task 13):**
-1. 👤 Cloudflare → `cosmo-photos.de` → DNS: die Einträge für `cosmo-photos.de` (A/AAAA) und, falls vorhanden, `www` fotografieren, dann löschen.
-   **Nicht anfassen:** MX, TXT (SPF, DMARC), den Platzhalter `*` und alle übrigen Einträge. Die Mail bei All-Inkl läuft unverändert weiter.
-2. `routes` (Custom Domains `cosmo-photos.de` und `www.cosmo-photos.de`) und `CONTACT_FROM` in `wrangler.jsonc`, Push auf `main`. Workers Builds verbindet die Domains (≈ 2–3 Minuten).
+1. Keine DNS-Änderung. Die bestehenden, per Proxy (orange Wolke) laufenden Einträge für `cosmo-photos.de` und `www` bleiben. Worker-Routen leiten ihre Anfragen an den Worker statt an WordPress.
+2. `routes` (`cosmo-photos.de/*` und `www.cosmo-photos.de/*`, Zone `cosmo-photos.de`) und `CONTACT_FROM` in `wrangler.jsonc`, Push auf `main`. Workers Builds setzt die Routen beim Deploy (≈ 2–3 Minuten).
 3. Prüfen:
    - Neue Seite unter `https://cosmo-photos.de`; `www` leitet um.
    - Alte WordPress-Adressen leiten um.
    - MX und SPF unverändert.
+   - Bilder aus dem Edge-Cache: zweiter Abruf eines `/media/…`-Bildes mit `cf-cache-status: HIT`.
    - `npm run test:e2e:prod` und `npm run test:launch` grün.
    - Lighthouse auf der Domain.
 
 **Rückweg:**
-1. Workers & Pages → `cosmo-web` → Einstellungen → Domains & Routes: `cosmo-photos.de` und `www.cosmo-photos.de` entfernen.
-2. Die fotografierten A/AAAA-Einträge wieder anlegen (Proxy an). Die WordPress-Seite ist sofort zurück.
-3. Danach `routes` aus `wrangler.jsonc` entfernen, sonst verbindet der nächste Push die Domains erneut.
+1. Workers & Pages → `cosmo-web` → Einstellungen → Domains & Routes: die beiden Routen entfernen. DNS ist unverändert, die WordPress-Seite ist sofort zurück.
+2. Danach `routes` aus `wrangler.jsonc` entfernen, sonst setzt der nächste Push die Routen erneut.
+3. Hinweis: Browser, die schon eine dauerhafte Weiterleitung einer alten WordPress-Adresse (z. B. `/biography/` → `/ueber-mich`) bekommen haben, folgen ihr weiter; auf WordPress endet das dann in einer 404.
 
 **Nachher (👤, optional):**
 - Google Search Console: Domain-Property per DNS-TXT, Sitemap `https://cosmo-photos.de/sitemap.xml` einreichen.

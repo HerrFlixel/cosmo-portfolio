@@ -2635,23 +2635,28 @@ In `README.md` am Ende ergänzen:
 2. Kontakt-Secrets setzen: `bash scripts/set-contact-secrets.sh`.
 3. Turnstile: im Widget den Hostnamen `cosmo-photos.de` ergänzen.
 4. Resend: Domain `cosmo-photos.de` hinzufügen. Die angezeigten DNS-Einträge im Cloudflare-DNS anlegen („Auto configure“ bei Resend oder von Hand): MX und TXT auf `send`, DKIM `resend._domainkey`. Warten, bis Resend „Verified“ zeigt, und die Absenderadresse festlegen (z. B. `kontakt@cosmo-photos.de`).
-5. `npm run test:launch` ist grün.
+5. Cloudflare → `cosmo-photos.de`: Zonen-Funktionen aus WordPress-Zeiten ausschalten, die HTML umschreiben oder Skripte einfügen. Sie würden die neue Seite stören, denn ihre Skripte hätten keine Nonce und die CSP blockiert sie:
+   - Scrape Shield → **Email Address Obfuscation** aus (sonst steht im Impressum `[email protected]`).
+   - Speed → **Rocket Loader** aus, **Automatic Platform Optimization** (APO) aus.
+   - Web Analytics: automatische Einbindung aus.
+   - Page Rules, Redirect Rules, Configuration Rules durchsehen: WordPress-spezifische Regeln entfernen. Die Weiterleitung `www` → `cosmo-photos.de` darf bleiben.
+6. `npm run test:launch` ist grün.
 
 **Umzug (Plan 6, Task 13):**
-1. 👤 Cloudflare → `cosmo-photos.de` → DNS: die Einträge für `cosmo-photos.de` (A/AAAA) und, falls vorhanden, `www` fotografieren, dann löschen.
-   **Nicht anfassen:** MX, TXT (SPF, DMARC), den Platzhalter `*` und alle übrigen Einträge. Die Mail bei All-Inkl läuft unverändert weiter.
-2. `routes` (Custom Domains `cosmo-photos.de` und `www.cosmo-photos.de`) und `CONTACT_FROM` in `wrangler.jsonc`, Push auf `main`. Workers Builds verbindet die Domains (≈ 2–3 Minuten).
+1. Keine DNS-Änderung. Die bestehenden, per Proxy (orange Wolke) laufenden Einträge für `cosmo-photos.de` und `www` bleiben. Worker-Routen leiten ihre Anfragen an den Worker statt an WordPress.
+2. `routes` (`cosmo-photos.de/*` und `www.cosmo-photos.de/*`, Zone `cosmo-photos.de`) und `CONTACT_FROM` in `wrangler.jsonc`, Push auf `main`. Workers Builds setzt die Routen beim Deploy (≈ 2–3 Minuten).
 3. Prüfen:
    - Neue Seite unter `https://cosmo-photos.de`; `www` leitet um.
    - Alte WordPress-Adressen leiten um.
    - MX und SPF unverändert.
+   - Bilder aus dem Edge-Cache: zweiter Abruf eines `/media/…`-Bildes mit `cf-cache-status: HIT`.
    - `npm run test:e2e:prod` und `npm run test:launch` grün.
    - Lighthouse auf der Domain.
 
 **Rückweg:**
-1. Workers & Pages → `cosmo-web` → Einstellungen → Domains & Routes: `cosmo-photos.de` und `www.cosmo-photos.de` entfernen.
-2. Die fotografierten A/AAAA-Einträge wieder anlegen (Proxy an). Die WordPress-Seite ist sofort zurück.
-3. Danach `routes` aus `wrangler.jsonc` entfernen, sonst verbindet der nächste Push die Domains erneut.
+1. Workers & Pages → `cosmo-web` → Einstellungen → Domains & Routes: die beiden Routen entfernen. DNS ist unverändert, die WordPress-Seite ist sofort zurück.
+2. Danach `routes` aus `wrangler.jsonc` entfernen, sonst setzt der nächste Push die Routen erneut.
+3. Hinweis: Browser, die schon eine dauerhafte Weiterleitung einer alten WordPress-Adresse (z. B. `/biography/` → `/ueber-mich`) bekommen haben, folgen ihr weiter; auf WordPress endet das dann in einer 404.
 
 **Nachher (👤, optional):**
 - Google Search Console: Domain-Property per DNS-TXT, Sitemap `https://cosmo-photos.de/sitemap.xml` einreichen.
@@ -2716,23 +2721,24 @@ Bis dahin endet Plan 6 nach Task 12. Dieser Task wird später auf Zuruf ausgefü
 **Dateien:**
 - Ändern: `wrangler.jsonc` (oben: `routes`, `CONTACT_FROM`), `scripts/e2e-deployed.sh` (Produktion = Domain), `README.md` (Adressen)
 
-- [ ] **Schritt 1: 👤 DNS vorbereiten**
+- [ ] **Schritt 1: 👤 Zone vorbereiten (keine DNS-Änderung)**
 
-Felix, im Cloudflare-Dashboard unter `cosmo-photos.de` → DNS:
-1. Die Einträge `cosmo-photos.de` (A und AAAA) und, falls vorhanden, `www` fotografieren (für den Rückweg).
-2. Diese Einträge löschen.
+Felix, im Cloudflare-Dashboard unter `cosmo-photos.de` (siehe README, „Vorher“, Punkt 5):
+- Email Address Obfuscation, Rocket Loader, APO und die automatische Web-Analytics-Einbindung ausschalten.
+- WordPress-Regeln (Page, Redirect, Configuration Rules) entfernen; die Weiterleitung `www` → `cosmo-photos.de` darf bleiben.
 
-**Bleiben:** MX, TXT (SPF, DMARC), `*` und alle übrigen Einträge.
+Die DNS-Einträge bleiben unverändert. Die proxied Einträge für `cosmo-photos.de` und `www` werden für die Worker-Routen gebraucht; MX, TXT und `*` bleiben ohnehin.
 
-- [ ] **Schritt 2: Domains verbinden**
+- [ ] **Schritt 2: Worker-Routen setzen**
 
 In `wrangler.jsonc` oben (nicht unter `env.preview`) nach `"vars"` ergänzen:
 
 ```jsonc
-  // Hauptdomain (Plan 6, Task 13): Workers Builds verbindet die Custom Domains beim Deploy. www leitet im Worker um.
+  // Hauptdomain (Plan 6, Task 13): Worker-Routen auf den bestehenden, proxied DNS-Einträgen (keine DNS-Änderung,
+  // Rückweg = Routen entfernen). www leitet im Worker um.
   "routes": [
-    { "pattern": "cosmo-photos.de", "custom_domain": true },
-    { "pattern": "www.cosmo-photos.de", "custom_domain": true }
+    { "pattern": "cosmo-photos.de/*", "zone_name": "cosmo-photos.de" },
+    { "pattern": "www.cosmo-photos.de/*", "zone_name": "cosmo-photos.de" }
   ],
 ```
 
@@ -2763,6 +2769,7 @@ dig +short TXT cosmo-photos.de
 curl -sI https://cosmo-photos.de/ | grep -iE "^(x-robots-tag|strict-transport-security|content-security-policy)"
 curl -sI https://www.cosmo-photos.de/ueber-mich | grep -iE "^(HTTP|location)"
 curl -sIL https://cosmo-photos.de/biography/ | grep -iE "^(HTTP|location)"
+IMG=$(curl -s https://cosmo-photos.de/ | grep -o '/media/portfolio/[^" ]*' | head -1); curl -s -o /dev/null https://cosmo-photos.de$IMG; curl -sI https://cosmo-photos.de$IMG | grep -i "^cf-cache-status"
 npm run test:e2e:prod && npm run test:launch
 npm run lighthouse -- https://cosmo-photos.de/ https://cosmo-photos.de/floorball https://cosmo-photos.de/ueber-mich https://cosmo-photos.de/en
 ```
@@ -2772,7 +2779,8 @@ Erwartet:
 - **www:** `301` mit `location: https://cosmo-photos.de/ueber-mich`.
 - **Alte Adressen:** `/biography/` endet mit `200` auf `/ueber-mich`.
 - **Tests:** beide Suiten grün, gegen die Domain.
-- **Lighthouse:** Performance, Barrierefreiheit, Best Practices und SEO ≥ 90, LCP < 2,5 s. Die Werte kommen in den Abschnitt „Review nach Abschluss“.
+- **Edge-Cache:** `cf-cache-status: HIT` beim zweiten Abruf eines Bildes.
+- **Lighthouse:** Performance, Barrierefreiheit, Best Practices und SEO ≥ 90, LCP < 2,5 s. Ausnahme: `/ueber-mich` (Task 10: 84, Schriften), solange Felix die Schrift-Frage nicht entschieden hat. Die Werte kommen in den Abschnitt „Review nach Abschluss“.
 
 - [ ] **Schritt 4: 👤 Felix prüft von Hand**
 

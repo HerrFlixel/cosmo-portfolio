@@ -101,12 +101,13 @@ export const settings = sqliteTable("settings", {
   value: text("value").notNull(),
 });
 
-/** Fehlversuche beim Öffnen einer Galerie bzw. beim Galerie-Code (Bremse nur für Fehlversuche, Plan 6). */
+/** Versuche beim Öffnen einer Galerie bzw. beim Galerie-Code; richtige werden wieder gelöscht (Bremse, Plan 6). */
 export const unlockFailures = sqliteTable(
   "unlock_failures",
   {
     key: text("key").notNull(),
     at: integer("at").notNull(),
   },
-  (t) => [index("unlock_failures_key_at_idx").on(t.key, t.at)],
+  // at: Aufräumen alter Einträge ohne Scan der ganzen Tabelle.
+  (t) => [index("unlock_failures_key_at_idx").on(t.key, t.at), index("unlock_failures_at_idx").on(t.at)],
 );

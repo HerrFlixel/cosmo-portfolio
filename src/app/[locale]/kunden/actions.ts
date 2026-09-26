@@ -4,7 +4,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/lib/env";
-import { isLockedOut, recordFailure } from "@/lib/galleries/attempts";
+import { beginAttempt, forgetAttempt, UNLOCK_LIMIT } from "@/lib/galleries/attempts";
 import { getGalleryBySlug } from "@/lib/galleries/repo";
 import { galleryCodeToSlug } from "@/lib/public/gallery-code";
 
@@ -14,16 +14,15 @@ export async function openGalleryAction(_previous: CodeState, formData: FormData
   const code = String(formData.get("code") ?? "");
   const slug = galleryCodeToSlug(code);
   if (!slug) return { error: "invalid", code };
-  // Bremst das Durchprobieren von Codes: nur unbekannte Codes zählen (eigener Schlüssel pro Adresse).
+  // Bremst das Durchprobieren von Codes: Gefundene Codes werden wieder herausgenommen, nur unbekannte zählen.
   const ip = (await headers()).get("cf-connecting-ip") ?? "lokal";
   const db = getDb();
   const now = Math.floor(Date.now() / 1000);
   const key = `code:${ip}`;
-  if (await isLockedOut(db, key, now)) return { error: "tooMany", code };
+  const attempt = await beginAttempt(db, key, now);
+  if (attempt.attempts > UNLOCK_LIMIT) return { error: "tooMany", code };
   const gallery = await getGalleryBySlug(db, slug);
-  if (!gallery || gallery.status === "draft") {
-    await recordFailure(db, key, now);
-    return { error: "unknown", code };
-  }
+  if (!gallery || gallery.status === "draft") return { error: "unknown", code };
+  await forgetAttempt(db, attempt.id);
   redirect(`/g/${slug}`);
 }

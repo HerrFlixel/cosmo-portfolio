@@ -4,7 +4,7 @@
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getDb } from "@/lib/env";
-import { isLockedOut, recordFailure } from "@/lib/galleries/attempts";
+import { beginAttempt, forgetAttempt, UNLOCK_LIMIT } from "@/lib/galleries/attempts";
 import { checkGalleryPassword, galleryState, getGalleryBySlug } from "@/lib/galleries/repo";
 import { gallerySecret } from "@/lib/galleries/secret";
 import { GALLERY_ACCESS_SECONDS, GALLERY_COOKIE, createGalleryToken } from "@/lib/galleries/token";
@@ -16,14 +16,16 @@ export async function unlockGalleryAction(slug: string, _previous: UnlockState, 
   const db = getDb();
   const now = Math.floor(Date.now() / 1000);
   const key = `gallery:${ip}:${slug}`;
-  if (await isLockedOut(db, key, now)) return { error: "tooMany" };
+  const attempt = await beginAttempt(db, key, now);
+  if (attempt.attempts > UNLOCK_LIMIT) return { error: "tooMany" };
 
   const gallery = await getGalleryBySlug(db, slug);
-  if (!gallery || galleryState(gallery, new Date()) !== "online") redirect(`/g/${slug}`);
-  if (!(await checkGalleryPassword(gallery, String(formData.get("password") ?? "")))) {
-    await recordFailure(db, key, now);
-    return { error: "wrongPassword" };
+  if (!gallery || galleryState(gallery, new Date()) !== "online") {
+    await forgetAttempt(db, attempt.id);
+    redirect(`/g/${slug}`);
   }
+  if (!(await checkGalleryPassword(gallery, String(formData.get("password") ?? "")))) return { error: "wrongPassword" };
+  await forgetAttempt(db, attempt.id);
 
   const token = await createGalleryToken(gallerySecret(), gallery, Math.floor(Date.now() / 1000));
   (await cookies()).set(GALLERY_COOKIE, token, {

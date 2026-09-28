@@ -5,7 +5,7 @@ set -euo pipefail
 TARGET="$1"; shift
 case "$TARGET" in
   preview) export PLAYWRIGHT_BASE_URL="https://cosmo-web-preview.felix-vatterodt.workers.dev" ;;
-  prod)    export PLAYWRIGHT_BASE_URL="https://cosmo-web.felix-vatterodt.workers.dev" ;;
+  prod)    export PLAYWRIGHT_BASE_URL="https://cosmo-photos.de" ;;
   *) echo "Ziel muss preview oder prod sein." >&2; exit 1 ;;
 esac
 if [ -f .env.e2e.local ]; then set -a; . ./.env.e2e.local; set +a; fi

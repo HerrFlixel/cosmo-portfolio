@@ -31,6 +31,12 @@
     }
   ],
   "vars": { "ADMIN_USERNAME": "felix" },
+  // Hauptdomain (Plan 6, Task 13): Worker-Routen auf den bestehenden, proxied DNS-Einträgen (keine DNS-Änderung,
+  // Rückweg = Routen entfernen). www leitet im Worker um.
+  "routes": [
+    { "pattern": "cosmo-photos.de/*", "zone_name": "cosmo-photos.de" },
+    { "pattern": "www.cosmo-photos.de/*", "zone_name": "cosmo-photos.de" }
+  ],
   // ZIP-Downloads (Plan 6, Lasttest): ≈ 24 ms CPU pro MiB, ein voller 2-GB-Teil bräuchte ≈ 50 s (Standard: 30 s).
   "limits": { "cpu_ms": 300000 },
   "ratelimits": [

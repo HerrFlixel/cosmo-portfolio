@@ -36,7 +36,7 @@ Ohne `deps:lock` scheitert der Cloudflare-Build.
 
 ## Deployment
 
-- **Produktion:** Jeder Push auf `main` baut und deployt automatisch (Cloudflare Workers Builds, Worker `cosmo-web`).
+- **Produktion:** https://cosmo-photos.de (Worker-Routen; `www` leitet um). Jeder Push auf `main` baut und deployt automatisch (Cloudflare Workers Builds, Worker `cosmo-web`). workers.dev bleibt für Tests erreichbar (`noindex`).
 - **Vorschau:** `npm run deploy:preview` (Worker `cosmo-web-preview`, eigene D1/R2).
 - **Tests gegen Deployments:** `npm run test:e2e:preview` (Vorschau-Passwort in `.env.e2e.local`), `npm run test:e2e:prod` (ohne Login).
 

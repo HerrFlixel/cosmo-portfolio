@@ -45,8 +45,11 @@ for (const motion of ["reduce", "no-preference"] as const) {
     expect(await violations(page), "/ueber-mich").toEqual([]);
 
     await page.goto("/kontakt");
-    const token = page.locator('input[name="turnstile"]');
-    if ((await token.count()) > 0) await expect(token).not.toHaveValue("", { timeout: 20_000 });
+    // Warten, bis Turnstile sein iframe geladen hat (das Token kommt mit echten Schlüsseln erst nach dem Häkchen).
+    if ((await page.locator('input[name="turnstile"]').count()) > 0) {
+      await expect.poll(() => page.frames().some((frame) => frame.url().startsWith("https://challenges.cloudflare.com/")), { timeout: 20_000 }).toBe(true);
+      await page.waitForTimeout(1000);
+    }
     expect(await violations(page), "/kontakt").toEqual([]);
     await context.close();
   });
